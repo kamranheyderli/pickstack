@@ -162,7 +162,13 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 | `eslint` | hamısı | `biome` |
 | `prettier` | hamısı | `biome` |
 | `biome` | hamısı | `eslint`, `prettier` |
-| `husky-lint-staged` | hamısı | tələb: `eslint` və ya `prettier` və ya `biome` |
+| `husky-lint-staged` | hamısı | tələb: `eslint` və ya `prettier` və ya `biome`; ziddiyyət: `turborepo` |
+
+### 5.8.1 Alətlər
+
+| Modul | Uyğun | Ziddiyyət |
+|---|---|---|
+| `turborepo` | hamısı | `husky-lint-staged` |
 
 ### 5.9 Ümumi seçimlər
 
@@ -217,6 +223,15 @@ Sass (`sass` modulu, `sass` 1.108, 2026-11 yoxlanılıb):
 - Qlobal stil faylı `.scss` olur (demo stili Sass dəyişənləri və nesting ilə yazılır), istinad edən yer də yenilənir: entry importu, `nuxt.config` `css`, Astro Layout, `angular.json` `styles`.
 - `sass` (saf JS, Next-in default-u) Angular xaricində hamısına dev dependency kimi əlavə olunur. Vite 8 `sass-embedded`-i, sonra `sass`-ı axtarır. Angular-ın `@angular/build` paketi Sass-ı özü gətirir; `ng new --style=scss` kimi `inlineStyleLanguage: "scss"` və komponent schematic-i qurulur.
 - Tailwind ilə: Tailwind v4 "preprocessor-larla istifadə üçün nəzərdə tutulmayıb" (tailwindcss.com/docs/compatibility). `.scss`-də yazılan Tailwind girişi xətasız build olunur, amma CSS pozulur (utility-lər yaranmır). Ona görə konflikt yox, xəbərdarlıq var: Tailwind faylı `.css` qalır, Sass isə digər stillər üçün quraşdırılır.
+
+Turborepo (`turborepo` modulu, turbo 2.11.13, 2026-11 yoxlanılıb):
+
+- `create-turbo` quruluşu, amma yalnız kök + `apps/web`. Nümunədəki `packages/ui`, `eslint-config` və `typescript-config` iki tətbiq arasında paylaşmaq üçündür. Bizim framework-lər öz tsconfig-lərini genişləndirir, ona görə onlar yazılmır; `packages/*` glob-u gələcək üçün saxlanılır. Bu, `finalize`-dən sonra fayl yerləşməsini dəyişən addımdır (`model.monorepo`), modul mətn yamamır.
+- Kök `package.json`-da `devEngines.packageManager` caret diapazonu ilə yazılır. turbo onsuz işləmir. Dəqiq versiyada npm `EBADDEVENGINES` verir, legacy `packageManager` isə Corepack ilə pnpm-i məcburi dəyişir.
+- Kök `.gitignore`-da `.turbo` olmalıdır, yoxsa turbo öz loglarını hash-ləyir və keş heç vaxt tutmur.
+- `outputs` framework-ə görədir. Next və SvelteKit-də `typecheck` `build`-dən sonra işləyir, çünki ikisi eyni tip fayllarını yazır və paralel işləyəndə yarışır.
+- Strict env rejimi prefikssiz dəyişənləri build-ə ötürmür. SEO ilə Astro/SvelteKit `SITE_URL`-i oxuyur, ona görə `build.env`-ə yazılır.
+- `husky-lint-staged` ilə ziddiyyət: hook-lar git kökündən quraşdırılmalıdır, lint-staged isə tətbiqin alətlərini `apps/web`-də işlətməlidir. Bu kombinasiya ayrıca iş tələb edir.
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 
@@ -397,4 +412,4 @@ Presetlər, URL ilə paylaşma, "ən son versiyalar" rejimi, həftəlik versiya 
 
 - Deploy harada olacaq (Vercel, Cloudflare Pages, Netlify)? Faza 6-dakı API buna görə seçilir.
 - Backend seçimi (Express, Hono, Supabase) generatora əlavə olunsunmu? Hazırda kənarda saxlanılıb.
-- Monorepo şablonu (Turborepo) çıxış variantı kimi lazımdırmı?
+- ~~Monorepo şablonu (Turborepo) çıxış variantı kimi lazımdırmı?~~ `turborepo` modulu kimi əlavə olundu (bax §5.10).

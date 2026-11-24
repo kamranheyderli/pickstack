@@ -22,6 +22,7 @@ import {
   siSvelte,
   siTailwindcss,
   siTestinglibrary,
+  siTurborepo,
   siTypescript,
   siVitest,
   siVuedotjs,
@@ -59,6 +60,7 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   // Official routers without marks of their own ship under their framework's logo.
   "solid-router": siSolid,
   "preact-iso": siPreact,
+  turborepo: siTurborepo,
 };
 
 export const languageIcons: Record<Language, SimpleIcon> = {

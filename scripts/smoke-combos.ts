@@ -69,6 +69,7 @@ export const quickCombos: Combo[] = [
   ...biomeCombos(),
   ...huskyCombos(),
   ...sassCombos(),
+  ...turborepoCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -313,4 +314,31 @@ function sassCombos(): Combo[] {
           { framework, language: "js" as const, modules: ["sass", "tailwind"] },
         ]),
   ]);
+}
+
+/**
+ * Turborepo around every framework: root scripts run the app's build, typecheck, lint and
+ * test through turbo (SEO adds a build-time env var for Astro and SvelteKit).
+ */
+function turborepoCombos(): Combo[] {
+  const all: FrameworkId[] = [
+    "react",
+    "vue",
+    "svelte",
+    "solid",
+    "preact",
+    "next",
+    "nuxt",
+    "sveltekit",
+    "astro",
+    "angular",
+  ];
+  return [
+    ...all.map((framework): Combo => ({
+      framework,
+      language: "ts",
+      modules: ["turborepo", "eslint", "vitest", "seo"],
+    })),
+    { framework: "react", language: "js", modules: ["turborepo"] },
+  ];
 }

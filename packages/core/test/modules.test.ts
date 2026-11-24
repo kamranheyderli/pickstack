@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getFramework, getModule, knownGoodVersion } from "../src";
+import { generate, getFramework, getModule, knownGoodVersion } from "../src";
 import type { FrameworkId, ProjectModel } from "../src";
 import { ctxFor } from "./helpers";
 
@@ -537,5 +537,78 @@ describe("sass", () => {
     );
     expect(model.files.has("src/index.scss")).toBe(false);
     expect(model.warnings.some((w) => w.includes("Tailwind"))).toBe(true);
+  });
+});
+
+describe("turborepo", () => {
+  async function project(
+    framework: FrameworkId,
+    modules: string[],
+    packageManager: "npm" | "pnpm" = "pnpm",
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      modules: ["turborepo", ...modules],
+      packageManager,
+    });
+    if (!result.ok) throw new Error("generation failed");
+    return result.files;
+  }
+  const parse = (files: Map<string, string>, path: string) =>
+    JSON.parse(files.get(path) ?? "{}") as Record<string, unknown>;
+
+  it("moves the app to apps/web and writes the workspace root", async () => {
+    const files = await project("react", ["vitest"]);
+    expect(files.has("apps/web/src/App.tsx")).toBe(true);
+    expect(files.has("src/App.tsx")).toBe(false);
+    expect(parse(files, "apps/web/package.json")["name"]).toBe("web");
+    const root = parse(files, "package.json");
+    expect(root["name"]).toBe("acme");
+    expect(root["scripts"]).toEqual({
+      build: "turbo run build",
+      dev: "turbo run dev",
+      typecheck: "turbo run typecheck",
+      test: "turbo run test",
+    });
+    expect(root["devEngines"]).toEqual({
+      packageManager: { name: "pnpm", version: "^10.0.0" },
+    });
+    expect(files.get("pnpm-workspace.yaml")).toContain('"apps/*"');
+    expect(files.get(".gitignore")).toContain(".turbo");
+    expect(files.has("apps/web/README.md")).toBe(false);
+    expect(files.get("README.md")).toContain("## Monorepo");
+  });
+
+  it("declares npm workspaces in package.json", async () => {
+    const files = await project("react", [], "npm");
+    expect(parse(files, "package.json")["workspaces"]).toEqual([
+      "apps/*",
+      "packages/*",
+    ]);
+    expect(files.has("pnpm-workspace.yaml")).toBe(false);
+  });
+
+  it("caches framework outputs and orders Next's typecheck after build", async () => {
+    const turbo = parse(await project("next", []), "turbo.json") as {
+      tasks: Record<string, Record<string, unknown>>;
+    };
+    expect(turbo.tasks["build"]?.["outputs"]).toEqual([
+      ".next/**",
+      "!.next/cache/**",
+      "!.next/dev/**",
+    ]);
+    expect(turbo.tasks["typecheck"]?.["dependsOn"]).toEqual([
+      "^typecheck",
+      "build",
+    ]);
+  });
+
+  it("passes build-time env vars that strict env mode would drop", async () => {
+    const turbo = parse(await project("astro", ["seo"]), "turbo.json") as {
+      tasks: Record<string, Record<string, unknown>>;
+    };
+    expect(turbo.tasks["build"]?.["env"]).toEqual(["SITE_URL"]);
   });
 });

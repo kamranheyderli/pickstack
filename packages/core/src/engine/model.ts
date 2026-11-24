@@ -18,6 +18,7 @@ export function createModel(): ProjectModel {
     seo: null,
     linter: null,
     formatter: null,
+    monorepo: null,
     testing: null,
     readme: { stack: [], sections: [] },
     warnings: [],

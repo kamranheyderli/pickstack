@@ -32,13 +32,13 @@ async function files(
 
 /**
  * Every module available for the framework, taking the first option in single-select categories.
- * Biome replaces ESLint + Prettier, so it has its own snapshot.
+ * Biome (replaces ESLint + Prettier) and Turborepo (moves every file) have their own snapshots.
  */
 function everything(framework: FrameworkId): string[] {
   const taken = new Set<string>();
   return modules
     .filter((m) => m.frameworks === "all" || m.frameworks.includes(framework))
-    .filter((m) => m.id !== "biome")
+    .filter((m) => m.id !== "biome" && m.id !== "turborepo")
     .filter((m) => {
       if (!singleSelectCategories.has(m.category)) return true;
       if (taken.has(m.category)) return false;
@@ -83,6 +83,15 @@ describe("sass snapshots", () => {
   for (const framework of ["react", "angular"] as const) {
     it(`${framework} with sass (ts)`, async () => {
       const result = await files("ts", ["sass"], framework);
+      expect(Object.fromEntries(result)).toMatchSnapshot();
+    });
+  }
+});
+
+describe("turborepo snapshots", () => {
+  for (const framework of ["react", "next"] as const) {
+    it(`${framework} in a turborepo (ts)`, async () => {
+      const result = await files("ts", ["turborepo", "eslint"], framework);
       expect(Object.fromEntries(result)).toMatchSnapshot();
     });
   }

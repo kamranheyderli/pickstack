@@ -1,4 +1,4 @@
-import type { FrameworkId } from "../types";
+import type { FrameworkId, PackageManager } from "../types";
 
 /**
  * Version sets that were installed and built together (see `pnpm smoke`).
@@ -55,6 +55,7 @@ const shared: VersionSet = {
   // Needs Node.js >=22.22.1 (engines); the generated README says so.
   "lint-staged": "^17.6.2",
   sass: "^1.108.2",
+  turbo: "^2.11.13",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
@@ -168,4 +169,19 @@ export function knownGoodVersion(pkg: string, framework: FrameworkId): string {
   const version = frameworks[framework]?.[pkg] ?? shared[pkg];
   if (!version) throw new UnknownVersionError(pkg, framework);
   return version;
+}
+
+/**
+ * `devEngines.packageManager.version` for a Turborepo root. turbo requires a range within one
+ * major, and npm enforces it on install, so a caret range of the tested major is used.
+ */
+const packageManagerRanges: Record<PackageManager, string> = {
+  npm: "^11.0.0",
+  pnpm: "^10.0.0",
+  yarn: "^1.22.0",
+  bun: "^1.2.0",
+};
+
+export function packageManagerRange(pm: PackageManager): string {
+  return packageManagerRanges[pm];
 }

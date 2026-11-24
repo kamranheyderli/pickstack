@@ -1,6 +1,7 @@
 import { knownGoodVersion } from "../versions/known-good";
 import type { Ctx, PackageManager, ProjectModel } from "../types";
 import { file, json, sortRecord } from "./code";
+import { APP_NAME, writeTurborepo } from "./monorepo";
 
 const commands: Record<
   PackageManager,
@@ -20,7 +21,10 @@ export function installCommand(pm: PackageManager): string {
   return commands[pm].install;
 }
 
-/** Writes package.json, README and .gitignore from the model. */
+/**
+ * Writes package.json, README and .gitignore from the model. With a monorepo, the app moves
+ * to `apps/web` and the workspace root (with the README) is written around it.
+ */
 export function finalize(model: ProjectModel, ctx: Ctx): void {
   const { framework } = ctx.selection;
   const withVersions = (names: Set<string>) =>
@@ -33,7 +37,7 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
   model.files.set(
     "package.json",
     json({
-      name: ctx.selection.name,
+      name: model.monorepo ? APP_NAME : ctx.selection.name,
       private: true,
       version: "0.1.0",
       type: "module",
@@ -57,12 +61,24 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
       ".DS_Store",
     ]),
   );
-  model.files.set("README.md", readme(model, ctx));
+  if (model.monorepo) {
+    const rootScripts = writeTurborepo(model, ctx, model.monorepo);
+    model.readme.sections.unshift({
+      title: "Monorepo",
+      body: `This is a Turborepo workspace: the app lives in \`apps/${APP_NAME}\` and \`packages/\` is ready for shared code. Root scripts run the app's tasks through turbo, which caches their results.`,
+    });
+    model.files.set("README.md", readme(model, ctx, rootScripts));
+    return;
+  }
+  model.files.set(
+    "README.md",
+    readme(model, ctx, Object.keys(model.pkg.scripts)),
+  );
 }
 
-function readme(model: ProjectModel, ctx: Ctx): string {
+function readme(model: ProjectModel, ctx: Ctx, scriptNames: string[]): string {
   const { name, packageManager: pm } = ctx.selection;
-  const scripts = Object.keys(model.pkg.scripts).filter((s) => s !== "dev");
+  const scripts = scriptNames.filter((s) => s !== "dev");
   return file([
     `# ${name}`,
     "",

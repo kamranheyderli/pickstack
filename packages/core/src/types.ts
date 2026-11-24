@@ -150,6 +150,19 @@ export interface TestingSpec {
   setupFiles: string[];
 }
 
+/**
+ * Set by the `turborepo` module. `finalize` then moves the app to `apps/web` and writes the
+ * workspace root around it.
+ */
+export interface MonorepoSpec {
+  /** Build outputs turbo caches, e.g. `dist/**` or `.next/**`. */
+  outputs: string[];
+  /** Run typecheck after build (Next and SvelteKit generate types during the build). */
+  typecheckAfterBuild: boolean;
+  /** Non-prefixed variables read at build time; strict env mode drops the rest. */
+  buildEnv: string[];
+}
+
 export interface ProjectModel {
   files: Map<string, string>;
   pkg: {
@@ -198,6 +211,7 @@ export interface ProjectModel {
    * since Prettier and Biome differ on inline text.
    */
   formatter: "prettier" | "biome" | null;
+  monorepo: MonorepoSpec | null;
   testing: TestingSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];
