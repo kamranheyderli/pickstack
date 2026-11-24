@@ -1,0 +1,341 @@
+# StackForge: frontend layihə generatoru
+
+> Layihə adı müvəqqətidir, istədiyin kimi dəyişə bilərsən.
+> İlkin prototip: `docs/reference/prototype.html` (yalnız React, tək HTML faylı). Bu sənəd həmin prototipi tam məhsula çevirmək üçün plandır.
+
+## 1. Məqsəd
+
+İstifadəçi brauzerdə framework və alətləri seçir (React, Vue, Svelte, Next.js, Tailwind, Redux, Pinia, TanStack Query və s.), generator isə dərhal işləyən, build olunan layihə yaradır. Nəticə zip kimi yüklənir, sonrakı mərhələdə birbaşa GitHub repo kimi yaradılır, ən sonda isə eyni mühərrik `npx stackforge` CLI kimi də işləyir.
+
+Əsas keyfiyyət tələbi: **yaradılan hər kombinasiya `install`, `build`, `typecheck` və `lint`-dən keçməlidir.** Keçməyən kombinasiyanı UI ümumiyyətlə seçməyə imkan verməməlidir.
+
+## 2. Texniki seçimlər
+
+| Sahə | Seçim | Səbəb |
+|---|---|---|
+| Monorepo | pnpm workspaces | core, web və cli eyni kodu paylaşır |
+| Dil | TypeScript (strict) | modul müqavilələri tiplərlə qorunur |
+| Web app | React + Vite + Tailwind | prototiplə eyni yanaşma |
+| Kod görünüşü | Shiki | sintaksis rəngləmə |
+| Zip | JSZip | tam client-side |
+| Test | Vitest (unit + snapshot) | sürətli, Vite ilə uyğun |
+| Smoke test | Node skripti + GitHub Actions | real install/build yoxlaması |
+| CLI | @clack/prompts | sadə interaktiv suallar |
+| GitHub export | Serverless funksiya (Vercel və ya Cloudflare) | OAuth token client-də saxlanmır |
+
+## 3. Qovluq strukturu
+
+```
+stackforge/
+├─ CLAUDE.md
+├─ pnpm-workspace.yaml
+├─ docs/
+│  ├─ SPEC.md
+│  └─ reference/prototype.html
+├─ packages/
+│  ├─ core/                     # generator mühərriki (UI-dan asılı deyil)
+│  │  ├─ src/
+│  │  │  ├─ types.ts
+│  │  │  ├─ engine/
+│  │  │  │  ├─ validate.ts      # uyğunluq və ziddiyyət yoxlaması
+│  │  │  │  ├─ resolve.ts       # requires-ları avtomatik əlavə, sıralama
+│  │  │  │  └─ generate.ts      # əsas pipeline
+│  │  │  ├─ frameworks/
+│  │  │  │  └─ <id>/adapter.ts + templates/
+│  │  │  ├─ modules/
+│  │  │  │  └─ <kateqoriya>/<id>.ts
+│  │  │  ├─ versions/known-good.ts
+│  │  │  └─ output/zip.ts
+│  │  └─ test/
+│  └─ cli/                      # Faza 7
+├─ apps/
+│  ├─ web/                      # seçim UI-ı
+│  └─ api/                      # Faza 6: GitHub OAuth + repo yaratma
+└─ scripts/
+   └─ smoke.ts                  # kombinasiyaları real build edir
+```
+
+## 4. Dəstəklənən frameworklər
+
+| id | Ad | Növ | Bundler | Dil |
+|---|---|---|---|---|
+| `react` | React | SPA | Vite | JS, TS |
+| `vue` | Vue 3 | SPA | Vite | JS, TS |
+| `svelte` | Svelte 5 | SPA | Vite | JS, TS |
+| `solid` | SolidJS | SPA | Vite | JS, TS |
+| `preact` | Preact | SPA | Vite | JS, TS |
+| `angular` | Angular | SPA | Angular CLI | yalnız TS |
+| `next` | Next.js (App Router) | meta | Next | JS, TS |
+| `nuxt` | Nuxt | meta | Nuxt | JS, TS |
+| `sveltekit` | SvelteKit | meta | Vite | JS, TS |
+| `astro` | Astro | meta | Astro | JS, TS |
+
+Qeyd: Angular digərlərindən fərqli build sisteminə malikdir (`angular.json`, öz builder-i). Ona görə ayrıca fazada edilir. Meta-frameworklərdə routing daxilidir (fayl əsaslı), ona görə routing modulları onlarda gizlədilir.
+
+## 5. Modul kataloqu və uyğunluq matrisi
+
+Matris başlanğıc nöqtəsidir. Hər sətri əlavə edərkən rəsmi sənədlərdən yoxla, çünki ekosistemlər tez dəyişir. Şübhəli olanlar `(yoxla)` ilə işarələnib.
+
+Qısaltmalar: R=react, V=vue, S=svelte, So=solid, P=preact, A=angular, N=next, Nu=nuxt, SK=sveltekit, As=astro.
+
+### 5.1 Stil
+
+| Modul | Uyğun | Tələb | Ziddiyyət |
+|---|---|---|---|
+| `tailwind` | hamısı | | `unocss` |
+| `unocss` | R, V, S, So, P, SK, As, Nu | | `tailwind` |
+| `sass` | hamısı | | |
+| `css-modules` | R, P, So, N, As | | |
+
+Tailwind v4 Vite layihələrində `@tailwindcss/vite` plugini ilə, Next-də PostCSS ilə, Angular-da PostCSS ilə qurulur (yoxla).
+
+### 5.2 UI kitabxanaları
+
+| Modul | Uyğun | Tələb | Ziddiyyət |
+|---|---|---|---|
+| `shadcn` | R, N | `tailwind`, `ts` | digər UI kitləri |
+| `mantine` | R, N | | digər UI kitləri |
+| `mui` | R, N | | digər UI kitləri |
+| `shadcn-vue` | V, Nu | `tailwind`, `ts` (yoxla) | digər UI kitləri |
+| `primevue` | V, Nu | | digər UI kitləri |
+| `vuetify` | V, Nu | | `tailwind` (tövsiyə olunmur, xəbərdarlıq ver) |
+| `shadcn-svelte` | S, SK | `tailwind` | digər UI kitləri |
+| `angular-material` | A | | |
+
+UI kitləri qarşılıqlı ziddiyyətlidir: kateqoriya `single` seçimlidir.
+
+### 5.3 State idarəsi
+
+| Modul | Uyğun | Qeyd |
+|---|---|---|
+| `redux-toolkit` | R, N | Provider bürüyücüsü |
+| `zustand` | R, N | Provider yoxdur |
+| `jotai` | R, N | |
+| `pinia` | V, Nu | `app.use(createPinia())`, Nuxt-da `@pinia/nuxt` |
+| `ngrx` | A | (yoxla: standalone API) |
+| `builtin` | S, So, SK, A | Svelte runes, Solid stores, Angular signals: paket yoxdur, nümunə kod əlavə olunur |
+
+Kateqoriya `single` seçimlidir.
+
+### 5.4 Routing (yalnız SPA-lar)
+
+| Modul | Uyğun |
+|---|---|
+| `react-router` | R (v8: paket `react-router`; `react-router-dom` v7-də qalıb) |
+| `tanstack-router` | R |
+| `vue-router` | V |
+| `solid-router` | So |
+| `preact-iso` | P |
+| `angular-router` | A (daxili, həmişə aktiv) |
+
+Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa SvelteKit seç" ipucu göstər.
+
+### 5.5 Data alma
+
+| Modul | Uyğun |
+|---|---|
+| `tanstack-query` | R, V, S, So, N, Nu, SK (Angular adapteri: yoxla) |
+| `swr` | R, N |
+| `axios` | hamısı |
+
+### 5.6 Formlar və validasiya
+
+| Modul | Uyğun |
+|---|---|
+| `zod` | hamısı |
+| `react-hook-form` | R, N |
+| `vee-validate` | V, Nu |
+| `superforms` | SK (tələb: `zod`) |
+
+### 5.7 Test
+
+| Modul | Uyğun |
+|---|---|
+| `vitest` | Angular xaricində hamısı (Angular dəstəyi: yoxla) |
+| `testing-library` | R, V, S, So, P, N (tələb: `vitest`) |
+| `playwright` | hamısı |
+
+### 5.8 Kod keyfiyyəti
+
+| Modul | Uyğun | Ziddiyyət |
+|---|---|---|
+| `eslint` | hamısı | `biome` |
+| `prettier` | hamısı | `biome` |
+| `biome` | hamısı | `eslint`, `prettier` |
+| `husky-lint-staged` | hamısı | tələb: `eslint` və ya `prettier` və ya `biome` |
+
+### 5.9 Ümumi seçimlər
+
+Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı, lisenziya faylı (MIT və ya yox), `.editorconfig`, GitHub Actions CI faylı (lint + build).
+
+## 6. Mühərrik dizaynı
+
+### 6.1 Əsas tiplər
+
+```ts
+export type FrameworkId =
+  | "react" | "vue" | "svelte" | "solid" | "preact" | "angular"
+  | "next" | "nuxt" | "sveltekit" | "astro";
+
+export type Language = "js" | "ts";
+export type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
+
+export interface Selection {
+  name: string;
+  framework: FrameworkId;
+  language: Language;
+  packageManager: PackageManager;
+  modules: string[];            // modul id-ləri
+}
+
+export interface Ctx {
+  selection: Selection;
+  has(moduleId: string): boolean;
+  ext: { script: "js" | "ts"; component: string }; // məs. jsx/tsx, vue, svelte
+}
+
+// Framework-dən asılı olmayan aralıq model.
+// Modullar faylları birbaşa string kimi yamamır, bu modeli dəyişir.
+export interface ProjectModel {
+  files: Map<string, string>;
+  pkg: {
+    dependencies: Set<string>;     // yalnız ad; versiya sonra həll olunur
+    devDependencies: Set<string>;
+    scripts: Record<string, string>;
+  };
+  entry: {
+    imports: ImportSpec[];
+    providers: ProviderSpec[];      // React/Preact/Solid: JSX bürüyücü
+    appUses: string[];              // Vue: app.use(...)
+    setup: string[];                // entry-də əlavə kod sətirləri
+  };
+  bundler: { plugins: ImportedCall[] };  // vite.config, nuxt.config modules və s.
+  styles: { globalImports: string[]; globalCss: string[] };
+  routes: RouteSpec[];              // demo səhifələr
+  readme: { stack: string[]; sections: { title: string; body: string }[] };
+  warnings: string[];
+}
+
+export interface Module {
+  id: string;
+  name: string;
+  category: Category;
+  description: string;           // UI-da göstərilir (az/en)
+  frameworks: FrameworkId[] | "all";
+  languages?: Language[];
+  requires?: string[];
+  conflicts?: string[];
+  order?: number;                // provider sırası kimi şeylər üçün
+  apply(model: ProjectModel, ctx: Ctx): void;
+}
+
+export interface FrameworkAdapter {
+  id: FrameworkId;
+  name: string;
+  kind: "spa" | "meta";
+  languages: Language[];
+  base(ctx: Ctx): ProjectModel;                  // əsas fayllar və paketlər
+  render(model: ProjectModel, ctx: Ctx): void;   // entry, config fayllarını modeldən yazır
+}
+```
+
+### 6.2 Pipeline
+
+1. **validate**: framework, dil və modul uyğunluğunu yoxla. Səhv olanda aydın mesaj qaytar (`{ ok: false, errors: [...] }`).
+2. **resolve**: `requires` olanları avtomatik əlavə et, ziddiyyəti yoxla, modulları `order` və asılılığa görə topoloji sırala.
+3. **base**: framework adapteri boş modeli yaradır.
+4. **apply**: hər modul modeli dəyişir.
+5. **render**: adapter entry faylını (`main.tsx`, `main.ts`, `app.config.ts` və s.), bundler konfiqini və qlobal CSS-i modeldən yazır.
+6. **versions**: paket adlarına versiya təyin et (bax 6.3).
+7. **finalize**: `package.json`, README, `.gitignore`, paket menecerinə görə əmrlər.
+8. **format**: (istəyə görə) `prettier/standalone` ilə bütün faylları formatla.
+9. **output**: `Map<path, content>` qaytar. Zip, GitHub və CLI bunu istehlak edir.
+
+`ProjectModel` Faza 1-də bu sahələrlə genişləndirildi: `styles.mode` (`"plain" | "tailwind"`, demo komponentlərin class-larını seçir), `routing` (link komponenti və route outlet-i; routing modulu doldurur), `demo.counter` (sayğac state-i; state modulu doldurur, boş qalsa adapter lokal state istifadə edir). Bunlar sayəsində state və routing modulları `App`/`Counter` fayllarını yamamadan demo kodunu dəyişir. Format addımı default olaraq aktivdir.
+
+Əsas qayda: **modullar heç vaxt başqa modulun yaratdığı faylı mətn axtar-dəyiş ilə yamamamalıdır.** Paylaşılan fayllar (entry, config) yalnız adapterin `render` mərhələsində modeldən yazılır. Bu, kombinasiya sayı artdıqca sistemin çökməməsinin əsas şərtidir.
+
+### 6.3 Versiyalar
+
+`versions/known-good.ts` hər framework üçün birlikdə test olunmuş versiya dəstlərini saxlayır (məs. Next + React + React DOM birlikdə). Default olaraq bunlar istifadə olunur. Versiyalar heç bir başqa faylda hardcode edilməməlidir.
+
+UI-da əlavə olaraq "Ən son versiyalar (eksperimental)" seçimi olur: `https://registry.npmjs.org/<paket>/latest` ilə son versiyanı çəkir, 24 saatlıq yaddaşda saxlayır, alınmasa known-good dəstinə qayıdır.
+
+Həftəlik GitHub Actions işi: known-good dəstlərini son versiyalara qaldırır, smoke testi işlədir, keçərsə avtomatik PR açır.
+
+### 6.4 Şablonlar
+
+Böyük, az dəyişən fayllar `frameworks/<id>/templates/` altında ayrıca fayl kimi saxlanır. Hər şablon mətni `export default` ilə qaytaran `.ts` modulu olur (məs. `templates/plain-css.ts`). Sadə dəyişənlər üçün yalnız `{{name}}` tipli əvəzetmə istifadə olunur, şablon dili əlavə etmirik. Şərti məntiq şablonda yox, TypeScript kodunda olur.
+
+> Dəyişiklik (Faza 1): əvvəlcə `import.meta.glob(..., { query: "?raw" })` planlanmışdı. Bu yalnız Vite altında işləyir, `core` isə smoke skriptində və CLI-da bundler olmadan Node-da da işləməlidir. `.ts` mətn modulları hər üç mühitdə eyni işləyir.
+
+## 7. Web app (apps/web)
+
+Prototipdəki quruluş saxlanılır: solda seçimlər, sağda fayl ağacı və kod.
+
+Funksiyalar:
+
+- Framework seçimi ən yuxarıda; dəyişəndə uyğun olmayan modullar avtomatik çıxarılır və istifadəçiyə qısa bildiriş göstərilir.
+- Uyğun olmayan seçimlər deaktiv görünür, üzərinə gələndə səbəbi yazılır ("shadcn/ui Tailwind tələb edir").
+- `requires` ilə avtomatik əlavə olunan modullar ayrıca işarələnir.
+- Fayl ağacı, Shiki ilə rənglənmiş kod görünüşü, dəyişən faylların işıqlanması (prototipdə olduğu kimi).
+- Hazır presetlər: "React + Tailwind + Redux", "Vue + Pinia + Vue Router", "Next.js + shadcn", "SvelteKit + Tailwind" və s.
+- Seçim URL-in hash hissəsində saxlanır, link paylaşmaq mümkün olur.
+- Zip yükləmə; Faza 6-dan sonra "GitHub-da repo yarat" düyməsi.
+- İnterfeys dili: Azərbaycan və İngilis (sadə JSON lüğət).
+- İşıqlı və qaranlıq rejim, klaviatura ilə tam idarə, mobil uyğunluq.
+
+## 8. Testlər
+
+**Unit**: hər modulun `apply` funksiyası modeli düzgün dəyişir.
+
+**Validasiya**: matrisdəki hər qayda üçün test (uyğun olmayan seçim rədd edilir, `requires` əlavə olunur, ziddiyyət tutulur).
+
+**Snapshot**: hər framework üçün minimal və "hər şey seçilib" kombinasiyalarının fayl ağacı və əsas faylları snapshot ilə yoxlanır.
+
+**Smoke (`scripts/smoke.ts`)**: kombinasiyaları real olaraq yaradır, müvəqqəti qovluğa yazır, `pnpm install`, `build`, `typecheck` (TS-də), `lint` (seçilibsə) işlədir. Kombinasiya sayı çox olduğu üçün pairwise (cüt-cüt əhatə) seçimi istifadə olunur: hər iki modul cütü ən azı bir dəfə birlikdə yoxlanır. PR-larda kiçik dəst, gecə işində tam pairwise dəst işləyir.
+
+## 9. GitHub export (apps/api)
+
+1. İstifadəçi "GitHub ilə daxil ol" düyməsini basır, GitHub OAuth App axını başlayır.
+2. Serverless funksiya `code`-u access token-ə dəyişir; token qısa müddətli httpOnly cookie-də saxlanır, client JS-ə verilmir.
+3. Repo yaratma: `POST /user/repos`, sonra Git Data API ilə blob-lar, tree, commit yaradılır və `refs/heads/main` yenilənir (bütün fayllar bir commit-də).
+4. Scope: yalnız lazım olan (`public_repo`, private repo seçilərsə `repo`).
+5. Rate limit və xəta halları istifadəçiyə aydın göstərilir; repo adı artıq mövcuddursa təklif verilir.
+
+## 10. CLI (packages/cli)
+
+`npx stackforge` interaktiv suallar verir (framework, dil, modullar), `--preset next-shadcn` və ya `--config ./stack.json` ilə qeyri-interaktiv işləyir, eyni `core` paketini istifadə edir, faylları diskə yazır və istəyə görə `git init` + install edir.
+
+## 11. Fazalar və qəbul meyarları
+
+### Faza 1: Təməl
+Monorepo, `core` tipləri, validate/resolve/generate pipeline, React adapteri, prototipdəki bütün React modulları yeni arxitekturaya köçürülür. Web app prototipin funksionallığına çatır.
+Qəbul: React kombinasiyaları smoke testdən keçir, `pnpm test` yaşıldır.
+
+### Faza 2: Vite SPA-lar
+Vue, Svelte, Solid, Preact adapterləri; Pinia, Vue Router, Solid Router, preact-iso; hər framework üçün Tailwind, Sass, Vitest, ESLint/Prettier/Biome.
+Qəbul: hər framework üçün ən azı 5 kombinasiya build olur.
+
+### Faza 3: Meta-frameworklər
+Next.js, Nuxt, SvelteKit, Astro. Routing modulları bunlarda gizlənir, demo səhifələr fayl əsaslı routing ilə yaradılır.
+Qəbul: eyni.
+
+### Faza 4: Angular
+Ayrı adapter, `angular.json`, standalone komponentlər, Angular Material, NgRx.
+Qəbul: `ng build` keçir.
+
+### Faza 5: UX və versiyalar
+Presetlər, URL ilə paylaşma, "ən son versiyalar" rejimi, həftəlik versiya yeniləmə işi, UI kitləri (shadcn, Mantine, MUI, PrimeVue, Vuetify, shadcn-svelte).
+
+### Faza 6: GitHub export
+`apps/api`, OAuth, repo yaratma.
+
+### Faza 7: CLI
+`packages/cli`, npm-də dərc.
+
+## 12. Hələ açıq olan suallar
+
+- Deploy harada olacaq (Vercel, Cloudflare Pages, Netlify)? Faza 6-dakı API buna görə seçilir.
+- Backend seçimi (Express, Hono, Supabase) generatora əlavə olunsunmu? Hazırda kənarda saxlanılıb.
+- Monorepo şablonu (Turborepo) çıxış variantı kimi lazımdırmı?

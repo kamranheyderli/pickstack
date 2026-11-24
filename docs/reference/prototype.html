@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>React layihə yığıcı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{
+  --bg:#E9EEEA;--panel:#F7F9F7;--ink:#1C2624;--muted:#5A6A66;--line:#C9D3CF;
+  --accent:#2E6B57;--accent-ink:#FFFFFF;--code-bg:#1F2A28;--code-ink:#DDE7E3;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121816;--panel:#1A2220;--ink:#E2EBE7;--muted:#93A5A0;--line:#2C3835;
+    --accent:#7CC4A8;--accent-ink:#0F1513;--code-bg:#0D1211;--code-ink:#D5E2DD;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121816;--panel:#1A2220;--ink:#E2EBE7;--muted:#93A5A0;--line:#2C3835;
+  --accent:#7CC4A8;--accent-ink:#0F1513;--code-bg:#0D1211;--code-ink:#D5E2DD;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding:2.5rem 1.25rem 3rem}
+header h1{font-size:clamp(2.2rem,5.5vw,3.6rem);font-weight:800;letter-spacing:-0.025em;line-height:1.02;margin:0 0 .6rem}
+header p{color:var(--muted);margin:0;max-width:56ch;font-size:1.1rem}
+.layout{display:grid;gap:1.5rem;margin-top:2rem}
+@media (min-width:900px){.layout{grid-template-columns:minmax(300px,370px) minmax(0,1fr);align-items:start}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem}
+fieldset{border:0;margin:0 0 1.2rem;padding:0;min-width:0}
+legend{font-weight:600;margin-bottom:.45rem;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-block;padding:.42rem .85rem;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-size:.95rem;user-select:none;transition:background .15s,color .15s}
+.chip input:checked + span{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+input[type=text]{width:100%;padding:.6rem .75rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hint{font-size:.85rem;color:var(--muted);margin:.35rem 0 0}
+.download{width:100%;padding:.85rem;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer}
+.download:disabled{opacity:.6;cursor:progress}
+.download:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.status{min-height:1.4em;font-size:.9rem;color:var(--muted);margin:.6rem 0 0}
+.preview{display:grid;overflow:hidden;padding:0}
+@media (min-width:640px){.preview{grid-template-columns:230px minmax(0,1fr)}}
+.tree{border-bottom:1px solid var(--line);padding:.9rem .5rem;font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;overflow-x:auto}
+@media (min-width:640px){.tree{border-bottom:0;border-right:1px solid var(--line)}}
+.tree .root{font-weight:600;padding:.2rem .5rem .5rem;color:var(--accent)}
+.tree .dir{color:var(--muted);padding:.55rem .5rem .15rem}
+.tree button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:inherit;padding:.28rem .5rem;border-radius:6px;cursor:pointer;white-space:nowrap}
+.tree button:hover{background:var(--bg)}
+.tree button[aria-current="true"]{background:var(--bg);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.tree button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tree button.new{animation:flash 1.4s ease-out}
+@keyframes flash{from{background:color-mix(in srgb,var(--accent) 40%,transparent)}to{background:transparent}}
+@media (prefers-reduced-motion: reduce){.tree button.new{animation:none}.chip span{transition:none}}
+.code{min-width:0;display:flex;flex-direction:column}
+.code-head{padding:.7rem 1rem;border-bottom:1px solid var(--line);font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;display:flex;justify-content:space-between;gap:1rem;color:var(--muted)}
+.code-head strong{color:var(--ink);font-weight:600}
+pre{margin:0;padding:1rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;line-height:1.65;min-height:440px;max-height:72vh;tab-size:2}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>React layihə yığıcı</h1>
+    <p>Alətləri seç, faylların necə dəyişdiyinə bax və hazır layihəni zip kimi yüklə.</p>
+  </header>
+
+  <div class="layout">
+    <form class="panel" id="form" onsubmit="return false">
+      <fieldset>
+        <legend><label for="projName">Layihə adı</label></legend>
+        <input type="text" id="projName" value="my-app" autocomplete="off" spellcheck="false">
+        <p class="hint" id="nameHint">Qovluq adı: my-app</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Dil</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="lang" value="js" checked><span>JavaScript</span></label>
+          <label class="chip"><input type="radio" name="lang" value="ts"><span>TypeScript</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Stil</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="style" value="tailwind" checked><span>Tailwind CSS</span></label>
+          <label class="chip"><input type="radio" name="style" value="css"><span>Sadə CSS</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>State idarəsi</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="state" value="none"><span>Yoxdur</span></label>
+          <label class="chip"><input type="radio" name="state" value="redux" checked><span>Redux Toolkit</span></label>
+          <label class="chip"><input type="radio" name="state" value="zustand"><span>Zustand</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Routing</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="router" value="no"><span>Yoxdur</span></label>
+          <label class="chip"><input type="radio" name="router" value="yes" checked><span>React Router</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Əlavələr</legend>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" id="axios"><span>Axios</span></label>
+          <label class="chip"><input type="checkbox" id="prettier" checked><span>Prettier</span></label>
+        </div>
+      </fieldset>
+
+      <button type="button" class="download" id="dl">ZIP kimi yüklə</button>
+      <p class="status" id="status" role="status" aria-live="polite">Zip içindəki README-də npm və GitHub-a push əmrləri var.</p>
+    </form>
+
+    <section class="panel preview" aria-label="Layihə faylları">
+      <nav class="tree" id="tree" aria-label="Fayl ağacı"></nav>
+      <div class="code">
+        <div class="code-head"><strong id="curPath"></strong><span id="curMeta"></span></div>
+        <pre id="code"></pre>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const V = {
+  react: "^19.1.0", "react-dom": "^19.1.0",
+  vite: "^6.3.5", "@vitejs/plugin-react": "^4.4.1",
+  tailwindcss: "^4.1.0", "@tailwindcss/vite": "^4.1.0",
+  "@reduxjs/toolkit": "^2.8.0", "react-redux": "^9.2.0",
+  zustand: "^5.0.5", "react-router-dom": "^7.6.0",
+  axios: "^1.9.0", prettier: "^3.5.3",
+  typescript: "^5.8.3", "@types/react": "^19.1.0", "@types/react-dom": "^19.1.0"
+};
+
+function slug(s){
+  const v = String(s).toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").replace(/-{2,}/g, "-");
+  return v || "my-app";
+}
+function pick(obj, keys){ const o = {}; keys.forEach(k => o[k] = V[k]); return o; }
+function sortObj(o){ return Object.fromEntries(Object.entries(o).sort(([a],[b]) => a.localeCompare(b))); }
+function wrap(lines, open, close){ return [open, ...lines.map(l => "  " + l), close]; }
+
+function readConfig(){
+  const f = document.getElementById("form");
+  const get = n => f.querySelector('input[name="' + n + '"]:checked').value;
+  return {
+    name: slug(document.getElementById("projName").value),
+    ts: get("lang") === "ts",
+    tw: get("style") === "tailwind",
+    state: get("state"),
+    router: get("router") === "yes",
+    axios: document.getElementById("axios").checked,
+    prettier: document.getElementById("prettier").checked
+  };
+}
+
+function generate(c){
+  const x = c.ts ? "tsx" : "jsx", m = c.ts ? "ts" : "js";
+  const k = (a, b) => c.tw ? a : b;
+  const files = {};
+
+  // package.json
+  const deps = pick({}, ["react", "react-dom"]);
+  const dev = pick({}, ["vite", "@vitejs/plugin-react"]);
+  if (c.tw) Object.assign(dev, pick({}, ["tailwindcss", "@tailwindcss/vite"]));
+  if (c.state === "redux") Object.assign(deps, pick({}, ["@reduxjs/toolkit", "react-redux"]));
+  if (c.state === "zustand") Object.assign(deps, pick({}, ["zustand"]));
+  if (c.router) Object.assign(deps, pick({}, ["react-router-dom"]));
+  if (c.axios) Object.assign(deps, pick({}, ["axios"]));
+  if (c.prettier) Object.assign(dev, pick({}, ["prettier"]));
+  if (c.ts) Object.assign(dev, pick({}, ["typescript", "@types/react", "@types/react-dom"]));
+  const scripts = { dev: "vite", build: c.ts ? "tsc --noEmit && vite build" : "vite build", preview: "vite preview" };
+  if (c.prettier) scripts.format = "prettier --write .";
+  files["package.json"] = JSON.stringify({
+    name: c.name, private: true, version: "0.1.0", type: "module",
+    scripts, dependencies: sortObj(deps), devDependencies: sortObj(dev)
+  }, null, 2) + "\n";
+
+  // index.html
+  files["index.html"] = [
+    "<!doctype html>",
+    '<html lang="en">',
+    "  <head>",
+    '    <meta charset="UTF-8" />',
+    '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+    "    <title>" + c.name + "</title>",
+    "  </head>",
+    "  <body>",
+    '    <div id="root"></div>',
+    '    <script type="module" src="/src/main.' + x + '"><\/script>',
+    "  </body>",
+    "</html>", ""
+  ].join("\n");
+
+  // vite.config
+  files["vite.config." + m] = [
+    'import { defineConfig } from "vite";',
+    'import react from "@vitejs/plugin-react";',
+    ...(c.tw ? ['import tailwindcss from "@tailwindcss/vite";'] : []),
+    "",
+    "export default defineConfig({",
+    "  plugins: [react()" + (c.tw ? ", tailwindcss()" : "") + "],",
+    "});", ""
+  ].join("\n");
+
+  // tsconfig
+  if (c.ts) {
+    files["tsconfig.json"] = JSON.stringify({
+      compilerOptions: {
+        target: "ES2022", lib: ["ES2022", "DOM", "DOM.Iterable"], module: "ESNext",
+        moduleResolution: "bundler", jsx: "react-jsx", strict: true, noEmit: true,
+        skipLibCheck: true, isolatedModules: true, types: ["vite/client"]
+      },
+      include: ["src", "vite.config.ts"]
+    }, null, 2) + "\n";
+  }
+
+  // main
+  let tree = ["<App />"];
+  if (c.router) tree = wrap(tree, "<BrowserRouter>", "</BrowserRouter>");
+  if (c.state === "redux") tree = wrap(tree, "<Provider store={store}>", "</Provider>");
+  tree = wrap(tree, "<StrictMode>", "</StrictMode>");
+  files["src/main." + x] = [
+    'import { StrictMode } from "react";',
+    'import { createRoot } from "react-dom/client";',
+    ...(c.state === "redux" ? ['import { Provider } from "react-redux";', 'import { store } from "./store";'] : []),
+    ...(c.router ? ['import { BrowserRouter } from "react-router-dom";'] : []),
+    'import App from "./App";',
+    'import "./index.css";',
+    "",
+    'createRoot(document.getElementById("root")' + (c.ts ? "!" : "") + ").render(",
+    ...tree.map(l => "  " + l),
+    ");", ""
+  ].join("\n");
+
+  // css
+  files["src/index.css"] = c.tw ? '@import "tailwindcss";\n' : [
+    ":root {", "  font-family: system-ui, sans-serif;", "  color: #0f172a;", "  background: #f8fafc;", "}",
+    "body {", "  margin: 0;", "}",
+    ".app {", "  min-height: 100vh;", "  display: flex;", "  flex-direction: column;", "  align-items: center;", "  justify-content: center;", "  gap: 2rem;", "  padding: 2rem;", "  box-sizing: border-box;", "}",
+    ".title {", "  font-size: 1.875rem;", "  margin: 0;", "}",
+    ".nav {", "  display: flex;", "  gap: 1rem;", "}",
+    ".link {", "  color: #475569;", "  text-decoration: none;", "  font-weight: 500;", "}",
+    ".link:hover {", "  color: #0f172a;", "}",
+    ".page {", "  display: flex;", "  flex-direction: column;", "  align-items: center;", "  gap: 1.5rem;", "}",
+    ".text {", "  max-width: 28rem;", "  text-align: center;", "  color: #475569;", "}",
+    ".card {", "  background: #fff;", "  padding: 2rem;", "  border-radius: 1rem;", "  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);", "  text-align: center;", "}",
+    ".count {", "  font-size: 3rem;", "  font-weight: 700;", "  margin: 0;", "  font-variant-numeric: tabular-nums;", "}",
+    ".row {", "  margin-top: 1.5rem;", "  display: flex;", "  justify-content: center;", "  gap: 0.75rem;", "}",
+    ".btn {", "  background: #0f172a;", "  color: #fff;", "  border: 0;", "  border-radius: 0.5rem;", "  padding: 0.5rem 1rem;", "  font: inherit;", "  cursor: pointer;", "}",
+    ".btn:hover {", "  background: #334155;", "}", ""
+  ].join("\n");
+
+  const cls = {
+    main: k("flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900", "app"),
+    title: k("text-3xl font-bold tracking-tight", "title"),
+    nav: k("flex gap-4 text-sm font-medium", "nav"),
+    link: k("text-slate-600 hover:text-slate-900", "link"),
+    page: k("flex flex-col items-center gap-6", "page"),
+    text: k("max-w-md text-center text-slate-600", "text"),
+    card: k("rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200", "card"),
+    count: k("text-5xl font-bold tabular-nums", "count"),
+    row: k("mt-6 flex justify-center gap-3", "row"),
+    btn: k("rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700", "btn")
+  };
+
+  // store
+  let imports = [], hooks = [], inc, dec;
+  if (c.state === "redux") {
+    files["src/store/index." + m] = [
+      'import { configureStore } from "@reduxjs/toolkit";',
+      'import counterReducer from "./counterSlice";',
+      "",
+      "export const store = configureStore({",
+      "  reducer: {",
+      "    counter: counterReducer,",
+      "  },",
+      "});",
+      ...(c.ts ? ["", "export type RootState = ReturnType<typeof store.getState>;", "export type AppDispatch = typeof store.dispatch;"] : []),
+      ""
+    ].join("\n");
+    files["src/store/counterSlice." + m] = [
+      'import { createSlice } from "@reduxjs/toolkit";',
+      "",
+      ...(c.ts ? ["interface CounterState {", "  value: number;", "}", "", "const initialState: CounterState = { value: 0 };"] : ["const initialState = { value: 0 };"]),
+      "",
+      "const counterSlice = createSlice({",
+      '  name: "counter",',
+      "  initialState,",
+      "  reducers: {",
+      "    increment: (state) => {",
+      "      state.value += 1;",
+      "    },",
+      "    decrement: (state) => {",
+      "      state.value -= 1;",
+      "    },",
+      "  },",
+      "});",
+      "",
+      "export const { increment, decrement } = counterSlice.actions;",
+      "export default counterSlice.reducer;", ""
+    ].join("\n");
+    imports = [
+      'import { useDispatch, useSelector } from "react-redux";',
+      'import { decrement, increment } from "../store/counterSlice";',
+      ...(c.ts ? ['import type { AppDispatch, RootState } from "../store";'] : [])
+    ];
+    hooks = [
+      "const count = useSelector((state" + (c.ts ? ": RootState" : "") + ") => state.counter.value);",
+      "const dispatch = useDispatch" + (c.ts ? "<AppDispatch>" : "") + "();"
+    ];
+    inc = "() => dispatch(increment())"; dec = "() => dispatch(decrement())";
+  } else if (c.state === "zustand") {
+    files["src/store/useCounterStore." + m] = [
+      'import { create } from "zustand";',
+      "",
+      ...(c.ts ? ["type CounterState = {", "  count: number;", "  increment: () => void;", "  decrement: () => void;", "};", ""] : []),
+      "export const useCounterStore = create" + (c.ts ? "<CounterState>()" : "") + "((set) => ({",
+      "  count: 0,",
+      "  increment: () => set((s) => ({ count: s.count + 1 })),",
+      "  decrement: () => set((s) => ({ count: s.count - 1 })),",
+      "}));", ""
+    ].join("\n");
+    imports = ['import { useCounterStore } from "../store/useCounterStore";'];
+    hooks = [
+      "const count = useCounterStore((s) => s.count);",
+      "const increment = useCounterStore((s) => s.increment);",
+      "const decrement = useCounterStore((s) => s.decrement);"
+    ];
+    inc = "increment"; dec = "decrement";
+  } else {
+    imports = ['import { useState } from "react";'];
+    hooks = ["const [count, setCount] = useState(0);"];
+    inc = "() => setCount((n) => n + 1)"; dec = "() => setCount((n) => n - 1)";
+  }
+
+  files["src/components/Counter." + x] = [
+    ...imports, "",
+    "export default function Counter() {",
+    ...hooks.map(h => "  " + h), "",
+    "  return (",
+    '    <div className="' + cls.card + '">',
+    '      <p className="' + cls.count + '">{count}</p>',
+    '      <div className="' + cls.row + '">',
+    '        <button className="' + cls.btn + '" onClick={' + dec + '}>',
+    "          -1",
+    "        </button>",
+    '        <button className="' + cls.btn + '" onClick={' + inc + '}>',
+    "          +1",
+    "        </button>",
+    "      </div>",
+    "    </div>",
+    "  );",
+    "}", ""
+  ].join("\n");
+
+  const stackText = stackList(c).join(", ");
+  if (c.router) {
+    files["src/pages/Home." + x] = [
+      'import Counter from "../components/Counter";', "",
+      "export default function Home() {",
+      "  return (",
+      '    <section className="' + cls.page + '">',
+      '      <h1 className="' + cls.title + '">' + c.name + "</h1>",
+      "      <Counter />",
+      "    </section>",
+      "  );",
+      "}", ""
+    ].join("\n");
+    files["src/pages/About." + x] = [
+      "export default function About() {",
+      "  return (",
+      '    <section className="' + cls.page + '">',
+      '      <h1 className="' + cls.title + '">About</h1>',
+      '      <p className="' + cls.text + '">Built with ' + stackText + ".</p>",
+      "    </section>",
+      "  );",
+      "}", ""
+    ].join("\n");
+    files["src/App." + x] = [
+      'import { Link, Route, Routes } from "react-router-dom";',
+      'import About from "./pages/About";',
+      'import Home from "./pages/Home";', "",
+      "export default function App() {",
+      "  return (",
+      '    <main className="' + cls.main + '">',
+      '      <nav className="' + cls.nav + '">',
+      '        <Link className="' + cls.link + '" to="/">',
+      "          Home",
+      "        </Link>",
+      '        <Link className="' + cls.link + '" to="/about">',
+      "          About",
+      "        </Link>",
+      "      </nav>",
+      "      <Routes>",
+      '        <Route path="/" element={<Home />} />',
+      '        <Route path="/about" element={<About />} />',
+      "      </Routes>",
+      "    </main>",
+      "  );",
+      "}", ""
+    ].join("\n");
+  } else {
+    files["src/App." + x] = [
+      'import Counter from "./components/Counter";', "",
+      "export default function App() {",
+      "  return (",
+      '    <main className="' + cls.main + '">',
+      '      <h1 className="' + cls.title + '">' + c.name + "</h1>",
+      "      <Counter />",
+      "    </main>",
+      "  );",
+      "}", ""
+    ].join("\n");
+  }
+
+  if (c.axios) {
+    files["src/api/client." + m] = [
+      'import axios from "axios";', "",
+      "export const api = axios.create({",
+      '  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",',
+      "  timeout: 10000,",
+      "});", ""
+    ].join("\n");
+    files[".env.example"] = "VITE_API_URL=http://localhost:3000\n";
+  }
+
+  if (c.prettier) {
+    files[".prettierrc"] = JSON.stringify({ semi: true, singleQuote: false, trailingComma: "all", printWidth: 90 }, null, 2) + "\n";
+    files[".prettierignore"] = "dist\nnode_modules\n";
+  }
+
+  files[".gitignore"] = ["node_modules", "dist", ".env", ".env.local", ".DS_Store", ""].join("\n");
+
+  files["README.md"] = [
+    "# " + c.name, "",
+    "Stack: " + stackText + ".", "",
+    "## İşə salmaq", "",
+    "```bash",
+    "npm install",
+    "npm run dev",
+    "```", "",
+    "## GitHub-a göndərmək", "",
+    "GitHub-da boş repo yarat, sonra:", "",
+    "```bash",
+    "git init",
+    "git add .",
+    'git commit -m "Initial commit"',
+    "git branch -M main",
+    "git remote add origin https://github.com/<istifadeci-adi>/" + c.name + ".git",
+    "git push -u origin main",
+    "```", ""
+  ].join("\n");
+
+  return files;
+}
+
+function stackList(c){
+  const s = ["React 19", "Vite"];
+  if (c.ts) s.push("TypeScript");
+  if (c.tw) s.push("Tailwind CSS");
+  if (c.state === "redux") s.push("Redux Toolkit");
+  if (c.state === "zustand") s.push("Zustand");
+  if (c.router) s.push("React Router");
+  if (c.axios) s.push("Axios");
+  if (c.prettier) s.push("Prettier");
+  return s;
+}
+
+// --- UI ---
+const treeEl = document.getElementById("tree");
+const codeEl = document.getElementById("code");
+const curPath = document.getElementById("curPath");
+const curMeta = document.getElementById("curMeta");
+let current = null, files = {}, prev = null, cfg = null;
+
+const dirOf = p => p.includes("/") ? p.slice(0, p.lastIndexOf("/") + 1) : "";
+const baseOf = p => p.slice(p.lastIndexOf("/") + 1);
+
+function renderTree(){
+  const paths = Object.keys(files).sort((a, b) => {
+    const da = dirOf(a) || "~", db = dirOf(b) || "~";
+    return da === db ? a.localeCompare(b) : da.localeCompare(db);
+  });
+  treeEl.textContent = "";
+  const root = document.createElement("div");
+  root.className = "root";
+  root.textContent = cfg.name + "/";
+  treeEl.appendChild(root);
+  let lastDir = null;
+  for (const p of paths) {
+    const d = dirOf(p);
+    const depth = d ? d.split("/").filter(Boolean).length : 0;
+    if (d !== lastDir && d) {
+      const h = document.createElement("div");
+      h.className = "dir";
+      h.style.paddingLeft = (0.5 + (depth - 1) * 0.9) + "rem";
+      h.textContent = d;
+      treeEl.appendChild(h);
+    }
+    lastDir = d;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = baseOf(p);
+    b.style.paddingLeft = (0.5 + depth * 0.9) + "rem";
+    b.setAttribute("aria-current", p === current ? "true" : "false");
+    if (prev && !prev.has(p)) b.classList.add("new");
+    else if (prev && prev.get(p) !== files[p]) b.classList.add("new");
+    b.addEventListener("click", () => { current = p; renderTree(); renderCode(); });
+    treeEl.appendChild(b);
+  }
+}
+
+function renderCode(){
+  curPath.textContent = current;
+  const lines = files[current].split("\n").length - (files[current].endsWith("\n") ? 1 : 0);
+  curMeta.textContent = lines + " sətir";
+  codeEl.textContent = files[current];
+}
+
+function update(){
+  cfg = readConfig();
+  document.getElementById("nameHint").textContent = "Qovluq adı: " + cfg.name;
+  files = generate(cfg);
+  if (!current || !(current in files)) current = Object.keys(files).find(p => p.startsWith("src/App.")) || "package.json";
+  renderTree();
+  renderCode();
+  prev = new Map(Object.entries(files));
+}
+
+const form = document.getElementById("form");
+form.addEventListener("input", () => { update(); });
+update();
+// keep first render without flashes; later renders highlight changes
+prev = new Map(Object.entries(files));
+
+// --- Download ---
+const statusEl = document.getElementById("status");
+const dlBtn = document.getElementById("dl");
+const downloadsReady = (window.claude && typeof window.claude.use === "function")
+  ? window.claude.use("downloads").catch(() => null)
+  : Promise.resolve(null);
+
+dlBtn.addEventListener("click", async () => {
+  if (typeof JSZip === "undefined") {
+    statusEl.textContent = "Zip kitabxanası yüklənmədi. Səhifəni yenilə və yenidən cəhd et.";
+    return;
+  }
+  dlBtn.disabled = true;
+  statusEl.textContent = "Zip hazırlanır…";
+  try {
+    const zip = new JSZip();
+    const folder = zip.folder(cfg.name);
+    for (const [p, content] of Object.entries(files)) folder.file(p, content);
+    const blob = await zip.generateAsync({ type: "blob" });
+    const downloads = await downloadsReady;
+    if (!downloads) {
+      statusEl.textContent = "Bu pəncərədə fayl yükləmək mümkün deyil. Səhifəni claude.ai-də brauzerdə aç.";
+      return;
+    }
+    await downloads.save({ filename: cfg.name + ".zip", data: blob });
+    statusEl.textContent = "Yükləndi: " + cfg.name + ".zip. Aç, sonra npm install və npm run dev.";
+  } catch (e) {
+    const code = e && e.code;
+    if (code === "declined") statusEl.textContent = "Yükləmə ləğv edildi.";
+    else if (code === "rate_limited") statusEl.textContent = "Bir az gözlə və yenidən cəhd et.";
+    else if (code === "host_unavailable") statusEl.textContent = "Bu tətbiq fayl saxlaya bilmir. Səhifəni brauzerdə və ya kompüterdə aç.";
+    else statusEl.textContent = "Yükləmə alınmadı" + (e && e.message ? ": " + e.message : ".");
+  } finally {
+    dlBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
