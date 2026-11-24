@@ -971,3 +971,1008 @@ export default function Counter() {
 }
 "
 `;
+
+exports[`vue snapshots > everything (js) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+",
+  "jsconfig.json": "{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@vue/devtools-api": "^8.2.1",
+    "axios": "^1.21.1",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.vue": "<script setup>
+import { RouterLink, RouterView } from "vue-router";
+</script>
+
+<template>
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <nav class="flex gap-4 text-sm font-medium">
+      <RouterLink class="text-slate-600 hover:text-slate-900" to="/">
+        Home
+      </RouterLink>
+      <RouterLink class="text-slate-600 hover:text-slate-900" to="/about">
+        About
+      </RouterLink>
+    </nav>
+    <RouterView />
+  </main>
+</template>
+",
+  "src/api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/assets/main.css": "@import "tailwindcss";
+",
+  "src/components/CounterCard.vue": "<script setup>
+import { useCounterStore } from "@/stores/counter";
+
+const counter = useCounterStore();
+</script>
+
+<template>
+  <div
+    class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+  >
+    <p class="text-5xl font-bold tabular-nums">{{ counter.count }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.decrement()"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.increment()"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</template>
+",
+  "src/main.js": "import { createPinia } from "pinia";
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import "./assets/main.css";
+
+const app = createApp(App);
+
+app.use(createPinia());
+app.use(router);
+
+app.mount("#app");
+",
+  "src/router/index.js": "import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: "/",
+      name: "home",
+      component: HomeView,
+    },
+    {
+      path: "/about",
+      name: "about",
+      component: () => import("../views/AboutView.vue"),
+    },
+  ],
+});
+
+export default router;
+",
+  "src/stores/counter.js": "import { defineStore } from "pinia";
+import { ref } from "vue";
+
+export const useCounterStore = defineStore("counter", () => {
+  const count = ref(0);
+
+  function increment() {
+    count.value++;
+  }
+
+  function decrement() {
+    count.value--;
+  }
+
+  return { count, increment, decrement };
+});
+",
+  "src/views/AboutView.vue": "<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier.
+    </p>
+  </section>
+</template>
+",
+  "src/views/HomeView.vue": "<script setup>
+import CounterCard from "../components/CounterCard.vue";
+</script>
+
+<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <CounterCard />
+  </section>
+</template>
+",
+  "vite.config.js": "import tailwindcss from "@tailwindcss/vite";
+import vue from "@vitejs/plugin-vue";
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [vue(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
+",
+}
+`;
+
+exports[`vue snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "env.d.ts": "/// <reference types="vite/client" />
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --build && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@vue/devtools-api": "^8.2.1",
+    "axios": "^1.21.1",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@tsconfig/node24": "^24.0.6",
+    "@types/node": "^24.19.2",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/tsconfig": "^0.9.1",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8",
+    "vue-tsc": "^3.3.14"
+  }
+}
+",
+  "src/App.vue": "<script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router";
+</script>
+
+<template>
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <nav class="flex gap-4 text-sm font-medium">
+      <RouterLink class="text-slate-600 hover:text-slate-900" to="/">
+        Home
+      </RouterLink>
+      <RouterLink class="text-slate-600 hover:text-slate-900" to="/about">
+        About
+      </RouterLink>
+    </nav>
+    <RouterView />
+  </main>
+</template>
+",
+  "src/api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/assets/main.css": "@import "tailwindcss";
+",
+  "src/components/CounterCard.vue": "<script setup lang="ts">
+import { useCounterStore } from "@/stores/counter";
+
+const counter = useCounterStore();
+</script>
+
+<template>
+  <div
+    class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+  >
+    <p class="text-5xl font-bold tabular-nums">{{ counter.count }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.decrement()"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.increment()"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</template>
+",
+  "src/main.ts": "import { createPinia } from "pinia";
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import "./assets/main.css";
+
+const app = createApp(App);
+
+app.use(createPinia());
+app.use(router);
+
+app.mount("#app");
+",
+  "src/router/index.ts": "import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: "/",
+      name: "home",
+      component: HomeView,
+    },
+    {
+      path: "/about",
+      name: "about",
+      component: () => import("../views/AboutView.vue"),
+    },
+  ],
+});
+
+export default router;
+",
+  "src/stores/counter.ts": "import { defineStore } from "pinia";
+import { ref } from "vue";
+
+export const useCounterStore = defineStore("counter", () => {
+  const count = ref(0);
+
+  function increment() {
+    count.value++;
+  }
+
+  function decrement() {
+    count.value--;
+  }
+
+  return { count, increment, decrement };
+});
+",
+  "src/views/AboutView.vue": "<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router,
+      Axios, Prettier.
+    </p>
+  </section>
+</template>
+",
+  "src/views/HomeView.vue": "<script setup lang="ts">
+import CounterCard from "../components/CounterCard.vue";
+</script>
+
+<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <CounterCard />
+  </section>
+</template>
+",
+  "tsconfig.app.json": "{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+  }
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": ["vite.config.*", "vitest.config.*", "eslint.config.*"],
+  "compilerOptions": {
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
+  }
+}
+",
+  "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
+import vue from "@vitejs/plugin-vue";
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [vue(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
+",
+}
+`;
+
+exports[`vue snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Vue 3, Vite.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+",
+  "jsconfig.json": "{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.46"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.11",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.vue": "<script setup>
+import CounterCard from "./components/CounterCard.vue";
+</script>
+
+<template>
+  <main class="app">
+    <h1 class="title">my-app</h1>
+    <CounterCard />
+  </main>
+</template>
+",
+  "src/assets/main.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/components/CounterCard.vue": "<script setup>
+import { ref } from "vue";
+
+const count = ref(0);
+</script>
+
+<template>
+  <div class="card">
+    <p class="count">{{ count }}</p>
+    <div class="row">
+      <button type="button" class="btn" @click="count--">-1</button>
+      <button type="button" class="btn" @click="count++">+1</button>
+    </div>
+  </div>
+</template>
+",
+  "src/main.js": "import { createApp } from "vue";
+import App from "./App.vue";
+import "./assets/main.css";
+
+createApp(App).mount("#app");
+",
+  "vite.config.js": "import vue from "@vitejs/plugin-vue";
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
+",
+}
+`;
+
+exports[`vue snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Vue 3, Vite, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "env.d.ts": "/// <reference types="vite/client" />
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --build && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --build"
+  },
+  "dependencies": {
+    "vue": "^3.5.46"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "^24.0.6",
+    "@types/node": "^24.19.2",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/tsconfig": "^0.9.1",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8",
+    "vue-tsc": "^3.3.14"
+  }
+}
+",
+  "src/App.vue": "<script setup lang="ts">
+import CounterCard from "./components/CounterCard.vue";
+</script>
+
+<template>
+  <main class="app">
+    <h1 class="title">my-app</h1>
+    <CounterCard />
+  </main>
+</template>
+",
+  "src/assets/main.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/components/CounterCard.vue": "<script setup lang="ts">
+import { ref } from "vue";
+
+const count = ref(0);
+</script>
+
+<template>
+  <div class="card">
+    <p class="count">{{ count }}</p>
+    <div class="row">
+      <button type="button" class="btn" @click="count--">-1</button>
+      <button type="button" class="btn" @click="count++">+1</button>
+    </div>
+  </div>
+</template>
+",
+  "src/main.ts": "import { createApp } from "vue";
+import App from "./App.vue";
+import "./assets/main.css";
+
+createApp(App).mount("#app");
+",
+  "tsconfig.app.json": "{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+  }
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": ["vite.config.*", "vitest.config.*", "eslint.config.*"],
+  "compilerOptions": {
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
+  }
+}
+",
+  "vite.config.ts": "import vue from "@vitejs/plugin-vue";
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
+",
+}
+`;

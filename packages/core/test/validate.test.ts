@@ -38,8 +38,8 @@ describe("validate", () => {
       expect(result.errors.map((e) => e.code)).toEqual(["invalid-name"]);
   });
 
-  it("rejects unknown frameworks", () => {
-    const result = validate(selection({ framework: "vue" }));
+  it("rejects frameworks without an adapter", () => {
+    const result = validate(selection({ framework: "angular" }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors[0]?.code).toBe("unknown-framework");
   });

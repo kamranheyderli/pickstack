@@ -9,7 +9,7 @@ export const axios: Module = {
     az: "Hazır baseURL ilə HTTP klienti.",
     en: "HTTP client with a preconfigured base URL.",
   },
-  frameworks: ["react"],
+  frameworks: ["react", "vue"],
   apply(model, ctx) {
     model.pkg.dependencies.add("axios");
     model.files.set(

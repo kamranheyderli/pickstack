@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { getFramework, getModule } from "../src";
-import type { ProjectModel } from "../src";
+import type { FrameworkId, ProjectModel } from "../src";
 import { ctxFor } from "./helpers";
 
-function applied(id: string, language: "js" | "ts" = "ts"): ProjectModel {
-  const ctx = ctxFor(language, [id]);
-  const framework = getFramework("react");
+function applied(
+  id: string,
+  language: "js" | "ts" = "ts",
+  frameworkId: FrameworkId = "react",
+): ProjectModel {
+  const ctx = ctxFor(language, [id], frameworkId);
+  const framework = getFramework(frameworkId);
   const mod = getModule(id);
   if (!framework || !mod) throw new Error(`missing ${id}`);
   const model = framework.base(ctx);
@@ -90,5 +94,32 @@ describe("prettier", () => {
     const model = applied("prettier");
     expect(model.files.has(".prettierrc")).toBe(true);
     expect(model.pkg.scripts["format:check"]).toBe("prettier --check .");
+  });
+});
+
+describe("pinia", () => {
+  it("adds a setup store, app.use(createPinia()) and the devtools peer", () => {
+    const model = applied("pinia", "ts", "vue");
+    expect([...model.pkg.dependencies]).toEqual(
+      expect.arrayContaining(["pinia", "@vue/devtools-api"]),
+    );
+    expect(model.files.get("src/stores/counter.ts")).toContain(
+      'defineStore("counter"',
+    );
+    expect(model.entry.appUses).toEqual(["createPinia()"]);
+    expect(model.demo.counter?.increment).toBe("counter.increment()");
+  });
+});
+
+describe("vue-router", () => {
+  it("adds a router with an eager home view and a lazy about view", () => {
+    const model = applied("vue-router", "js", "vue");
+    const router = model.files.get("src/router/index.js") ?? "";
+    expect(router).toContain('import HomeView from "../views/HomeView.vue";');
+    expect(router).toContain(
+      'component: () => import("../views/AboutView.vue")',
+    );
+    expect(model.entry.appUses).toEqual(["router"]);
+    expect(model.routing?.outlet).toEqual(["<RouterView />"]);
   });
 });

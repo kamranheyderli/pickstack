@@ -29,6 +29,18 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     zustand: "^5.1.0",
     "react-router": "^8.5.2",
   },
+  vue: {
+    vue: "^3.5.46",
+    vite: "^8.3.8",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "vue-tsc": "^3.3.14",
+    "@vue/tsconfig": "^0.9.1",
+    "@tsconfig/node24": "^24.0.6",
+    "@types/node": "^24.19.2",
+    pinia: "^4.1.0",
+    "@vue/devtools-api": "^8.2.1",
+    "vue-router": "^5.5.1",
+  },
 };
 
 export class UnknownVersionError extends Error {

@@ -9,7 +9,7 @@ export const prettier: Module = {
     az: "Kod formatlayıcı.",
     en: "Opinionated code formatter.",
   },
-  frameworks: ["react"],
+  frameworks: ["react", "vue"],
   conflicts: ["biome"],
   apply(model) {
     model.pkg.devDependencies.add("prettier");

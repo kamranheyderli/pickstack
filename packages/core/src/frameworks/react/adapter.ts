@@ -7,46 +7,13 @@ import type {
   ProjectModel,
   RouteSpec,
 } from "../../types";
-import indexHtml from "./templates/index-html";
-import plainCss from "./templates/plain-css";
-
-type ClassKey =
-  | "main"
-  | "title"
-  | "nav"
-  | "link"
-  | "page"
-  | "text"
-  | "card"
-  | "count"
-  | "row"
-  | "btn";
-
-const tailwindClasses: Record<ClassKey, string> = {
-  main: "flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900",
-  title: "text-3xl font-bold tracking-tight",
-  nav: "flex gap-4 text-sm font-medium",
-  link: "text-slate-600 hover:text-slate-900",
-  page: "flex flex-col items-center gap-6",
-  text: "max-w-md text-center text-slate-600",
-  card: "rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200",
-  count: "text-5xl font-bold tabular-nums",
-  row: "mt-6 flex justify-center gap-3",
-  btn: "rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700",
-};
-
-const plainClasses: Record<ClassKey, string> = {
-  main: "app",
-  title: "title",
-  nav: "nav",
-  link: "link",
-  page: "page",
-  text: "text",
-  card: "card",
-  count: "count",
-  row: "row",
-  btn: "btn",
-};
+import {
+  aboutText,
+  demoClasses,
+  globalCss,
+  type DemoClasses,
+} from "../shared/demo";
+import indexHtml from "../shared/templates/index-html";
 
 const localCounter: CounterSpec = {
   imports: [{ from: "react", named: ["useState"] }],
@@ -96,7 +63,11 @@ export const reactAdapter: FrameworkAdapter = {
     );
     model.files.set(
       "index.html",
-      fill(indexHtml, { name: ctx.selection.name, ext: ctx.ext.component }),
+      fill(indexHtml, {
+        name: ctx.selection.name,
+        mountId: "root",
+        entry: `main.${ctx.ext.component}`,
+      }),
     );
     model.readme.stack.push(
       "React 19",
@@ -107,8 +78,7 @@ export const reactAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
-    const cls =
-      model.styles.mode === "tailwind" ? tailwindClasses : plainClasses;
+    const cls = demoClasses(model);
     const x = ctx.ext.component;
 
     model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model));
@@ -190,16 +160,7 @@ function mainEntry(model: ProjectModel, ctx: Ctx): string {
   ]);
 }
 
-function globalCss(model: ProjectModel): string {
-  const blocks = [
-    model.styles.globalImports.join("\n"),
-    model.styles.mode === "plain" ? plainCss.trimEnd() : "",
-    model.styles.globalCss.join("\n\n"),
-  ].filter(Boolean);
-  return blocks.join("\n\n") + "\n";
-}
-
-function counter(spec: CounterSpec, cls: Record<ClassKey, string>): string {
+function counter(spec: CounterSpec, cls: DemoClasses): string {
   return file([
     ...renderImports(spec.imports),
     "",
@@ -223,7 +184,7 @@ function counter(spec: CounterSpec, cls: Record<ClassKey, string>): string {
   ]);
 }
 
-function singleApp(ctx: Ctx, cls: Record<ClassKey, string>): string {
+function singleApp(ctx: Ctx, cls: DemoClasses): string {
   return file([
     'import Counter from "./components/Counter";',
     "",
@@ -238,7 +199,7 @@ function singleApp(ctx: Ctx, cls: Record<ClassKey, string>): string {
   ]);
 }
 
-function routedApp(model: ProjectModel, cls: Record<ClassKey, string>): string {
+function routedApp(model: ProjectModel, cls: DemoClasses): string {
   const routing = model.routing;
   if (!routing) throw new Error("routedApp requires model.routing");
   const links = model.routes.flatMap((route) => [
@@ -273,7 +234,7 @@ function page(
   route: RouteSpec,
   model: ProjectModel,
   ctx: Ctx,
-  cls: Record<ClassKey, string>,
+  cls: DemoClasses,
 ): string {
   if (route.page === "home") {
     return file([
@@ -294,7 +255,7 @@ function page(
     "  return (",
     `    <section className="${cls.page}">`,
     `      <h1 className="${cls.title}">${route.label}</h1>`,
-    `      <p className="${cls.text}">Built with ${model.readme.stack.join(", ")}.</p>`,
+    `      <p className="${cls.text}">${aboutText(model)}</p>`,
     "    </section>",
     "  );",
     "}",

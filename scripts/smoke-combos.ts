@@ -25,4 +25,17 @@ export const quickCombos: Combo[] = [
   },
   { framework: "react", language: "ts", modules: ["zustand", "prettier"] },
   { framework: "react", language: "js", modules: ["zustand", "react-router"] },
+  { framework: "vue", language: "js", modules: [] },
+  { framework: "vue", language: "ts", modules: [] },
+  {
+    framework: "vue",
+    language: "ts",
+    modules: ["tailwind", "pinia", "vue-router", "axios", "prettier"],
+  },
+  {
+    framework: "vue",
+    language: "js",
+    modules: ["tailwind", "pinia", "vue-router", "axios", "prettier"],
+  },
+  { framework: "vue", language: "ts", modules: ["vue-router", "prettier"] },
 ];

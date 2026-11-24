@@ -8,6 +8,7 @@ import {
   siNextdotjs,
   siNpm,
   siNuxt,
+  siPinia,
   siPnpm,
   siPreact,
   siPrettier,
@@ -42,6 +43,9 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   "react-router": siReactrouter,
   axios: siAxios,
   prettier: siPrettier,
+  pinia: siPinia,
+  // Vue Router has no mark of its own; it ships under the Vue logo.
+  "vue-router": siVuedotjs,
 };
 
 export const languageIcons: Record<Language, SimpleIcon> = {

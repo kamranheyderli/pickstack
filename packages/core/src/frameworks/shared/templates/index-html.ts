@@ -6,8 +6,8 @@ export default `<!doctype html>
     <title>{{name}}</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.{{ext}}"></script>
+    <div id="{{mountId}}"></div>
+    <script type="module" src="/src/{{entry}}"></script>
   </body>
 </html>
 `;

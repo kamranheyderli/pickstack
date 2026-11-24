@@ -111,7 +111,7 @@ UI kitləri qarşılıqlı ziddiyyətlidir: kateqoriya `single` seçimlidir.
 | `redux-toolkit` | R, N | Provider bürüyücüsü |
 | `zustand` | R, N | Provider yoxdur |
 | `jotai` | R, N | |
-| `pinia` | V, Nu | `app.use(createPinia())`, Nuxt-da `@pinia/nuxt` |
+| `pinia` | V, Nu | `app.use(createPinia())`, Nuxt-da `@pinia/nuxt`. Pinia 4 `@vue/devtools-api`-ni məcburi peer kimi istəyir; yarn peer-ləri quraşdırmadığı üçün açıq asılılıq kimi əlavə olunur |
 | `ngrx` | A | (yoxla: standalone API) |
 | `builtin` | S, So, SK, A | Svelte runes, Solid stores, Angular signals: paket yoxdur, nümunə kod əlavə olunur |
 

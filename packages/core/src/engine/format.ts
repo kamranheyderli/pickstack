@@ -20,6 +20,7 @@ const parsers: Record<string, string> = {
   ".scss": "scss",
   ".html": "html",
   ".md": "markdown",
+  ".vue": "vue",
 };
 
 function parserFor(path: string): string | undefined {

@@ -8,7 +8,7 @@ export const tailwind: Module = {
     az: "Utility-first CSS; Vite plugini ilə qurulur.",
     en: "Utility-first CSS, wired through the Vite plugin.",
   },
-  frameworks: ["react"],
+  frameworks: ["react", "vue"],
   conflicts: ["unocss"],
   apply(model) {
     model.pkg.devDependencies.add("tailwindcss");

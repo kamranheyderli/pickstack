@@ -10,6 +10,7 @@ const languages: Record<string, string> = {
   css: "css",
   html: "html",
   md: "markdown",
+  vue: "vue",
 };
 
 let highlighter: Promise<HighlighterCore> | null = null;
@@ -33,6 +34,7 @@ function load(): Promise<HighlighterCore> {
         import("shiki/langs/css.mjs"),
         import("shiki/langs/html.mjs"),
         import("shiki/langs/markdown.mjs"),
+        import("shiki/langs/vue.mjs"),
       ],
     });
   })();

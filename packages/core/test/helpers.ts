@@ -1,5 +1,5 @@
 import { createCtx } from "../src/engine/generate";
-import type { Ctx, Language, Module, Selection } from "../src";
+import type { Ctx, FrameworkId, Language, Module, Selection } from "../src";
 
 export function selection(overrides: Partial<Selection> = {}): Selection {
   return {
@@ -12,8 +12,12 @@ export function selection(overrides: Partial<Selection> = {}): Selection {
   };
 }
 
-export function ctxFor(language: Language, modules: string[] = []): Ctx {
-  return createCtx(selection({ language, modules }), modules);
+export function ctxFor(
+  language: Language,
+  modules: string[] = [],
+  framework: FrameworkId = "react",
+): Ctx {
+  return createCtx(selection({ framework, language, modules }), modules);
 }
 
 export function fakeModule(
