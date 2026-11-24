@@ -6,7 +6,7 @@ import { file, json } from "./code";
 export const APP_NAME = "web";
 
 /** Tasks the root delegates to turbo, when the app has a script for them. */
-const TASKS = ["build", "dev", "typecheck", "lint", "test"] as const;
+const TASKS = ["build", "dev", "preview", "typecheck", "lint", "test"] as const;
 type Task = (typeof TASKS)[number];
 
 function taskConfig(task: Task, spec: MonorepoSpec): Record<string, unknown> {
@@ -20,6 +20,8 @@ function taskConfig(task: Task, spec: MonorepoSpec): Record<string, unknown> {
       };
     case "dev":
       return { cache: false, persistent: true };
+    case "preview":
+      return { dependsOn: ["build"], cache: false, persistent: true };
     case "typecheck":
       // `next build`/`svelte-kit sync` write the types typecheck reads; running both at once
       // races on the same files.
@@ -50,8 +52,15 @@ export function writeTurborepo(
   for (const [path, content] of app) {
     model.files.set(`apps/${APP_NAME}/${path}`, content);
   }
+  for (const [folder, files] of Object.entries(spec.apps)) {
+    for (const [path, content] of files) {
+      model.files.set(`apps/${folder}/${path}`, content);
+    }
+  }
 
-  const tasks = TASKS.filter((task) => task in model.pkg.scripts);
+  const tasks = TASKS.filter(
+    (task) => task in model.pkg.scripts && (task !== "preview" || spec.preview),
+  );
   const scripts = Object.fromEntries(
     tasks.map((task) => [task, `turbo run ${task}`]),
   );

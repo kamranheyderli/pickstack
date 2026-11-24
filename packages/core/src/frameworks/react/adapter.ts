@@ -10,6 +10,11 @@ import { demoClasses, globalCss, styleExt } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
 import { wrapProviders, writeJsxDemo } from "../shared/jsx";
+import {
+  hostFederationPlugin,
+  hostServerOptions,
+  remoteDeclarations,
+} from "../shared/federation";
 import { jsxCounterTest } from "../shared/testing";
 import { plainViteConfig } from "../shared/vite";
 
@@ -73,9 +78,18 @@ export const reactAdapter: FrameworkAdapter = {
       "index.html",
       spaIndexHtml(model, ctx, "root", `main.${ctx.ext.component}`),
     );
+    const federation = model.federation;
+    if (federation) {
+      model.bundler.plugins.push(hostFederationPlugin(federation));
+      if (ctx.isTs) model.files.set("src/remotes.d.ts", remoteDeclarations());
+    }
     model.files.set(
       `vite.config.${ctx.ext.script}`,
-      plainViteConfig(model, ctx),
+      plainViteConfig(
+        model,
+        ctx,
+        federation ? hostServerOptions(federation) : [],
+      ),
     );
     model.files.set(`src/main.${ctx.ext.component}`, mainEntry(model, ctx));
     model.files.set(`src/index.${styleExt(model)}`, globalCss(model));

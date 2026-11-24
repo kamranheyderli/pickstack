@@ -1,5 +1,11 @@
 import { file, indent, renderImports } from "../../engine/code";
-import type { CounterSpec, Ctx, ProjectModel, RouteSpec } from "../../types";
+import type {
+  CounterSpec,
+  Ctx,
+  ImportSpec,
+  ProjectModel,
+  RouteSpec,
+} from "../../types";
 import { aboutText, type DemoClasses } from "./demo";
 
 /** JSX demo components shared by React, Preact and Solid; they differ in the class attribute. */
@@ -33,19 +39,48 @@ export function jsxCounter(
   ]);
 }
 
+/** The Module Federation remote counter (see `federation.ts`), loaded lazily from `remote`. */
+export const remoteCounter = {
+  imports: [{ from: "react", named: ["lazy", "Suspense"] }] as ImportSpec[],
+  setup: ['const RemoteCounter = lazy(() => import("remote/Counter"));'],
+  element: (attr: string, textClass: string) => [
+    `<Suspense fallback={<p ${attr}="${textClass}">Loading the remote counter…</p>}>`,
+    "  <RemoteCounter />",
+    "</Suspense>",
+  ],
+};
+
+/** Imports, module setup and JSX after `<Counter />` that render the remote counter, if any. */
+function remoteParts(model: ProjectModel, cls: DemoClasses, attr: ClassAttr) {
+  return model.federation
+    ? {
+        imports: remoteCounter.imports,
+        setup: [...remoteCounter.setup, ""],
+        element: remoteCounter.element(attr, cls.text),
+      }
+    : { imports: [], setup: [], element: [] };
+}
+
 export function jsxSingleApp(
+  model: ProjectModel,
   ctx: Ctx,
   cls: DemoClasses,
   attr: ClassAttr,
 ): string {
+  const remote = remoteParts(model, cls, attr);
   return file([
-    'import Counter from "./components/Counter";',
+    ...renderImports([
+      ...remote.imports,
+      { from: "./components/Counter", default: "Counter" },
+    ]),
     "",
+    ...remote.setup,
     "export default function App() {",
     "  return (",
     `    <main ${attr}="${cls.main}">`,
     `      <h1 ${attr}="${cls.title}">${ctx.selection.name}</h1>`,
     "      <Counter />",
+    ...indent(remote.element, 3),
     "    </main>",
     "  );",
     "}",
@@ -100,14 +135,20 @@ export function jsxPage(
   attr: ClassAttr,
 ): string {
   if (route.page === "home") {
+    const remote = remoteParts(model, cls, attr);
     return file([
-      'import Counter from "../components/Counter";',
+      ...renderImports([
+        ...remote.imports,
+        { from: "../components/Counter", default: "Counter" },
+      ]),
       "",
+      ...remote.setup,
       `export default function ${route.component}() {`,
       "  return (",
       `    <section ${attr}="${cls.page}">`,
       `      <h1 ${attr}="${cls.title}">${ctx.selection.name}</h1>`,
       "      <Counter />",
+      ...indent(remote.element, 3),
       "    </section>",
       "  );",
       "}",
@@ -147,7 +188,7 @@ export function writeJsxDemo(
     }
     model.files.set(`src/App.${x}`, jsxRoutedApp(model, cls, attr));
   } else {
-    model.files.set(`src/App.${x}`, jsxSingleApp(ctx, cls, attr));
+    model.files.set(`src/App.${x}`, jsxSingleApp(model, ctx, cls, attr));
   }
 }
 

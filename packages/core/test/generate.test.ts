@@ -32,13 +32,14 @@ async function files(
 
 /**
  * Every module available for the framework, taking the first option in single-select categories.
- * Biome (replaces ESLint + Prettier) and Turborepo (moves every file) have their own snapshots.
+ * Biome (replaces ESLint + Prettier), Turborepo (moves every file) and Module Federation
+ * (requires Turborepo) have their own snapshots.
  */
 function everything(framework: FrameworkId): string[] {
   const taken = new Set<string>();
   return modules
     .filter((m) => m.frameworks === "all" || m.frameworks.includes(framework))
-    .filter((m) => m.id !== "biome" && m.id !== "turborepo")
+    .filter((m) => !["biome", "turborepo", "module-federation"].includes(m.id))
     .filter((m) => {
       if (!singleSelectCategories.has(m.category)) return true;
       if (taken.has(m.category)) return false;
@@ -95,6 +96,13 @@ describe("turborepo snapshots", () => {
       expect(Object.fromEntries(result)).toMatchSnapshot();
     });
   }
+});
+
+describe("module federation snapshot", () => {
+  it("react host and remote (ts)", async () => {
+    const result = await files("ts", ["module-federation"]);
+    expect(Object.fromEntries(result)).toMatchSnapshot();
+  });
 });
 
 describe("react extras", () => {

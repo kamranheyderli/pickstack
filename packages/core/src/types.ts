@@ -161,6 +161,19 @@ export interface MonorepoSpec {
   typecheckAfterBuild: boolean;
   /** Non-prefixed variables read at build time; strict env mode drops the rest. */
   buildEnv: string[];
+  /** More workspace apps next to `apps/web`, keyed by folder name. */
+  apps: Record<string, Map<string, string>>;
+  /** Adds a persistent `preview` task (apps that must be served together). */
+  preview: boolean;
+}
+
+/**
+ * Set by the `module-federation` module: the app is a Module Federation host that loads
+ * components from the remote app in `apps/remote`.
+ */
+export interface FederationSpec {
+  hostPort: number;
+  remotePort: number;
 }
 
 export interface ProjectModel {
@@ -212,6 +225,7 @@ export interface ProjectModel {
    */
   formatter: "prettier" | "biome" | null;
   monorepo: MonorepoSpec | null;
+  federation: FederationSpec | null;
   testing: TestingSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];

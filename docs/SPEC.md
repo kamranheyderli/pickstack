@@ -169,6 +169,7 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 | Modul | Uyğun | Ziddiyyət |
 |---|---|---|
 | `turborepo` | hamısı | `husky-lint-staged` |
+| `module-federation` | R (tələb: `turborepo`) | |
 
 ### 5.9 Ümumi seçimlər
 
@@ -232,6 +233,15 @@ Turborepo (`turborepo` modulu, turbo 2.11.13, 2026-11 yoxlanılıb):
 - `outputs` framework-ə görədir. Next və SvelteKit-də `typecheck` `build`-dən sonra işləyir, çünki ikisi eyni tip fayllarını yazır və paralel işləyəndə yarışır.
 - Strict env rejimi prefikssiz dəyişənləri build-ə ötürmür. SEO ilə Astro/SvelteKit `SITE_URL`-i oxuyur, ona görə `build.env`-ə yazılır.
 - `husky-lint-staged` ilə ziddiyyət: hook-lar git kökündən quraşdırılmalıdır, lint-staged isə tətbiqin alətlərini `apps/web`-də işlətməlidir. Bu kombinasiya ayrıca iş tələb edir.
+
+Module Federation (`module-federation` modulu, `@module-federation/vite` 1.25, 2026-11 yoxlanılıb):
+
+- Plugin: `@module-federation/vite`. Vite 5–8 peer-dir, Vite komandası onu tövsiyə edir. `@originjs/vite-plugin-federation` Vite 8-i dəstəkləmir və 2025-dən yenilənmir.
+- Generasiya olunan tətbiq host olur (`apps/web`, port 5173). `apps/remote` (port 5174) `./Counter`-i paylaşır, host onu `lazy(() => import("remote/Counter"))` ilə yükləyir. `react` və `react-dom` singleton-dur. Portlar `strictPort` ilə sabitdir, çünki host remote-u sabit URL-dən yükləyir.
+- Remote-da `base` və `server.origin` remote-un URL-idir. Onlar olmasa remote-un asset-ləri host-un ünvanına görə həll olunur və qırılır.
+- `dts: false`. Plugin-in tip paylaşması typecheck zamanı remote-un işləməsini tələb edir və arxa planda broker prosesi qoyur. Host əvəzinə `remotes.d.ts` yazır.
+- Remote işləmirsə host səhifəsi ağ qalır: plugin remote entry-ni tətbiq başlamazdan əvvəl yükləyir. README bunu deyir.
+- Yoxlanılıb: 3 kombinasiya smoke-da keçir. Headless Chrome-da `turbo run preview` ilə host-un öz counter-i (Redux) və remote counter ayrı-ayrı işləyir, Tailwind klassları remote-a da tətbiq olunur.
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 

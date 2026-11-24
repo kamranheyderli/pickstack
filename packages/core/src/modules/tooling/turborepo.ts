@@ -40,6 +40,8 @@ export const turborepo: Module = {
         ctx.has("seo") && (framework === "astro" || framework === "sveltekit")
           ? ["SITE_URL"]
           : [],
+      apps: {},
+      preview: false,
     };
     model.readme.stack.push("Turborepo");
   },

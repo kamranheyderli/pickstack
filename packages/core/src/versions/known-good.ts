@@ -70,6 +70,7 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     "react-redux": "^9.3.1",
     zustand: "^5.1.0",
     "react-router": "^8.5.2",
+    "@module-federation/vite": "^1.25.0",
   },
   vue: {
     vue: "^3.5.46",

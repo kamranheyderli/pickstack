@@ -2815,6 +2815,471 @@ export default defineConfig({
 }
 `;
 
+exports[`module federation snapshot > react host and remote (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+.turbo
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: React 19, Vite, TypeScript, Turborepo, Module Federation.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## Monorepo
+
+This is a Turborepo workspace: the app lives in \`apps/web\` and \`packages/\` is ready for shared code. Root scripts run the app's tasks through turbo, which caches their results.
+
+## Micro-frontends
+
+\`apps/web\` is the Module Federation host (port 5173); \`apps/remote\` exposes \`./Counter\` (port 5174). The dev and preview scripts serve both apps together. The host loads the remote at runtime, so the remote must be running: if it is unreachable, the host page stays blank. Before deploying, change \`REMOTE_ORIGIN\` in the remote's vite.config and the remote \`entry\` in the host's vite.config to the remote's real URL, and serve the remote with CORS headers.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "apps/remote/.gitignore": "node_modules
+dist
+",
+  "apps/remote/index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>remote</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "apps/remote/package.json": "{
+  "name": "remote",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@module-federation/vite": "^1.25.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "apps/remote/src/Counter.tsx": "import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "apps/remote/src/main.tsx": "import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import Counter from "./Counter";
+
+// Standalone page for working on the remote without the host.
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Counter />
+  </StrictMode>,
+);
+",
+  "apps/remote/tsconfig.json": "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "apps/remote/vite.config.ts": "import { federation } from "@module-federation/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+// Where this remote is served. Asset URLs resolve against it, so they keep working
+// when the host loads the remote; change it (and the host's remote entry) on deploy.
+const REMOTE_ORIGIN = "http://localhost:5174";
+
+export default defineConfig({
+  base: \`\${REMOTE_ORIGIN}/\`,
+  server: { port: 5174, strictPort: true, origin: REMOTE_ORIGIN },
+  preview: { port: 5174, strictPort: true },
+  plugins: [
+    react(),
+    federation({
+      name: "remote",
+      filename: "remoteEntry.js",
+      manifest: true,
+      dts: false,
+      exposes: {
+        "./Counter": "./src/Counter.tsx",
+      },
+      shared: {
+        react: { singleton: true },
+        "react-dom": { singleton: true },
+      },
+    }),
+  ],
+});
+",
+  "apps/web/.gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "apps/web/index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "apps/web/package.json": "{
+  "name": "web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@module-federation/vite": "^1.25.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "apps/web/src/App.tsx": "import { lazy, Suspense } from "react";
+import Counter from "./components/Counter";
+
+const RemoteCounter = lazy(() => import("remote/Counter"));
+
+export default function App() {
+  return (
+    <main className="app">
+      <h1 className="title">my-app</h1>
+      <Counter />
+      <Suspense fallback={<p className="text">Loading the remote counter…</p>}>
+        <RemoteCounter />
+      </Suspense>
+    </main>
+  );
+}
+",
+  "apps/web/src/components/Counter.tsx": "import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "apps/web/src/index.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "apps/web/src/main.tsx": "import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+",
+  "apps/web/src/remotes.d.ts": "declare module "remote/Counter" {
+  import type { ComponentType } from "react";
+
+  const Counter: ComponentType;
+  export default Counter;
+}
+",
+  "apps/web/tsconfig.json": "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "apps/web/vite.config.ts": "import { federation } from "@module-federation/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    federation({
+      name: "host",
+      dts: false,
+      remotes: {
+        remote: {
+          type: "module",
+          name: "remote",
+          entry: "http://localhost:5174/remoteEntry.js",
+        },
+      },
+      shared: {
+        react: { singleton: true },
+        "react-dom": { singleton: true },
+      },
+    }),
+  ],
+  server: { port: 5173, strictPort: true },
+  preview: { port: 5173, strictPort: true },
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "preview": "turbo run preview",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.13"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "^11.0.0"
+    }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
+",
+  "turbo.json": "{
+  "$schema": "https://turborepo.dev/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "preview": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    }
+  }
+}
+",
+}
+`;
+
 exports[`next snapshots > everything (js) 1`] = `
 {
   ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000

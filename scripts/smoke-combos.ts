@@ -70,6 +70,7 @@ export const quickCombos: Combo[] = [
   ...huskyCombos(),
   ...sassCombos(),
   ...turborepoCombos(),
+  ...federationCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -340,5 +341,27 @@ function turborepoCombos(): Combo[] {
       modules: ["turborepo", "eslint", "vitest", "seo"],
     })),
     { framework: "react", language: "js", modules: ["turborepo"] },
+  ];
+}
+
+/** Module Federation host + remote in both languages, with and without a router and styling. */
+function federationCombos(): Combo[] {
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["module-federation", "eslint", "prettier", "vitest"],
+    },
+    {
+      framework: "react",
+      language: "ts",
+      modules: [
+        "module-federation",
+        "tailwind",
+        "react-router",
+        "redux-toolkit",
+      ],
+    },
+    { framework: "react", language: "js", modules: ["module-federation"] },
   ];
 }
