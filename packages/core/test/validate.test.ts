@@ -172,6 +172,17 @@ describe("turborepo", () => {
   });
 });
 
+describe("module-federation", () => {
+  it("is separate projects, so it conflicts with turborepo", () => {
+    const result = validate(
+      selection({ modules: ["module-federation", "turborepo"] }),
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors[0]).toMatchObject({ code: "conflict" });
+  });
+});
+
 describe("testing modules", () => {
   it("auto-adds vitest for testing-library and applies it first", () => {
     const result = resolve(["testing-library"]);

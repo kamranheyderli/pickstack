@@ -344,7 +344,7 @@ function turborepoCombos(): Combo[] {
   ];
 }
 
-/** Module Federation host + remote in both languages, with and without a router and styling. */
+/** Module Federation host + remote (two projects) in both languages, with host tooling. */
 function federationCombos(): Combo[] {
   return [
     {
@@ -360,6 +360,8 @@ function federationCombos(): Combo[] {
         "tailwind",
         "react-router",
         "redux-toolkit",
+        "husky-lint-staged",
+        "biome",
       ],
     },
     { framework: "react", language: "js", modules: ["module-federation"] },

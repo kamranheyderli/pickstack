@@ -2817,15 +2817,38 @@ export default defineConfig({
 
 exports[`module federation snapshot > react host and remote (ts) 1`] = `
 {
-  ".gitignore": "node_modules
-.turbo
+  "README.md": "# my-app
+
+Micro-frontends with Module Federation, as two independent projects:
+
+- \`host/\` (my-app-host): the app, on port 5173. It loads \`Counter\` from the remote at runtime.
+- \`remote/\` (my-app-remote): exposes \`./Counter\`, on port 5174.
+
+Each has its own dependencies and can live in its own repository and deploy on its own schedule.
+
+## Getting started
+
+Start the remote, then the host, in two terminals:
+
+\`\`\`bash
+cd remote && npm install && npm run dev
+\`\`\`
+
+\`\`\`bash
+cd host && npm install && npm run dev
+\`\`\`
+
+Open http://localhost:5173. If the remote is not running, the host page stays blank.
+",
+  "host/.gitignore": "node_modules
+dist
 .env
 .env.local
 .DS_Store
 ",
-  "README.md": "# my-app
+  "host/README.md": "# my-app-host
 
-Stack: React 19, Vite, TypeScript, Turborepo, Module Federation.
+Stack: React 19, Vite, TypeScript, Module Federation.
 
 ## Getting started
 
@@ -2840,13 +2863,9 @@ npm run dev
 - \`npm run preview\`
 - \`npm run typecheck\`
 
-## Monorepo
-
-This is a Turborepo workspace: the app lives in \`apps/web\` and \`packages/\` is ready for shared code. Root scripts run the app's tasks through turbo, which caches their results.
-
 ## Micro-frontends
 
-\`apps/web\` is the Module Federation host (port 5173); \`apps/remote\` exposes \`./Counter\` (port 5174). The dev and preview scripts serve both apps together. The host loads the remote at runtime, so the remote must be running: if it is unreachable, the host page stays blank. Before deploying, change \`REMOTE_ORIGIN\` in the remote's vite.config and the remote \`entry\` in the host's vite.config to the remote's real URL, and serve the remote with CORS headers.
+This is the Module Federation host (port 5173). It loads \`Counter\` from the remote project at runtime (\`http://localhost:5174/remoteEntry.js\`), so start the remote first: if it is unreachable, this page stays blank. Before deploying, point the remote \`entry\` in vite.config at the remote's real URL.
 
 ## Push to GitHub
 
@@ -2857,144 +2876,11 @@ git init
 git add .
 git commit -m "Initial commit"
 git branch -M main
-git remote add origin https://github.com/<your-username>/my-app.git
+git remote add origin https://github.com/<your-username>/my-app-host.git
 git push -u origin main
 \`\`\`
 ",
-  "apps/remote/.gitignore": "node_modules
-dist
-",
-  "apps/remote/index.html": "<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>remote</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-",
-  "apps/remote/package.json": "{
-  "name": "remote",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
-  },
-  "devDependencies": {
-    "@module-federation/vite": "^1.25.0",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.3.0",
-    "typescript": "~6.0.3",
-    "vite": "^8.3.8"
-  }
-}
-",
-  "apps/remote/src/Counter.tsx": "import { useState } from "react";
-
-export default function Counter() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div className="card">
-      <p className="count">{count}</p>
-      <div className="row">
-        <button
-          type="button"
-          className="btn"
-          onClick={() => setCount((n) => n - 1)}
-        >
-          -1
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => setCount((n) => n + 1)}
-        >
-          +1
-        </button>
-      </div>
-    </div>
-  );
-}
-",
-  "apps/remote/src/main.tsx": "import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import Counter from "./Counter";
-
-// Standalone page for working on the remote without the host.
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Counter />
-  </StrictMode>,
-);
-",
-  "apps/remote/tsconfig.json": "{
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "types": ["vite/client"]
-  },
-  "include": ["src", "vite.config.ts"]
-}
-",
-  "apps/remote/vite.config.ts": "import { federation } from "@module-federation/vite";
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
-
-// Where this remote is served. Asset URLs resolve against it, so they keep working
-// when the host loads the remote; change it (and the host's remote entry) on deploy.
-const REMOTE_ORIGIN = "http://localhost:5174";
-
-export default defineConfig({
-  base: \`\${REMOTE_ORIGIN}/\`,
-  server: { port: 5174, strictPort: true, origin: REMOTE_ORIGIN },
-  preview: { port: 5174, strictPort: true },
-  plugins: [
-    react(),
-    federation({
-      name: "remote",
-      filename: "remoteEntry.js",
-      manifest: true,
-      dts: false,
-      exposes: {
-        "./Counter": "./src/Counter.tsx",
-      },
-      shared: {
-        react: { singleton: true },
-        "react-dom": { singleton: true },
-      },
-    }),
-  ],
-});
-",
-  "apps/web/.gitignore": "node_modules
-dist
-.env
-.env.local
-.DS_Store
-",
-  "apps/web/index.html": "<!doctype html>
+  "host/index.html": "<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -3007,8 +2893,8 @@ dist
   </body>
 </html>
 ",
-  "apps/web/package.json": "{
-  "name": "web",
+  "host/package.json": "{
+  "name": "my-app-host",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -3032,7 +2918,7 @@ dist
   }
 }
 ",
-  "apps/web/src/App.tsx": "import { lazy, Suspense } from "react";
+  "host/src/App.tsx": "import { lazy, Suspense } from "react";
 import Counter from "./components/Counter";
 
 const RemoteCounter = lazy(() => import("remote/Counter"));
@@ -3049,7 +2935,7 @@ export default function App() {
   );
 }
 ",
-  "apps/web/src/components/Counter.tsx": "import { useState } from "react";
+  "host/src/components/Counter.tsx": "import { useState } from "react";
 
 export default function Counter() {
   const [count, setCount] = useState(0);
@@ -3077,7 +2963,7 @@ export default function Counter() {
   );
 }
 ",
-  "apps/web/src/index.css": ":root {
+  "host/src/index.css": ":root {
   font-family: system-ui, sans-serif;
   color: #0f172a;
   background: #f8fafc;
@@ -3167,7 +3053,7 @@ body {
   background: #334155;
 }
 ",
-  "apps/web/src/main.tsx": "import { StrictMode } from "react";
+  "host/src/main.tsx": "import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -3178,14 +3064,14 @@ createRoot(document.getElementById("root")!).render(
   </StrictMode>,
 );
 ",
-  "apps/web/src/remotes.d.ts": "declare module "remote/Counter" {
+  "host/src/remotes.d.ts": "declare module "remote/Counter" {
   import type { ComponentType } from "react";
 
   const Counter: ComponentType;
   export default Counter;
 }
 ",
-  "apps/web/tsconfig.json": "{
+  "host/tsconfig.json": "{
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
@@ -3202,7 +3088,7 @@ createRoot(document.getElementById("root")!).render(
   "include": ["src", "vite.config.ts"]
 }
 ",
-  "apps/web/vite.config.ts": "import { federation } from "@module-federation/vite";
+  "host/vite.config.ts": "import { federation } from "@module-federation/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -3229,53 +3115,143 @@ export default defineConfig({
   preview: { port: 5173, strictPort: true },
 });
 ",
-  "package.json": "{
-  "name": "my-app",
+  "remote/.gitignore": "node_modules
+dist
+",
+  "remote/README.md": "# my-app-remote
+
+Module Federation remote. It exposes \`./Counter\` at \`http://localhost:5174/remoteEntry.js\`, which the host loads at runtime.
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+Before deploying, set \`REMOTE_ORIGIN\` in vite.config to the URL the remote is served from, and serve it with CORS headers so the host's origin can load it.
+",
+  "remote/index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>remote</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "remote/package.json": "{
+  "name": "my-app-remote",
   "private": true,
+  "version": "0.1.0",
+  "type": "module",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "preview": "turbo run preview",
-    "typecheck": "turbo run typecheck"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "turbo": "^2.11.13"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "npm",
-      "version": "^11.0.0"
-    }
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
-}
-",
-  "turbo.json": "{
-  "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "preview": {
-      "dependsOn": ["build"],
-      "cache": false,
-      "persistent": true
-    },
-    "typecheck": {
-      "dependsOn": ["^typecheck"]
-    }
+    "@module-federation/vite": "^1.25.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
   }
 }
+",
+  "remote/src/Counter.tsx": "import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "remote/src/main.tsx": "import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import Counter from "./Counter";
+
+// Standalone page for working on the remote without the host.
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Counter />
+  </StrictMode>,
+);
+",
+  "remote/tsconfig.json": "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "remote/vite.config.ts": "import { federation } from "@module-federation/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+// Where this remote is served. Asset URLs resolve against it, so they keep working
+// when the host loads the remote; change it (and the host's remote entry) on deploy.
+const REMOTE_ORIGIN = "http://localhost:5174";
+
+export default defineConfig({
+  base: \`\${REMOTE_ORIGIN}/\`,
+  server: { port: 5174, strictPort: true, origin: REMOTE_ORIGIN },
+  preview: { port: 5174, strictPort: true },
+  plugins: [
+    react(),
+    federation({
+      name: "remote",
+      filename: "remoteEntry.js",
+      manifest: true,
+      dts: false,
+      exposes: {
+        "./Counter": "./src/Counter.tsx",
+      },
+      shared: {
+        react: { singleton: true },
+        "react-dom": { singleton: true },
+      },
+    }),
+  ],
+});
 ",
 }
 `;

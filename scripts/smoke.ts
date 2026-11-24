@@ -81,37 +81,52 @@ async function smoke(combo: Combo): Promise<Outcome> {
     await writeFile(target, content);
   }
 
-  const scripts = Object.keys(
-    (
-      JSON.parse(result.files.get("package.json") ?? "{}") as {
-        scripts?: Record<string, string>;
-      }
-    ).scripts ?? {},
-  );
-  const steps: [string, string[]][] = [
-    [
-      "install",
-      ["install", "--prefer-offline", "--config.confirmModulesPurge=false"],
-    ],
-    ...["build", "typecheck", "lint", "format:check", "check", "test"]
-      .filter((s) => scripts.includes(s))
-      .map((s): [string, string[]] => [s, ["run", s]]),
-  ];
+  // One project at the root, or several independent ones side by side (micro-frontends).
+  const projects = result.files.has("package.json")
+    ? [""]
+    : [...result.files.keys()]
+        .filter((path) => /^[^/]+\/package\.json$/.test(path))
+        .map((path) => path.slice(0, path.indexOf("/")));
 
   const timings: string[] = [];
-  for (const [step, pnpmArgs] of steps) {
-    const stepStarted = Date.now();
-    const { code, output } = await run("pnpm", pnpmArgs, dir);
-    timings.push(`${step} ${((Date.now() - stepStarted) / 1000).toFixed(0)}s`);
-    if (code !== 0) {
-      return {
-        id,
-        ok: false,
-        step,
-        output,
-        ms: Date.now() - started,
-        timings: timings.join(", "),
-      };
+  for (const project of projects) {
+    const prefix = project ? `${project}:` : "";
+    const scripts = Object.keys(
+      (
+        JSON.parse(
+          result.files.get(
+            project ? `${project}/package.json` : "package.json",
+          ) ?? "{}",
+        ) as { scripts?: Record<string, string> }
+      ).scripts ?? {},
+    );
+    const steps: [string, string[]][] = [
+      [
+        "install",
+        ["install", "--prefer-offline", "--config.confirmModulesPurge=false"],
+      ],
+      ...["build", "typecheck", "lint", "format:check", "check", "test"]
+        .filter((s) => scripts.includes(s))
+        .map((s): [string, string[]] => [s, ["run", s]]),
+    ];
+
+    for (const [name, pnpmArgs] of steps) {
+      const step = prefix + name;
+      const stepStarted = Date.now();
+      const { code, output } = await run("pnpm", pnpmArgs, join(dir, project));
+      timings.push(
+        `${step} ${((Date.now() - stepStarted) / 1000).toFixed(0)}s`,
+      );
+      if (code !== 0) {
+        return {
+          id,
+          ok: false,
+          step,
+          output,
+          ms: Date.now() - started,
+          timings: timings.join(", "),
+        };
+      }
     }
   }
   if (!keep) await rm(dir, { recursive: true, force: true });

@@ -32,8 +32,8 @@ async function files(
 
 /**
  * Every module available for the framework, taking the first option in single-select categories.
- * Biome (replaces ESLint + Prettier), Turborepo (moves every file) and Module Federation
- * (requires Turborepo) have their own snapshots.
+ * Biome (replaces ESLint + Prettier), Turborepo and Module Federation (both change the
+ * layout, and conflict) have their own snapshots.
  */
 function everything(framework: FrameworkId): string[] {
   const taken = new Set<string>();
@@ -148,16 +148,25 @@ describe("generate", () => {
             continue;
           }
           generated++;
-          const pkg = JSON.parse(result.files.get("package.json") ?? "{}") as {
-            dependencies?: Record<string, string>;
-            devDependencies?: Record<string, string>;
-          };
-          const versions = Object.values({
-            ...pkg.dependencies,
-            ...pkg.devDependencies,
-          });
-          expect(versions.length).toBeGreaterThan(0);
-          expect(versions.every((v) => /^[~^]?\d/.test(v))).toBe(true);
+          // Every package.json: the app, a workspace root, or host and remote projects.
+          const manifests = [...result.files]
+            .filter(([path]) => path.endsWith("package.json"))
+            .map(
+              ([, content]) =>
+                JSON.parse(content) as {
+                  dependencies?: Record<string, string>;
+                  devDependencies?: Record<string, string>;
+                },
+            );
+          expect(manifests.length).toBeGreaterThan(0);
+          for (const pkg of manifests) {
+            const versions = Object.values({
+              ...pkg.dependencies,
+              ...pkg.devDependencies,
+            });
+            expect(versions.length).toBeGreaterThan(0);
+            expect(versions.every((v) => /^[~^]?\d/.test(v))).toBe(true);
+          }
         }
       }
       expect(generated).toBeGreaterThan(0);

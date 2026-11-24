@@ -11,7 +11,7 @@ import { jsxCounter } from "./jsx";
 
 /**
  * Module Federation with `@module-federation/vite` (the plugin Vite recommends): the app is the
- * host, `apps/remote` exposes `./Counter`. React is a shared singleton so hooks work across
+ * host, a separate remote project exposes `./Counter`. React is a shared singleton so hooks work across
  * the boundary. `dts: false`: the plugin's type sharing needs the remote running during
  * typecheck, so the host declares the remote module by hand instead.
  */
@@ -41,7 +41,9 @@ function federationCall(options: string[]): ImportedCall {
   };
 }
 
-export function hostFederationPlugin(spec: FederationSpec): ImportedCall {
+export function hostFederationPlugin(
+  spec: Pick<FederationSpec, "remotePort">,
+): ImportedCall {
   return federationCall([
     'name: "host",',
     "dts: false,",
@@ -57,7 +59,9 @@ export function hostFederationPlugin(spec: FederationSpec): ImportedCall {
 }
 
 /** Top-level vite.config options for the host. */
-export function hostServerOptions(spec: FederationSpec): string[] {
+export function hostServerOptions(
+  spec: Pick<FederationSpec, "hostPort">,
+): string[] {
   return serverOptions(spec.hostPort);
 }
 
@@ -80,7 +84,7 @@ export function remoteDeclarations(): string {
 export function remoteApp(
   model: ProjectModel,
   ctx: Ctx,
-  spec: FederationSpec,
+  spec: Pick<FederationSpec, "remotePort">,
 ): Map<string, string> {
   const version = (name: string) => knownGoodVersion(name, "react");
   const x = ctx.ext.component;
@@ -90,7 +94,7 @@ export function remoteApp(
   files.set(
     "package.json",
     json({
-      name: "remote",
+      name: `${ctx.selection.name}-remote`,
       private: true,
       version: "0.1.0",
       type: "module",

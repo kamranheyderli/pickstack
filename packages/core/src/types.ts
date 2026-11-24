@@ -161,19 +161,18 @@ export interface MonorepoSpec {
   typecheckAfterBuild: boolean;
   /** Non-prefixed variables read at build time; strict env mode drops the rest. */
   buildEnv: string[];
-  /** More workspace apps next to `apps/web`, keyed by folder name. */
-  apps: Record<string, Map<string, string>>;
-  /** Adds a persistent `preview` task (apps that must be served together). */
-  preview: boolean;
 }
 
 /**
  * Set by the `module-federation` module: the app is a Module Federation host that loads
- * components from the remote app in `apps/remote`.
+ * components from a remote. `finalize` writes them as two independent projects, `host/` and
+ * `remote/`, since micro-frontends are built and deployed separately.
  */
 export interface FederationSpec {
   hostPort: number;
   remotePort: number;
+  /** The remote project's files, relative to `remote/`. */
+  remote: Map<string, string>;
 }
 
 export interface ProjectModel {

@@ -628,51 +628,48 @@ describe("module-federation", () => {
     if (!result.ok) throw new Error("generation failed");
     return result.files;
   }
+  const pkgName = (files: Map<string, string>, path: string) =>
+    (JSON.parse(files.get(path) ?? "{}") as { name?: string }).name;
 
-  it("auto-adds turborepo and writes a remote app next to the host", async () => {
+  it("writes the host and the remote as two independent projects", async () => {
     const files = await project([]);
-    const remote = files.get("apps/remote/vite.config.ts") ?? "";
+    expect(files.has("package.json")).toBe(false);
+    expect(pkgName(files, "host/package.json")).toBe("acme-host");
+    expect(pkgName(files, "remote/package.json")).toBe("acme-remote");
+    expect(files.has("host/.gitignore")).toBe(true);
+    expect(files.has("remote/.gitignore")).toBe(true);
+    expect(files.get("README.md")).toContain("cd remote && pnpm install");
+    const remote = files.get("remote/vite.config.ts") ?? "";
     expect(remote).toContain('"./Counter": "./src/Counter.tsx"');
     expect(remote).toContain("base: `${REMOTE_ORIGIN}/`");
-    expect(files.get("apps/remote/src/Counter.tsx")).toContain(
-      "export default function Counter()",
-    );
-    const host = files.get("apps/web/vite.config.ts") ?? "";
+    const host = files.get("host/vite.config.ts") ?? "";
     expect(host).toContain('entry: "http://localhost:5174/remoteEntry.js"');
     expect(host).toContain("strictPort: true");
-    expect(files.get("apps/web/src/remotes.d.ts")).toContain(
+    expect(files.get("host/src/remotes.d.ts")).toContain(
       'declare module "remote/Counter"',
     );
   });
 
   it("loads the remote counter lazily in the host page", async () => {
-    const app = (await project([])).get("apps/web/src/App.tsx") ?? "";
+    const app = (await project([])).get("host/src/App.tsx") ?? "";
     expect(app).toContain(
       'const RemoteCounter = lazy(() => import("remote/Counter"));',
     );
     expect(app).toContain("<RemoteCounter />");
     const home =
-      (await project(["react-router"])).get("apps/web/src/pages/Home.tsx") ??
-      "";
+      (await project(["react-router"])).get("host/src/pages/Home.tsx") ?? "";
     expect(home).toContain("<RemoteCounter />");
   });
 
-  it("adds a preview task that serves both apps", async () => {
-    const files = await project([]);
-    const turbo = JSON.parse(files.get("turbo.json") ?? "{}") as {
-      tasks: Record<string, unknown>;
-    };
-    expect(turbo.tasks["preview"]).toEqual({
-      dependsOn: ["build"],
-      cache: false,
-      persistent: true,
-    });
+  it("keeps per-project tooling such as git hooks in the host", async () => {
+    const files = await project(["husky-lint-staged", "prettier"]);
+    expect(files.get("host/.husky/pre-commit")).toBe("lint-staged\n");
   });
 
   it("writes a JS remote without TypeScript files", async () => {
     const files = await project([], "js");
-    expect(files.has("apps/remote/vite.config.js")).toBe(true);
-    expect(files.has("apps/remote/tsconfig.json")).toBe(false);
-    expect(files.has("apps/web/src/remotes.d.ts")).toBe(false);
+    expect(files.has("remote/vite.config.js")).toBe(true);
+    expect(files.has("remote/tsconfig.json")).toBe(false);
+    expect(files.has("host/src/remotes.d.ts")).toBe(false);
   });
 });
