@@ -132,7 +132,13 @@ export interface ProjectModel {
     appUses: string[];
     setup: string[];
   };
-  bundler: { plugins: ImportedCall[] };
+  bundler: {
+    plugins: ImportedCall[];
+    /** Framework modules/integrations, e.g. Nuxt's `modules: ["@pinia/nuxt"]`. */
+    modules: string[];
+    /** Extra top-level keys for the framework config file (nuxt.config, astro.config). */
+    config: Record<string, unknown>;
+  };
   styles: {
     /** CSS `@import` lines placed at the top of the global stylesheet. */
     globalImports: string[];

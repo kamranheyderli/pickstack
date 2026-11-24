@@ -1,5 +1,6 @@
 import {
   frameworkCatalog,
+  getFramework,
   getModule,
   toProjectName,
   type Language,
@@ -21,7 +22,7 @@ import { Chips } from "./Chips";
 import { Segmented } from "./Segmented";
 
 const packageManagers: PackageManager[] = ["npm", "pnpm", "yarn", "bun"];
-const languages: Language[] = ["ts", "js"];
+const languageOrder: Language[] = ["ts", "js"];
 const NONE = "";
 
 interface OptionsPanelProps {
@@ -73,11 +74,15 @@ export function OptionsPanel({
         legend={t("field.language")}
         name="language"
         value={selection.language}
-        options={languages.map((l) => ({
-          value: l,
-          label: t(`language.${l}`),
-          icon: <BrandIcon icon={languageIcons[l]} size={15} />,
-        }))}
+        options={languageOrder
+          .filter((l) =>
+            getFramework(selection.framework)?.languages.includes(l),
+          )
+          .map((l) => ({
+            value: l,
+            label: t(`language.${l}`),
+            icon: <BrandIcon icon={languageIcons[l]} size={15} />,
+          }))}
         onChange={(language) => onBaseChange({ ...selection, language })}
       />
 

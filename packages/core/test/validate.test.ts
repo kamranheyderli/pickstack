@@ -7,7 +7,7 @@ import {
   validate,
 } from "../src";
 import { sortModules } from "../src/engine/resolve";
-import type { Module } from "../src";
+import type { FrameworkId, Module } from "../src";
 import { fakeModule, selection } from "./helpers";
 
 function lookupOf(mods: Module[]) {
@@ -39,7 +39,7 @@ describe("validate", () => {
   });
 
   it("rejects frameworks without an adapter", () => {
-    const result = validate(selection({ framework: "angular" }));
+    const result = validate(selection({ framework: "ember" as FrameworkId }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors[0]?.code).toBe("unknown-framework");
   });

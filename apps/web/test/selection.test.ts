@@ -45,3 +45,15 @@ describe("selection", () => {
     ).toBe("redux-toolkit");
   });
 });
+
+describe("framework languages", () => {
+  it("switches to TypeScript for TS-only frameworks", () => {
+    const result = pruneIncompatible({
+      ...base,
+      framework: "angular",
+      language: "js",
+      modules: [],
+    });
+    expect(result.selection.language).toBe("ts");
+  });
+});

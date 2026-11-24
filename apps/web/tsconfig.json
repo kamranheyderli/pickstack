@@ -6,5 +6,10 @@
     "resolveJsonModule": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "test", "vite.config.ts"]
+  "include": [
+    "src",
+    "test",
+    "vite.config.ts",
+    "../../packages/core/src/**/*.d.ts"
+  ]
 }

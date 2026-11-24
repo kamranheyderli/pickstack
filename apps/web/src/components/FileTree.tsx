@@ -25,6 +25,8 @@ const extColors: Record<string, string> = {
   html: "#e5532d",
   md: "#8b8b96",
   vue: "#41b883",
+  svelte: "#ff3e00",
+  astro: "#bc52ee",
 };
 
 function extColor(path: string): string {

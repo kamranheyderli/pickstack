@@ -17,6 +17,8 @@ const shared: VersionSet = {
   "prettier-plugin-svelte": "^4.2.0",
   "prettier-plugin-astro": "^1.1.2",
   "@types/node": "^24.19.2",
+  "@tailwindcss/postcss": "^4.3.5",
+  postcss: "^8.5.33",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
@@ -71,6 +73,42 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     "preact-iso": "^2.12.2",
     "preact-render-to-string": "^6.8.3",
     vite: "^8.3.8",
+  },
+  next: {
+    next: "^16.4.6",
+    react: "^19.3.1",
+    "react-dom": "^19.3.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@reduxjs/toolkit": "^2.15.0",
+    "react-redux": "^9.3.1",
+    zustand: "^5.1.0",
+  },
+  nuxt: {
+    nuxt: "^4.7.0",
+    vue: "^3.5.46",
+    "vue-router": "^5.5.1",
+    "vue-tsc": "^3.3.14",
+    pinia: "^4.1.0",
+    "@pinia/nuxt": "^1.0.3",
+    "@vue/devtools-api": "^8.2.1",
+  },
+  astro: {
+    astro: "^7.4.13",
+    "@astrojs/check": "^0.9.12",
+  },
+  angular: {
+    "@angular/build": "^22.3.0",
+    "@angular/cli": "^22.3.0",
+    "@angular/common": "^22.3.0",
+    "@angular/compiler": "^22.3.0",
+    "@angular/compiler-cli": "^22.3.0",
+    "@angular/core": "^22.3.0",
+    "@angular/forms": "^22.3.0",
+    "@angular/platform-browser": "^22.3.0",
+    "@angular/router": "^22.3.0",
+    rxjs: "~7.8.2",
+    tslib: "^2.9.1",
   },
 };
 

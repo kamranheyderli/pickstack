@@ -11,6 +11,8 @@ const languages: Record<string, string> = {
   html: "html",
   md: "markdown",
   vue: "vue",
+  svelte: "svelte",
+  astro: "astro",
 };
 
 let highlighter: Promise<HighlighterCore> | null = null;
@@ -35,6 +37,8 @@ function load(): Promise<HighlighterCore> {
         import("shiki/langs/html.mjs"),
         import("shiki/langs/markdown.mjs"),
         import("shiki/langs/vue.mjs"),
+        import("shiki/langs/svelte.mjs"),
+        import("shiki/langs/astro.mjs"),
       ],
     });
   })();

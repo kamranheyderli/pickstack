@@ -46,6 +46,9 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   pinia: siPinia,
   // Vue Router has no mark of its own; it ships under the Vue logo.
   "vue-router": siVuedotjs,
+  // Official routers without marks of their own ship under their framework's logo.
+  "solid-router": siSolid,
+  "preact-iso": siPreact,
 };
 
 export const languageIcons: Record<Language, SimpleIcon> = {

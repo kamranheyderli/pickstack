@@ -168,6 +168,21 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 
 Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı, lisenziya faylı (MIT və ya yox), `.editorconfig`, GitHub Actions CI faylı (lint + build).
 
+### 5.10 Framework qeydləri (2026-11, rəsmi scaffold-lardan yoxlanılıb)
+
+| Framework | Əsas | Qeyd |
+|---|---|---|
+| Svelte | create-vite `svelte(-ts)` | typecheck: `svelte-check` + `tsc -p tsconfig.node.json`. Routing modulu yoxdur, UI SvelteKit ipucu göstərir |
+| SvelteKit | `sv create --template minimal` | SvelteKit 3: kit konfiqi `vite.config`-də, `#lib` package.json `imports`-dadır (`$lib` yoxdur). adapter-auto host olmadan deploy olunan çıxış vermir, ona görə adapter-static + `prerender = true` |
+| SolidJS | create-vite `solid(-ts)` | Solid **1.9** xətti: npm `latest` 2.0-dır, amma rəsmi şablon 1.x-dədir və Solid 2-nin router/plugin-i ayrı xəttdir |
+| Preact | create-vite `preact(-ts)` | Preact 11. `preact-iso` `preact-render-to-string`-i məcburi peer kimi istəyir, açıq asılılıq kimi əlavə olunur |
+| Next.js | `create-next-app --empty` | src qovluğu yoxdur. Tailwind PostCSS ilə (`@tailwindcss/postcss`). typecheck: `next typegen && tsc --noEmit`. Redux: `makeStore` + client `StoreProvider` |
+| Nuxt | `nuxt/starter` v4 | mənbə `app/`-dadır. Pinia `@pinia/nuxt` modulu ilə. Axios baseURL `runtimeConfig.public` + plugin ilə |
+| Astro | create-astro `minimal` | UI framework yoxdur: sayğac custom element-dir. Yalnız `PUBLIC_` env dəyişənləri client-ə çatır. `prettier-plugin-astro`-nun brauzer build-i olmadığı üçün `.astro` faylları əvvəlcədən formatlanmış yazılır (`shared/markup.ts`) |
+| Angular | `ng new --defaults` | Angular 22, zoneless, `app.ts` adlandırması. TypeScript dəqiq `>=6.0 <6.1`. typecheck: `ngc -p tsconfig.app.json --noEmit` (`tsc` template-ləri yoxlamır). Tailwind `.postcssrc.json` ilə. Axios baseURL `environment.ts`-də |
+
+Ümumi: Astro, Angular, SvelteKit və Nuxt (`vue-tsc`) TypeScript 7-ni qəbul etmir, ona görə bütün frameworklərdə `typescript ~6.0.3` saxlanılır.
+
 ## 6. Mühərrik dizaynı
 
 ### 6.1 Əsas tiplər

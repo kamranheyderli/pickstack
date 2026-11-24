@@ -1,5 +1,3636 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`angular snapshots > everything (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.angular
+.env
+.env.local
+.DS_Store
+",
+  ".postcssrc.json": "{
+  "plugins": {
+    "@tailwindcss/postcss": {}
+  }
+}
+",
+  ".prettierignore": "dist
+.angular
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run ng\`
+- \`npm run build\`
+- \`npm run watch\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Set \`apiUrl\` in \`src/environments/environment.ts\`. Import the client from \`src/app/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "angular.json": "{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "my-app": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": ["src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "my-app:build:production"
+            },
+            "development": {
+              "buildTarget": "my-app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "ng": "ng",
+    "dev": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "typecheck": "ngc -p tsconfig.app.json --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@angular/common": "^22.3.0",
+    "@angular/compiler": "^22.3.0",
+    "@angular/core": "^22.3.0",
+    "@angular/forms": "^22.3.0",
+    "@angular/platform-browser": "^22.3.0",
+    "@angular/router": "^22.3.0",
+    "axios": "^1.21.1",
+    "rxjs": "~7.8.2",
+    "tslib": "^2.9.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.3.0",
+    "@angular/cli": "^22.3.0",
+    "@angular/compiler-cli": "^22.3.0",
+    "@tailwindcss/postcss": "^4.3.5",
+    "postcss": "^8.5.33",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "public/robots.txt": "User-agent: *
+Disallow:
+",
+  "src/app/api/client.ts": "import axios from "axios";
+import { environment } from "../../environments/environment";
+
+export const api = axios.create({
+  baseURL: environment.apiUrl,
+  timeout: 10_000,
+});
+",
+  "src/app/app.config.ts": "import {
+  provideBrowserGlobalErrorListeners,
+  type ApplicationConfig,
+} from "@angular/core";
+import { provideRouter } from "@angular/router";
+import { routes } from "./app.routes";
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
+};
+",
+  "src/app/app.html": "<main
+  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+>
+  <nav class="flex gap-4 text-sm font-medium">
+    <a class="text-slate-600 hover:text-slate-900" routerLink="/">Home</a>
+    <a class="text-slate-600 hover:text-slate-900" routerLink="/about">About</a>
+  </nav>
+  <router-outlet />
+</main>
+",
+  "src/app/app.routes.ts": "import type { Routes } from "@angular/router";
+import { Home } from "./pages/home/home";
+
+export const routes: Routes = [
+  { path: "", component: Home },
+  {
+    path: "about",
+    loadComponent: () => import("./pages/about/about").then((m) => m.About),
+  },
+];
+",
+  "src/app/app.ts": "import { Component } from "@angular/core";
+import { RouterLink, RouterOutlet } from "@angular/router";
+
+@Component({
+  selector: "app-root",
+  imports: [RouterLink, RouterOutlet],
+  templateUrl: "./app.html",
+})
+export class App {}
+",
+  "src/app/components/counter/counter.html": "<div
+  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+>
+  <p class="text-5xl font-bold tabular-nums">{{ counter.count() }}</p>
+  <div class="mt-6 flex justify-center gap-3">
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      (click)="counter.decrement()"
+    >
+      -1
+    </button>
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      (click)="counter.increment()"
+    >
+      +1
+    </button>
+  </div>
+</div>
+",
+  "src/app/components/counter/counter.ts": "import { Component, inject } from "@angular/core";
+import { CounterService } from "../../services/counter.service";
+
+@Component({
+  selector: "app-counter",
+  templateUrl: "./counter.html",
+})
+export class Counter {
+  protected readonly counter = inject(CounterService);
+}
+",
+  "src/app/pages/about/about.html": "<section class="flex flex-col items-center gap-6">
+  <h1 class="text-3xl font-bold tracking-tight">About</h1>
+  <p class="max-w-md text-center text-slate-600">
+    Built with Angular 22, TypeScript, Tailwind CSS, Angular signals service,
+    Axios, Prettier.
+  </p>
+</section>
+",
+  "src/app/pages/about/about.ts": "import { Component } from "@angular/core";
+
+@Component({
+  selector: "app-about",
+  templateUrl: "./about.html",
+})
+export class About {}
+",
+  "src/app/pages/home/home.html": "<section class="flex flex-col items-center gap-6">
+  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+  <app-counter />
+</section>
+",
+  "src/app/pages/home/home.ts": "import { Component } from "@angular/core";
+import { Counter } from "../../components/counter/counter";
+
+@Component({
+  selector: "app-home",
+  imports: [Counter],
+  templateUrl: "./home.html",
+})
+export class Home {}
+",
+  "src/app/services/counter.service.ts": "import { Injectable, signal } from "@angular/core";
+
+@Injectable({ providedIn: "root" })
+export class CounterService {
+  private readonly value = signal(0);
+  readonly count = this.value.asReadonly();
+
+  increment(): void {
+    this.value.update((value) => value + 1);
+  }
+
+  decrement(): void {
+    this.value.update((value) => value - 1);
+  }
+}
+",
+  "src/environments/environment.ts": "export const environment = {
+  apiUrl: "http://localhost:3000",
+};
+",
+  "src/index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>my-app</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>
+",
+  "src/main.ts": "import { bootstrapApplication } from "@angular/platform-browser";
+import { App } from "./app/app";
+import { appConfig } from "./app/app.config";
+
+bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+",
+  "src/styles.css": "@import "tailwindcss";
+",
+  "tsconfig.app.json": "{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
+}
+",
+  "tsconfig.json": "{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+",
+}
+`;
+
+exports[`angular snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.angular
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Angular 22, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run ng\`
+- \`npm run build\`
+- \`npm run watch\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "angular.json": "{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "my-app": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": ["src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "my-app:build:production"
+            },
+            "development": {
+              "buildTarget": "my-app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "ng": "ng",
+    "dev": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "typecheck": "ngc -p tsconfig.app.json --noEmit"
+  },
+  "dependencies": {
+    "@angular/common": "^22.3.0",
+    "@angular/compiler": "^22.3.0",
+    "@angular/core": "^22.3.0",
+    "@angular/forms": "^22.3.0",
+    "@angular/platform-browser": "^22.3.0",
+    "@angular/router": "^22.3.0",
+    "rxjs": "~7.8.2",
+    "tslib": "^2.9.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.3.0",
+    "@angular/cli": "^22.3.0",
+    "@angular/compiler-cli": "^22.3.0",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "public/robots.txt": "User-agent: *
+Disallow:
+",
+  "src/app/app.config.ts": "import {
+  provideBrowserGlobalErrorListeners,
+  type ApplicationConfig,
+} from "@angular/core";
+import { provideRouter } from "@angular/router";
+import { routes } from "./app.routes";
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
+};
+",
+  "src/app/app.html": "<main class="app">
+  <nav class="nav">
+    <a class="link" routerLink="/">Home</a>
+    <a class="link" routerLink="/about">About</a>
+  </nav>
+  <router-outlet />
+</main>
+",
+  "src/app/app.routes.ts": "import type { Routes } from "@angular/router";
+import { Home } from "./pages/home/home";
+
+export const routes: Routes = [
+  { path: "", component: Home },
+  {
+    path: "about",
+    loadComponent: () => import("./pages/about/about").then((m) => m.About),
+  },
+];
+",
+  "src/app/app.ts": "import { Component } from "@angular/core";
+import { RouterLink, RouterOutlet } from "@angular/router";
+
+@Component({
+  selector: "app-root",
+  imports: [RouterLink, RouterOutlet],
+  templateUrl: "./app.html",
+})
+export class App {}
+",
+  "src/app/components/counter/counter.html": "<div class="card">
+  <p class="count">{{ count() }}</p>
+  <div class="row">
+    <button type="button" class="btn" (click)="decrement()">-1</button>
+    <button type="button" class="btn" (click)="increment()">+1</button>
+  </div>
+</div>
+",
+  "src/app/components/counter/counter.ts": "import { Component, signal } from "@angular/core";
+
+@Component({
+  selector: "app-counter",
+  templateUrl: "./counter.html",
+})
+export class Counter {
+  protected readonly count = signal(0);
+
+  protected increment(): void {
+    this.count.update((value) => value + 1);
+  }
+
+  protected decrement(): void {
+    this.count.update((value) => value - 1);
+  }
+}
+",
+  "src/app/pages/about/about.html": "<section class="page">
+  <h1 class="title">About</h1>
+  <p class="text">Built with Angular 22, TypeScript.</p>
+</section>
+",
+  "src/app/pages/about/about.ts": "import { Component } from "@angular/core";
+
+@Component({
+  selector: "app-about",
+  templateUrl: "./about.html",
+})
+export class About {}
+",
+  "src/app/pages/home/home.html": "<section class="page">
+  <h1 class="title">my-app</h1>
+  <app-counter />
+</section>
+",
+  "src/app/pages/home/home.ts": "import { Component } from "@angular/core";
+import { Counter } from "../../components/counter/counter";
+
+@Component({
+  selector: "app-home",
+  imports: [Counter],
+  templateUrl: "./home.html",
+})
+export class Home {}
+",
+  "src/index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>my-app</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>
+",
+  "src/main.ts": "import { bootstrapApplication } from "@angular/platform-browser";
+import { App } from "./app/app";
+import { appConfig } from "./app/app.config";
+
+bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+",
+  "src/styles.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "tsconfig.app.json": "{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
+}
+",
+  "tsconfig.json": "{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+",
+}
+`;
+
+exports[`astro snapshots > everything (js) 1`] = `
+{
+  ".env.example": "PUBLIC_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.astro
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.astro
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "plugins": ["prettier-plugin-astro"],
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: Astro, Tailwind CSS, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run astro\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "astro.config.mjs": "// @ts-check
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "astro": "^7.4.13",
+    "axios": "^1.21.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "prettier-plugin-astro": "^1.1.2",
+    "tailwindcss": "^4.3.5"
+  }
+}
+",
+  "src/api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.PUBLIC_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/components/Counter.astro": "<counter-card>
+  <div class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+    <p class="text-5xl font-bold tabular-nums" data-count>
+      0
+    </p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        data-step="-1"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        data-step="1"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</counter-card>
+
+<script>
+  class CounterCard extends HTMLElement {
+    connectedCallback() {
+      const output = this.querySelector("[data-count]");
+      let count = 0;
+      for (const button of this.querySelectorAll("button")) {
+        button.addEventListener("click", () => {
+          count += Number(button.dataset.step);
+          if (output) output.textContent = String(count);
+        });
+      }
+    }
+  }
+
+  customElements.define("counter-card", CounterCard);
+</script>
+",
+  "src/layouts/Layout.astro": "---
+import "../styles/global.css";
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <nav class="flex gap-4 text-sm font-medium">
+        <a class="text-slate-600 hover:text-slate-900" href="/">
+          Home
+        </a>
+        <a class="text-slate-600 hover:text-slate-900" href="/about">
+          About
+        </a>
+      </nav>
+      <slot />
+    </main>
+  </body>
+</html>
+",
+  "src/pages/about.astro": "---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Astro, Tailwind CSS, Axios, Prettier.
+    </p>
+  </section>
+</Layout>
+",
+  "src/pages/index.astro": "---
+import Counter from "../components/Counter.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Home">
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <Counter />
+  </section>
+</Layout>
+",
+  "src/styles/global.css": "@import "tailwindcss";
+",
+  "tsconfig.json": "{
+  "extends": "astro/tsconfigs/base",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}
+",
+}
+`;
+
+exports[`astro snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "PUBLIC_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.astro
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.astro
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "plugins": ["prettier-plugin-astro"],
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: Astro, TypeScript, Tailwind CSS, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run astro\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "astro.config.mjs": "// @ts-check
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "astro": "^7.4.13",
+    "axios": "^1.21.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "prettier-plugin-astro": "^1.1.2",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "src/api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.PUBLIC_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/components/Counter.astro": "<counter-card>
+  <div class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+    <p class="text-5xl font-bold tabular-nums" data-count>
+      0
+    </p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        data-step="-1"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        data-step="1"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</counter-card>
+
+<script>
+  class CounterCard extends HTMLElement {
+    connectedCallback() {
+      const output = this.querySelector("[data-count]");
+      let count = 0;
+      for (const button of this.querySelectorAll("button")) {
+        button.addEventListener("click", () => {
+          count += Number(button.dataset.step);
+          if (output) output.textContent = String(count);
+        });
+      }
+    }
+  }
+
+  customElements.define("counter-card", CounterCard);
+</script>
+",
+  "src/layouts/Layout.astro": "---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <nav class="flex gap-4 text-sm font-medium">
+        <a class="text-slate-600 hover:text-slate-900" href="/">
+          Home
+        </a>
+        <a class="text-slate-600 hover:text-slate-900" href="/about">
+          About
+        </a>
+      </nav>
+      <slot />
+    </main>
+  </body>
+</html>
+",
+  "src/pages/about.astro": "---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Astro, TypeScript, Tailwind CSS, Axios, Prettier.
+    </p>
+  </section>
+</Layout>
+",
+  "src/pages/index.astro": "---
+import Counter from "../components/Counter.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Home">
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <Counter />
+  </section>
+</Layout>
+",
+  "src/styles/global.css": "@import "tailwindcss";
+",
+  "tsconfig.json": "{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}
+",
+}
+`;
+
+exports[`astro snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.astro
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Astro.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run astro\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "astro.config.mjs": "// @ts-check
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^7.4.13"
+  },
+  "devDependencies": {}
+}
+",
+  "src/components/Counter.astro": "<counter-card>
+  <div class="card">
+    <p class="count" data-count>
+      0
+    </p>
+    <div class="row">
+      <button type="button" class="btn" data-step="-1">
+        -1
+      </button>
+      <button type="button" class="btn" data-step="1">
+        +1
+      </button>
+    </div>
+  </div>
+</counter-card>
+
+<script>
+  class CounterCard extends HTMLElement {
+    connectedCallback() {
+      const output = this.querySelector("[data-count]");
+      let count = 0;
+      for (const button of this.querySelectorAll("button")) {
+        button.addEventListener("click", () => {
+          count += Number(button.dataset.step);
+          if (output) output.textContent = String(count);
+        });
+      }
+    }
+  }
+
+  customElements.define("counter-card", CounterCard);
+</script>
+",
+  "src/layouts/Layout.astro": "---
+import "../styles/global.css";
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main class="app">
+      <nav class="nav">
+        <a class="link" href="/">
+          Home
+        </a>
+        <a class="link" href="/about">
+          About
+        </a>
+      </nav>
+      <slot />
+    </main>
+  </body>
+</html>
+",
+  "src/pages/about.astro": "---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+  <section class="page">
+    <h1 class="title">About</h1>
+    <p class="text">Built with Astro.</p>
+  </section>
+</Layout>
+",
+  "src/pages/index.astro": "---
+import Counter from "../components/Counter.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Home">
+  <section class="page">
+    <h1 class="title">my-app</h1>
+    <Counter />
+  </section>
+</Layout>
+",
+  "src/styles/global.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "tsconfig.json": "{
+  "extends": "astro/tsconfigs/base",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}
+",
+}
+`;
+
+exports[`astro snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.astro
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Astro, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run astro\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "astro.config.mjs": "// @ts-check
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "astro": "^7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "src/components/Counter.astro": "<counter-card>
+  <div class="card">
+    <p class="count" data-count>
+      0
+    </p>
+    <div class="row">
+      <button type="button" class="btn" data-step="-1">
+        -1
+      </button>
+      <button type="button" class="btn" data-step="1">
+        +1
+      </button>
+    </div>
+  </div>
+</counter-card>
+
+<script>
+  class CounterCard extends HTMLElement {
+    connectedCallback() {
+      const output = this.querySelector("[data-count]");
+      let count = 0;
+      for (const button of this.querySelectorAll("button")) {
+        button.addEventListener("click", () => {
+          count += Number(button.dataset.step);
+          if (output) output.textContent = String(count);
+        });
+      }
+    }
+  }
+
+  customElements.define("counter-card", CounterCard);
+</script>
+",
+  "src/layouts/Layout.astro": "---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main class="app">
+      <nav class="nav">
+        <a class="link" href="/">
+          Home
+        </a>
+        <a class="link" href="/about">
+          About
+        </a>
+      </nav>
+      <slot />
+    </main>
+  </body>
+</html>
+",
+  "src/pages/about.astro": "---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+  <section class="page">
+    <h1 class="title">About</h1>
+    <p class="text">Built with Astro, TypeScript.</p>
+  </section>
+</Layout>
+",
+  "src/pages/index.astro": "---
+import Counter from "../components/Counter.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Home">
+  <section class="page">
+    <h1 class="title">my-app</h1>
+    <Counter />
+  </section>
+</Layout>
+",
+  "src/styles/global.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "tsconfig.json": "{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}
+",
+}
+`;
+
+exports[`next snapshots > everything (js) 1`] = `
+{
+  ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run start\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "app/StoreProvider.jsx": ""use client";
+
+import { useState } from "react";
+import { Provider } from "react-redux";
+import { makeStore } from "../lib/store";
+
+export default function StoreProvider({ children }) {
+  const [store] = useState(makeStore);
+  return <Provider store={store}>{children}</Provider>;
+}
+",
+  "app/about/page.jsx": "export default function About() {
+  return (
+    <section className="flex flex-col items-center gap-6">
+      <h1 className="text-3xl font-bold tracking-tight">About</h1>
+      <p className="max-w-md text-center text-slate-600">
+        Built with Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit,
+        Axios, Prettier.
+      </p>
+    </section>
+  );
+}
+",
+  "app/globals.css": "@import "tailwindcss";
+",
+  "app/layout.jsx": "import Link from "next/link";
+import StoreProvider from "./StoreProvider";
+import "./globals.css";
+
+export const metadata = {
+  title: "my-app",
+  description: "Generated by StackForge",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <StoreProvider>
+          <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+            <nav className="flex gap-4 text-sm font-medium">
+              <Link className="text-slate-600 hover:text-slate-900" href="/">
+                Home
+              </Link>
+              <Link
+                className="text-slate-600 hover:text-slate-900"
+                href="/about"
+              >
+                About
+              </Link>
+            </nav>
+            {children}
+          </main>
+        </StoreProvider>
+      </body>
+    </html>
+  );
+}
+",
+  "app/page.jsx": "import Counter from "@/components/Counter";
+
+export default function Home() {
+  return (
+    <section className="flex flex-col items-center gap-6">
+      <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "components/Counter.jsx": ""use client";
+
+import { useDispatch, useSelector } from "react-redux";
+import { decrement, increment } from "../lib/counterSlice";
+
+export default function Counter() {
+  const count = useSelector((state) => state.counter.value);
+  const dispatch = useDispatch();
+
+  return (
+    <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p className="text-5xl font-bold tabular-nums">{count}</p>
+      <div className="mt-6 flex justify-center gap-3">
+        <button
+          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => dispatch(decrement())}
+        >
+          -1
+        </button>
+        <button
+          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => dispatch(increment())}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "jsconfig.json": "{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+",
+  "lib/counterSlice.js": "import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = { value: 0 };
+
+const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) => {
+      state.value += 1;
+    },
+    decrement: (state) => {
+      state.value -= 1;
+    },
+  },
+});
+
+export const { increment, decrement } = counterSlice.actions;
+export default counterSlice.reducer;
+",
+  "lib/store.js": "import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./counterSlice";
+
+export const makeStore = () =>
+  configureStore({
+    reducer: {
+      counter: counterReducer,
+    },
+  });
+",
+  "next.config.mjs": "/** @type {import("next").NextConfig} */
+const nextConfig = {};
+
+export default nextConfig;
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.15.0",
+    "axios": "^1.21.1",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-redux": "^9.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "postcss": "^8.5.33",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5"
+  }
+}
+",
+  "postcss.config.mjs": "const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+",
+}
+`;
+
+exports[`next snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run start\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "app/StoreProvider.tsx": ""use client";
+
+import { useState, type ReactNode } from "react";
+import { Provider } from "react-redux";
+import { makeStore, type AppStore } from "../lib/store";
+
+export default function StoreProvider({ children }: { children: ReactNode }) {
+  const [store] = useState<AppStore>(makeStore);
+  return <Provider store={store}>{children}</Provider>;
+}
+",
+  "app/about/page.tsx": "export default function About() {
+  return (
+    <section className="flex flex-col items-center gap-6">
+      <h1 className="text-3xl font-bold tracking-tight">About</h1>
+      <p className="max-w-md text-center text-slate-600">
+        Built with Next.js (App Router), React 19, TypeScript, Tailwind CSS,
+        Redux Toolkit, Axios, Prettier.
+      </p>
+    </section>
+  );
+}
+",
+  "app/globals.css": "@import "tailwindcss";
+",
+  "app/layout.tsx": "import type { Metadata } from "next";
+import Link from "next/link";
+import StoreProvider from "./StoreProvider";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "my-app",
+  description: "Generated by StackForge",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="en">
+      <body>
+        <StoreProvider>
+          <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+            <nav className="flex gap-4 text-sm font-medium">
+              <Link className="text-slate-600 hover:text-slate-900" href="/">
+                Home
+              </Link>
+              <Link
+                className="text-slate-600 hover:text-slate-900"
+                href="/about"
+              >
+                About
+              </Link>
+            </nav>
+            {children}
+          </main>
+        </StoreProvider>
+      </body>
+    </html>
+  );
+}
+",
+  "app/page.tsx": "import Counter from "@/components/Counter";
+
+export default function Home() {
+  return (
+    <section className="flex flex-col items-center gap-6">
+      <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "components/Counter.tsx": ""use client";
+
+import { decrement, increment } from "../lib/counterSlice";
+import { useAppDispatch, useAppSelector } from "../lib/hooks";
+
+export default function Counter() {
+  const count = useAppSelector((state) => state.counter.value);
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p className="text-5xl font-bold tabular-nums">{count}</p>
+      <div className="mt-6 flex justify-center gap-3">
+        <button
+          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => dispatch(decrement())}
+        >
+          -1
+        </button>
+        <button
+          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => dispatch(increment())}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "lib/counterSlice.ts": "import { createSlice } from "@reduxjs/toolkit";
+
+interface CounterState {
+  value: number;
+}
+
+const initialState: CounterState = { value: 0 };
+
+const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) => {
+      state.value += 1;
+    },
+    decrement: (state) => {
+      state.value -= 1;
+    },
+  },
+});
+
+export const { increment, decrement } = counterSlice.actions;
+export default counterSlice.reducer;
+",
+  "lib/hooks.ts": "import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "./store";
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
+",
+  "lib/store.ts": "import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./counterSlice";
+
+export const makeStore = () =>
+  configureStore({
+    reducer: {
+      counter: counterReducer,
+    },
+  });
+
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];
+",
+  "next.config.ts": "import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {};
+
+export default nextConfig;
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.15.0",
+    "axios": "^1.21.1",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-redux": "^9.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.33",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "postcss.config.mjs": "const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+",
+  "tsconfig.json": "{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}
+",
+}
+`;
+
+exports[`next snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Next.js (App Router), React 19.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run start\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "app/about/page.jsx": "export default function About() {
+  return (
+    <section className="page">
+      <h1 className="title">About</h1>
+      <p className="text">Built with Next.js (App Router), React 19.</p>
+    </section>
+  );
+}
+",
+  "app/globals.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "app/layout.jsx": "import Link from "next/link";
+import "./globals.css";
+
+export const metadata = {
+  title: "my-app",
+  description: "Generated by StackForge",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <main className="app">
+          <nav className="nav">
+            <Link className="link" href="/">
+              Home
+            </Link>
+            <Link className="link" href="/about">
+              About
+            </Link>
+          </nav>
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}
+",
+  "app/page.jsx": "import Counter from "@/components/Counter";
+
+export default function Home() {
+  return (
+    <section className="page">
+      <h1 className="title">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "components/Counter.jsx": ""use client";
+
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button className="btn" onClick={() => setCount((n) => n - 1)}>
+          -1
+        </button>
+        <button className="btn" onClick={() => setCount((n) => n + 1)}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "jsconfig.json": "{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+",
+  "next.config.mjs": "/** @type {import("next").NextConfig} */
+const nextConfig = {};
+
+export default nextConfig;
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {}
+}
+",
+}
+`;
+
+exports[`next snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Next.js (App Router), React 19, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run start\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "app/about/page.tsx": "export default function About() {
+  return (
+    <section className="page">
+      <h1 className="title">About</h1>
+      <p className="text">
+        Built with Next.js (App Router), React 19, TypeScript.
+      </p>
+    </section>
+  );
+}
+",
+  "app/globals.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "app/layout.tsx": "import type { Metadata } from "next";
+import Link from "next/link";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "my-app",
+  description: "Generated by StackForge",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="en">
+      <body>
+        <main className="app">
+          <nav className="nav">
+            <Link className="link" href="/">
+              Home
+            </Link>
+            <Link className="link" href="/about">
+              About
+            </Link>
+          </nav>
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}
+",
+  "app/page.tsx": "import Counter from "@/components/Counter";
+
+export default function Home() {
+  return (
+    <section className="page">
+      <h1 className="title">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "components/Counter.tsx": ""use client";
+
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button className="btn" onClick={() => setCount((n) => n - 1)}>
+          -1
+        </button>
+        <button className="btn" onClick={() => setCount((n) => n + 1)}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "next.config.ts": "import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {};
+
+export default nextConfig;
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "tsconfig.json": "{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}
+",
+}
+`;
+
+exports[`nuxt snapshots > everything (js) 1`] = `
+{
+  ".env.example": "NUXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.nuxt
+.output
+.data
+.nitro
+.cache
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.nuxt
+.output
+.data
+.nitro
+.cache
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run generate\`
+- \`npm run preview\`
+- \`npm run postinstall\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "app/app.vue": "<template>
+  <NuxtRouteAnnouncer />
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <nav class="flex gap-4 text-sm font-medium">
+      <NuxtLink class="text-slate-600 hover:text-slate-900" to="/">
+        Home
+      </NuxtLink>
+      <NuxtLink class="text-slate-600 hover:text-slate-900" to="/about">
+        About
+      </NuxtLink>
+    </nav>
+    <NuxtPage />
+  </main>
+</template>
+",
+  "app/assets/css/main.css": "@import "tailwindcss";
+",
+  "app/components/CounterCard.vue": "<script setup>
+import { useCounterStore } from "~/stores/counter";
+
+const counter = useCounterStore();
+</script>
+
+<template>
+  <div
+    class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+  >
+    <p class="text-5xl font-bold tabular-nums">{{ counter.count }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.decrement()"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.increment()"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</template>
+",
+  "app/pages/about.vue": "<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier.
+    </p>
+  </section>
+</template>
+",
+  "app/pages/index.vue": "<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <CounterCard />
+  </section>
+</template>
+",
+  "app/plugins/api.js": "import axios from "axios";
+
+export default defineNuxtPlugin(() => {
+  const config = useRuntimeConfig();
+  const api = axios.create({
+    baseURL: config.public.apiUrl,
+    timeout: 10_000,
+  });
+
+  return { provide: { api } };
+});
+",
+  "app/stores/counter.js": "import { defineStore } from "pinia";
+import { ref } from "vue";
+
+export const useCounterStore = defineStore("counter", () => {
+  const count = ref(0);
+
+  function increment() {
+    count.value++;
+  }
+
+  function decrement() {
+    count.value--;
+  }
+
+  return { count, increment, decrement };
+});
+",
+  "nuxt.config.js": "import tailwindcss from "@tailwindcss/vite";
+
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: true },
+  modules: ["@pinia/nuxt"],
+  css: ["~/assets/css/main.css"],
+  vite: { plugins: [tailwindcss()] },
+  runtimeConfig: { public: { apiUrl: "http://localhost:3000" } },
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^1.0.3",
+    "@vue/devtools-api": "^8.2.1",
+    "axios": "^1.21.1",
+    "nuxt": "^4.7.0",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5"
+  }
+}
+",
+  "public/robots.txt": "User-Agent: *
+Disallow:
+",
+}
+`;
+
+exports[`nuxt snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "NUXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.nuxt
+.output
+.data
+.nitro
+.cache
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.nuxt
+.output
+.data
+.nitro
+.cache
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run generate\`
+- \`npm run preview\`
+- \`npm run postinstall\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "app/app.vue": "<template>
+  <NuxtRouteAnnouncer />
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <nav class="flex gap-4 text-sm font-medium">
+      <NuxtLink class="text-slate-600 hover:text-slate-900" to="/">
+        Home
+      </NuxtLink>
+      <NuxtLink class="text-slate-600 hover:text-slate-900" to="/about">
+        About
+      </NuxtLink>
+    </nav>
+    <NuxtPage />
+  </main>
+</template>
+",
+  "app/assets/css/main.css": "@import "tailwindcss";
+",
+  "app/components/CounterCard.vue": "<script setup lang="ts">
+import { useCounterStore } from "~/stores/counter";
+
+const counter = useCounterStore();
+</script>
+
+<template>
+  <div
+    class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+  >
+    <p class="text-5xl font-bold tabular-nums">{{ counter.count }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.decrement()"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="counter.increment()"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</template>
+",
+  "app/pages/about.vue": "<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios,
+      Prettier.
+    </p>
+  </section>
+</template>
+",
+  "app/pages/index.vue": "<template>
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <CounterCard />
+  </section>
+</template>
+",
+  "app/plugins/api.ts": "import axios from "axios";
+
+export default defineNuxtPlugin(() => {
+  const config = useRuntimeConfig();
+  const api = axios.create({
+    baseURL: config.public.apiUrl,
+    timeout: 10_000,
+  });
+
+  return { provide: { api } };
+});
+",
+  "app/stores/counter.ts": "import { defineStore } from "pinia";
+import { ref } from "vue";
+
+export const useCounterStore = defineStore("counter", () => {
+  const count = ref(0);
+
+  function increment() {
+    count.value++;
+  }
+
+  function decrement() {
+    count.value--;
+  }
+
+  return { count, increment, decrement };
+});
+",
+  "nuxt.config.ts": "import tailwindcss from "@tailwindcss/vite";
+
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: true },
+  modules: ["@pinia/nuxt"],
+  css: ["~/assets/css/main.css"],
+  vite: { plugins: [tailwindcss()] },
+  runtimeConfig: { public: { apiUrl: "http://localhost:3000" } },
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^1.0.3",
+    "@vue/devtools-api": "^8.2.1",
+    "axios": "^1.21.1",
+    "nuxt": "^4.7.0",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vue-tsc": "^3.3.14"
+  }
+}
+",
+  "public/robots.txt": "User-Agent: *
+Disallow:
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./.nuxt/tsconfig.app.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.server.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.shared.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.node.json"
+    }
+  ]
+}
+",
+}
+`;
+
+exports[`nuxt snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.nuxt
+.output
+.data
+.nitro
+.cache
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Nuxt 4, Vue 3.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run generate\`
+- \`npm run preview\`
+- \`npm run postinstall\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "app/app.vue": "<template>
+  <NuxtRouteAnnouncer />
+  <main class="app">
+    <nav class="nav">
+      <NuxtLink class="link" to="/">Home</NuxtLink>
+      <NuxtLink class="link" to="/about">About</NuxtLink>
+    </nav>
+    <NuxtPage />
+  </main>
+</template>
+",
+  "app/assets/css/main.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "app/components/CounterCard.vue": "<script setup>
+import { ref } from "vue";
+
+const count = ref(0);
+</script>
+
+<template>
+  <div class="card">
+    <p class="count">{{ count }}</p>
+    <div class="row">
+      <button type="button" class="btn" @click="count--">-1</button>
+      <button type="button" class="btn" @click="count++">+1</button>
+    </div>
+  </div>
+</template>
+",
+  "app/pages/about.vue": "<template>
+  <section class="page">
+    <h1 class="title">About</h1>
+    <p class="text">Built with Nuxt 4, Vue 3.</p>
+  </section>
+</template>
+",
+  "app/pages/index.vue": "<template>
+  <section class="page">
+    <h1 class="title">my-app</h1>
+    <CounterCard />
+  </section>
+</template>
+",
+  "nuxt.config.js": "// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: true },
+  css: ["~/assets/css/main.css"],
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "^4.7.0",
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
+  },
+  "devDependencies": {}
+}
+",
+  "public/robots.txt": "User-Agent: *
+Disallow:
+",
+}
+`;
+
+exports[`nuxt snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.nuxt
+.output
+.data
+.nitro
+.cache
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Nuxt 4, Vue 3, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run generate\`
+- \`npm run preview\`
+- \`npm run postinstall\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "app/app.vue": "<template>
+  <NuxtRouteAnnouncer />
+  <main class="app">
+    <nav class="nav">
+      <NuxtLink class="link" to="/">Home</NuxtLink>
+      <NuxtLink class="link" to="/about">About</NuxtLink>
+    </nav>
+    <NuxtPage />
+  </main>
+</template>
+",
+  "app/assets/css/main.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "app/components/CounterCard.vue": "<script setup lang="ts">
+import { ref } from "vue";
+
+const count = ref(0);
+</script>
+
+<template>
+  <div class="card">
+    <p class="count">{{ count }}</p>
+    <div class="row">
+      <button type="button" class="btn" @click="count--">-1</button>
+      <button type="button" class="btn" @click="count++">+1</button>
+    </div>
+  </div>
+</template>
+",
+  "app/pages/about.vue": "<template>
+  <section class="page">
+    <h1 class="title">About</h1>
+    <p class="text">Built with Nuxt 4, Vue 3, TypeScript.</p>
+  </section>
+</template>
+",
+  "app/pages/index.vue": "<template>
+  <section class="page">
+    <h1 class="title">my-app</h1>
+    <CounterCard />
+  </section>
+</template>
+",
+  "nuxt.config.ts": "// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: true },
+  css: ["~/assets/css/main.css"],
+});
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "nuxt": "^4.7.0",
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vue-tsc": "^3.3.14"
+  }
+}
+",
+  "public/robots.txt": "User-Agent: *
+Disallow:
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./.nuxt/tsconfig.app.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.server.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.shared.json"
+    },
+    {
+      "path": "./.nuxt/tsconfig.node.json"
+    }
+  ]
+}
+",
+}
+`;
+
 exports[`preact snapshots > everything (js) 1`] = `
 {
   ".env.example": "VITE_API_URL=http://localhost:3000

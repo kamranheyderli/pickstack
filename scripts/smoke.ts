@@ -17,6 +17,8 @@ import { quickCombos, type Combo } from "./smoke-combos";
 interface Outcome {
   id: string;
   ok: boolean;
+  /** Seconds per step, to spot slow tools. */
+  timings?: string;
   step?: string;
   output?: string;
   ms: number;
@@ -96,13 +98,29 @@ async function smoke(combo: Combo): Promise<Outcome> {
       .map((s): [string, string[]] => [s, ["run", s]]),
   ];
 
+  const timings: string[] = [];
   for (const [step, pnpmArgs] of steps) {
+    const stepStarted = Date.now();
     const { code, output } = await run("pnpm", pnpmArgs, dir);
-    if (code !== 0)
-      return { id, ok: false, step, output, ms: Date.now() - started };
+    timings.push(`${step} ${((Date.now() - stepStarted) / 1000).toFixed(0)}s`);
+    if (code !== 0) {
+      return {
+        id,
+        ok: false,
+        step,
+        output,
+        ms: Date.now() - started,
+        timings: timings.join(", "),
+      };
+    }
   }
   if (!keep) await rm(dir, { recursive: true, force: true });
-  return { id, ok: true, ms: Date.now() - started };
+  return {
+    id,
+    ok: true,
+    ms: Date.now() - started,
+    timings: timings.join(", "),
+  };
 }
 
 async function pool<T, R>(
@@ -145,7 +163,9 @@ const outcomes = await pool(
   async (c) => {
     const outcome = await smoke(c);
     const status = outcome.ok ? "ok  " : `FAIL (${outcome.step})`;
-    console.log(`${status} ${outcome.id} ${(outcome.ms / 1000).toFixed(1)}s`);
+    console.log(
+      `${status} ${outcome.id} ${(outcome.ms / 1000).toFixed(1)}s (${outcome.timings ?? ""})`,
+    );
     return outcome;
   },
 );

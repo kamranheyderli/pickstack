@@ -1,4 +1,8 @@
 import type { FrameworkAdapter, FrameworkId } from "../types";
+import { angularAdapter } from "./angular/adapter";
+import { astroAdapter } from "./astro/adapter";
+import { nextAdapter } from "./next/adapter";
+import { nuxtAdapter } from "./nuxt/adapter";
 import { preactAdapter } from "./preact/adapter";
 import { reactAdapter } from "./react/adapter";
 import { solidAdapter } from "./solid/adapter";
@@ -12,7 +16,11 @@ export const frameworks: readonly FrameworkAdapter[] = [
   svelteAdapter,
   solidAdapter,
   preactAdapter,
+  nextAdapter,
+  nuxtAdapter,
   sveltekitAdapter,
+  astroAdapter,
+  angularAdapter,
 ];
 
 const byId = new Map<string, FrameworkAdapter>(

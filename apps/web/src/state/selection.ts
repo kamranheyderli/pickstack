@@ -1,6 +1,7 @@
 import {
   blockerFor,
   categoryOrder,
+  getFramework,
   getModule,
   modules,
   singleSelectCategories,
@@ -88,10 +89,17 @@ export function chooseSingle(
  * Drops modules that are not available for the selection's framework or language.
  * Called after framework/language changes so the user never lands on an invalid combination.
  */
-export function pruneIncompatible(selection: Selection): {
+export function pruneIncompatible(input: Selection): {
   selection: Selection;
   removed: string[];
 } {
+  // Frameworks with a single language (Angular: TS only) force it.
+  const languages = getFramework(input.framework)?.languages ?? [
+    input.language,
+  ];
+  const selection = languages.includes(input.language)
+    ? input
+    : { ...input, language: languages[0] ?? input.language };
   const removed = selection.modules.filter((id) => {
     const mod = getModule(id);
     if (!mod || !availableFor(mod, selection.framework)) return true;

@@ -48,6 +48,21 @@ export const quickCombos: Combo[] = [
     "prettier",
   ]),
   ...frameworkCombos("preact", ["tailwind", "preact-iso", "axios", "prettier"]),
+  ...frameworkCombos("next", [
+    "tailwind",
+    "redux-toolkit",
+    "axios",
+    "prettier",
+  ]),
+  { framework: "next", language: "ts", modules: ["zustand"] },
+  ...frameworkCombos("nuxt", ["tailwind", "pinia", "axios", "prettier"]),
+  ...frameworkCombos("astro", ["tailwind", "axios", "prettier"]),
+  { framework: "angular", language: "ts", modules: [] },
+  {
+    framework: "angular",
+    language: "ts",
+    modules: ["tailwind", "builtin", "axios", "prettier"],
+  },
 ];
 
 /** Minimal and "everything" in both languages. */

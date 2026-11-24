@@ -9,11 +9,11 @@ export const zustand: Module = {
     az: "Provider-siz, minimal hook əsaslı store.",
     en: "Minimal hook-based store, no provider needed.",
   },
-  frameworks: ["react"],
+  frameworks: ["react", "next"],
   apply(model, ctx) {
     model.pkg.dependencies.add("zustand");
     model.files.set(
-      `src/store/useCounterStore.${ctx.ext.script}`,
+      ctx.src(`store/useCounterStore.${ctx.ext.script}`),
       file([
         'import { create } from "zustand";',
         "",

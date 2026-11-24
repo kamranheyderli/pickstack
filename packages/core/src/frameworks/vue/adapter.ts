@@ -1,7 +1,6 @@
 import { file, fill, indent, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type {
-  CounterSpec,
   Ctx,
   FrameworkAdapter,
   ProjectModel,
@@ -14,6 +13,7 @@ import {
   type DemoClasses,
 } from "../shared/demo";
 import { viteEnv } from "../shared/env";
+import { counterCard, localVueCounter, sfc } from "../shared/vue";
 import indexHtml from "../shared/templates/index-html";
 
 /**
@@ -26,14 +26,6 @@ import indexHtml from "../shared/templates/index-html";
 /** Prettier's default print width, and the indentation of nav links inside `<template>`. */
 const PRINT_WIDTH = 80;
 const LINK_INDENT = 6;
-
-const localCounter: CounterSpec = {
-  imports: [{ from: "vue", named: ["ref"] }],
-  setup: ["const count = ref(0);"],
-  value: "count",
-  increment: "count++",
-  decrement: "count--",
-};
 
 export const vueAdapter: FrameworkAdapter = {
   id: "vue",
@@ -111,7 +103,7 @@ export const vueAdapter: FrameworkAdapter = {
     model.files.set("src/assets/main.css", globalCss(model));
     model.files.set(
       "src/components/CounterCard.vue",
-      counterCard(model.demo.counter ?? localCounter, ctx, cls),
+      counterCard(model.demo.counter ?? localVueCounter, ctx, cls),
     );
 
     if (model.routing && model.routes.length) {
@@ -218,39 +210,6 @@ function mainEntry(model: ProjectModel): string {
         ]
       : ['createApp(App).mount("#app");']),
   ]);
-}
-
-/** A single-file component: `<script setup>` (omitted when empty) followed by `<template>`. */
-function sfc(ctx: Ctx, script: string[], template: string[]): string {
-  const lang = ctx.isTs ? ' lang="ts"' : "";
-  return file([
-    ...(script.length
-      ? [`<script setup${lang}>`, ...script, "</script>", ""]
-      : []),
-    "<template>",
-    ...indent(template),
-    "</template>",
-  ]);
-}
-
-function counterCard(spec: CounterSpec, ctx: Ctx, cls: DemoClasses): string {
-  return sfc(
-    ctx,
-    [
-      ...renderImports(spec.imports),
-      ...(spec.imports.length ? [""] : []),
-      ...spec.setup,
-    ],
-    [
-      `<div class="${cls.card}">`,
-      `  <p class="${cls.count}">{{ ${spec.value} }}</p>`,
-      `  <div class="${cls.row}">`,
-      `    <button type="button" class="${cls.btn}" @click="${spec.decrement}">-1</button>`,
-      `    <button type="button" class="${cls.btn}" @click="${spec.increment}">+1</button>`,
-      "  </div>",
-      "</div>",
-    ],
-  );
 }
 
 function routedApp(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
