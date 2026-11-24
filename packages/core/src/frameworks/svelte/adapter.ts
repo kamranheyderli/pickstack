@@ -1,4 +1,4 @@
-import { file, fill, json, renderImports } from "../../engine/code";
+import { file, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type { FrameworkAdapter, ProjectModel } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";

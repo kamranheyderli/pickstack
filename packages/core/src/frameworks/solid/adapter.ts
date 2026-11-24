@@ -1,4 +1,4 @@
-import { file, fill, indent, renderImports } from "../../engine/code";
+import { file, indent, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type {
   CounterSpec,
