@@ -136,6 +136,17 @@ describe("validate", () => {
   });
 });
 
+describe("biome", () => {
+  it("conflicts with ESLint and Prettier", () => {
+    for (const other of ["eslint", "prettier"]) {
+      const result = validate(selection({ modules: ["biome", other] }));
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.errors[0]).toMatchObject({ code: "conflict" });
+    }
+  });
+});
+
 describe("testing modules", () => {
   it("auto-adds vitest for testing-library and applies it first", () => {
     const result = resolve(["testing-library"]);

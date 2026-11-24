@@ -66,6 +66,7 @@ export const quickCombos: Combo[] = [
   ...seoCombos(),
   ...eslintCombos(),
   ...testingCombos(),
+  ...biomeCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -202,4 +203,51 @@ function testingCombos(): Combo[] {
         : []),
     ];
   });
+}
+
+/**
+ * Biome alone, and with the modules that add files it must accept as formatted: Tailwind
+ * (CSS directives), Vitest tests, a state store, SEO head tags.
+ */
+function biomeCombos(): Combo[] {
+  const all: FrameworkId[] = [
+    "react",
+    "vue",
+    "svelte",
+    "solid",
+    "preact",
+    "next",
+    "nuxt",
+    "sveltekit",
+    "astro",
+    "angular",
+  ];
+  const extra: Partial<Record<FrameworkId, string[]>> = {
+    react: ["redux-toolkit", "react-router", "axios"],
+    vue: ["pinia", "vue-router", "axios"],
+    svelte: ["builtin", "axios"],
+    solid: ["builtin", "solid-router"],
+    preact: ["preact-iso"],
+    next: ["zustand"],
+    nuxt: ["pinia", "axios"],
+    sveltekit: ["builtin"],
+    astro: ["axios"],
+    angular: ["builtin", "axios"],
+  };
+  return all.flatMap((framework): Combo[] => [
+    {
+      framework,
+      language: "ts",
+      modules: [
+        "biome",
+        "tailwind",
+        "vitest",
+        "seo",
+        ...(extra[framework] ?? []),
+      ],
+    },
+    ...(framework === "angular"
+      ? []
+      : [{ framework, language: "js" as const, modules: ["biome"] }]),
+  ]);
 }

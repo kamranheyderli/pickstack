@@ -214,6 +214,11 @@ function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
     ? [
         "<script",
         '  type="application/ld+json"',
+        ...(model.linter === "biome"
+          ? [
+              "  // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD as in the Next.js docs; `<` is escaped.",
+            ]
+          : []),
         '  dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}',
         "/>",
       ]

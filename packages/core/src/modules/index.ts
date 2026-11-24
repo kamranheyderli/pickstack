@@ -1,5 +1,6 @@
 import type { Module } from "../types";
 import { axios } from "./data/axios";
+import { biome } from "./quality/biome";
 import { eslint } from "./quality/eslint";
 import { prettier } from "./quality/prettier";
 import { preactIso } from "./routing/preact-iso";
@@ -31,6 +32,7 @@ export const modules: readonly Module[] = [
   testingLibrary,
   eslint,
   prettier,
+  biome,
   seo,
   aio,
 ];

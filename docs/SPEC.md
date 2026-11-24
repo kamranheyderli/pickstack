@@ -193,6 +193,18 @@ ESLint (`eslint` modulu, flat config, 2026-11 yoxlanılıb):
 - Angular: `ng add angular-eslint`-in nəticəsi; `lint` skripti `ng lint`, `angular.json`-a `lint` hədəfi və `schematicCollections` adapter tərəfindən yazılır (`model.linter`).
 - Prettier seçiləndə `eslint-config-prettier/flat` sonuncu əlavə olunur (Svelte-də üstəlik `svelte.configs.prettier`).
 
+Biome (`biome` modulu, 2.6.8, 2026-11 yoxlanılıb):
+
+- `biome init`-in konfiqi, iki dəyişikliklə: `indentStyle: "space"` (qalan default-lar Prettier 3 ilə eynidir) və `vcs.useIgnoreFile` (`.gitignore` oxunur, `.nuxt`/`.svelte-kit` skan olunmur). `@biomejs/biome` dəqiq versiya ilə pin olunur, çünki `$schema` URL-i versiyanı daşıyır.
+- Vue/Nuxt/Svelte/SvelteKit/Astro üçün `html.experimentalFullSupportEnabled` lazımdır (rəsmi status: eksperimental). Onsuz `.svelte` formatı pozulur və template-də işlədilən importlar "unused" görünür. Svelte/Astro-da `indentScriptAndStyle` (Prettier plugin-lərinin default-u).
+- Angular template-ləri dəstəklənmir (control-flow bloklarının içi indent olunmur), ona görə HTML formatlayıcı Angular-da sönülüdür. `<a routerLink>` üçün `useValidAnchor` HTML fayllarında söndürülür.
+- Tailwind seçiləndə `css.parser.tailwindDirectives`.
+- Generator dəyişiklikləri (Prettier-ə təsiri yoxdur):
+  - JSX counter düymələrinə `type="button"` (`a11y/useButtonType`).
+  - `renderImports` Biome-un organizeImports sırasını izləyir: `node:` → paketlər → alias (`@/`, `~`, `$`, `#`) → nisbi yollar; eyni mənbədən `import type` əvvəl gəlir.
+  - Astro markup Biome stilində çap olunur: mətn sığanda inline qalır, sığmayan teq tək atributla da bölünür (`model.formatter`).
+  - Next JSON-LD sətrinə `biome-ignore` (səbəbi ilə) əlavə olunur.
+
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 
 - Hər layihəyə counter komponent testi yazılır. Yalnız `vitest` seçiləndə framework-ün öz mount API-si işlədilir: `react-dom/client` + `act`, `preact` + `preact/test-utils`, `solid-js/web`, Svelte `mount`, `@vue/test-utils`, Nuxt `mountSuspended`, Angular `TestBed`, Astro Container API. `testing-library` seçiləndə test `render`/`screen`/`user-event`-ə keçir. Elementlər class ilə yox, teq və mətnlə tapılır, ona görə Tailwind testi pozmur.

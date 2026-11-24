@@ -2,10 +2,18 @@ import type { ImportSpec } from "../types";
 
 const isRelative = (from: string) =>
   from.startsWith(".") || from.startsWith("/");
+/** Project aliases such as `@/lib`, `~/components`, `$app/env` and `#lib`. */
+const isAlias = (from: string) => /^(@\/|[~$#%])/.test(from);
+/** Built-ins with a protocol, such as `node:url`. */
+const hasProtocol = (from: string) => /^[a-z]+:/.test(from);
 const isSideEffect = (spec: ImportSpec) =>
   !spec.default && !spec.named?.length && !spec.types?.length;
 
-/** Merges imports from the same source and orders them: packages, relative, then side-effect. */
+/**
+ * Merges imports from the same source and orders them the way Biome's organizeImports does
+ * (Prettier leaves order alone): `node:` built-ins, packages, aliases, relative paths, then
+ * side-effect imports.
+ */
 export function renderImports(specs: ImportSpec[]): string[] {
   const merged = new Map<string, Required<ImportSpec>>();
   for (const spec of specs) {
@@ -24,7 +32,15 @@ export function renderImports(specs: ImportSpec[]): string[] {
   }
 
   const rank = (spec: ImportSpec) =>
-    isSideEffect(spec) ? 2 : isRelative(spec.from) ? 1 : 0;
+    isSideEffect(spec)
+      ? 4
+      : isRelative(spec.from)
+        ? 3
+        : isAlias(spec.from)
+          ? 2
+          : hasProtocol(spec.from)
+            ? 0
+            : 1;
   const ordered = [...merged.values()].sort(
     (a, b) => rank(a) - rank(b) || a.from.localeCompare(b.from),
   );
@@ -35,17 +51,18 @@ export function renderImports(specs: ImportSpec[]): string[] {
       lines.push(`import "${spec.from}";`);
       continue;
     }
+    // Type-only imports come first, as Biome sorts them.
+    if (spec.types.length) {
+      lines.push(
+        `import type { ${[...spec.types].sort(byName).join(", ")} } from "${spec.from}";`,
+      );
+    }
     const parts: string[] = [];
     if (spec.default) parts.push(spec.default);
     if (spec.named.length)
       parts.push(`{ ${[...spec.named].sort(byName).join(", ")} }`);
     if (parts.length)
       lines.push(`import ${parts.join(", ")} from "${spec.from}";`);
-    if (spec.types.length) {
-      lines.push(
-        `import type { ${[...spec.types].sort(byName).join(", ")} } from "${spec.from}";`,
-      );
-    }
   }
   return lines;
 }

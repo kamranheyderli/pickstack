@@ -38,6 +38,7 @@ export const prettier: Module = {
   apply(model, ctx) {
     const setup = setups[ctx.selection.framework];
     model.pkg.devDependencies.add("prettier");
+    model.formatter = "prettier";
     if (setup?.plugin) model.pkg.devDependencies.add(setup.plugin);
     model.pkg.scripts["format"] = "prettier --write .";
     model.pkg.scripts["format:check"] = "prettier --check .";

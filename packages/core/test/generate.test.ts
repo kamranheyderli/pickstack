@@ -30,11 +30,15 @@ async function files(
   return result.files;
 }
 
-/** Every module available for the framework, taking the first option in single-select categories. */
+/**
+ * Every module available for the framework, taking the first option in single-select categories.
+ * Biome replaces ESLint + Prettier, so it has its own snapshot.
+ */
 function everything(framework: FrameworkId): string[] {
   const taken = new Set<string>();
   return modules
     .filter((m) => m.frameworks === "all" || m.frameworks.includes(framework))
+    .filter((m) => m.id !== "biome")
     .filter((m) => {
       if (!singleSelectCategories.has(m.category)) return true;
       if (taken.has(m.category)) return false;
@@ -63,6 +67,16 @@ for (const framework of frameworks) {
     }
   });
 }
+
+describe("biome snapshots", () => {
+  // Biome replaces ESLint + Prettier, so the "everything" snapshots leave it out.
+  for (const framework of ["react", "vue", "astro"] as const) {
+    it(`${framework} with biome and tailwind (ts)`, async () => {
+      const result = await files("ts", ["biome", "tailwind"], framework);
+      expect(Object.fromEntries(result)).toMatchSnapshot();
+    });
+  }
+});
 
 describe("react extras", () => {
   it("zustand without router (ts)", async () => {
@@ -95,8 +109,12 @@ describe("generate", () => {
             { format: false },
           );
           if (!result.ok) {
+            // Only expected rejections: two picks in a single-select category, or Biome
+            // alongside ESLint/Prettier.
             expect(
-              result.errors.every((e) => e.code === "single-category"),
+              result.errors.every(
+                (e) => e.code === "single-category" || e.code === "conflict",
+              ),
             ).toBe(true);
             continue;
           }

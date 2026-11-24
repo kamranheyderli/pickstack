@@ -186,8 +186,16 @@ export interface ProjectModel {
   demo: { counter: CounterSpec | null };
   /** Set by the `seo` module; `ai` is turned on by `aio`. Adapters render head tags from it. */
   seo: SeoSpec | null;
-  /** Set by a linter module. Angular wires it into angular.json as the `ng lint` target. */
-  linter: "eslint" | null;
+  /**
+   * Set by a linter module. Angular wires ESLint into angular.json as the `ng lint` target;
+   * adapters add the linter's suppression comment where generated code needs one.
+   */
+  linter: "eslint" | "biome" | null;
+  /**
+   * Set by a formatter module. Files core pre-formats itself (Astro markup) follow its style,
+   * since Prettier and Biome differ on inline text.
+   */
+  formatter: "prettier" | "biome" | null;
   testing: TestingSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];

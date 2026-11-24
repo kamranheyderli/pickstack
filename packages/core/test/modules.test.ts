@@ -385,3 +385,71 @@ describe("vitest and testing-library", () => {
     }
   });
 });
+
+describe("biome", () => {
+  function rendered(
+    frameworkId: FrameworkId,
+    ids: string[],
+    language: "js" | "ts" = "ts",
+  ): ProjectModel {
+    const ctx = ctxFor(language, ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+  const config = (model: ProjectModel) =>
+    JSON.parse(model.files.get("biome.json") ?? "{}") as Record<
+      string,
+      unknown
+    >;
+
+  it("writes biome.json pinned to the installed version with Prettier-like spacing", () => {
+    const model = rendered("react", ["biome"]);
+    const biome = config(model);
+    expect(biome["$schema"]).toBe(
+      `https://biomejs.dev/schemas/${knownGoodVersion("@biomejs/biome", "react")}/schema.json`,
+    );
+    expect(biome["formatter"]).toMatchObject({ indentStyle: "space" });
+    expect(biome["vcs"]).toMatchObject({ useIgnoreFile: true });
+    expect(biome["html"]).toBeUndefined();
+    expect(model.pkg.scripts["check"]).toBe("biome check");
+    expect(model.formatter).toBe("biome");
+  });
+
+  it("enables full HTML support for single-file components", () => {
+    expect(config(rendered("vue", ["biome"]))["html"]).toMatchObject({
+      experimentalFullSupportEnabled: true,
+      formatter: { selfCloseVoidElements: "always" },
+    });
+    expect(config(rendered("svelte", ["biome"]))["html"]).toMatchObject({
+      formatter: { indentScriptAndStyle: true },
+    });
+    expect(config(rendered("angular", ["biome"]))["html"]).toBeUndefined();
+  });
+
+  it("accepts Tailwind directives when Tailwind is selected", () => {
+    expect(config(rendered("react", ["biome", "tailwind"]))["css"]).toEqual({
+      parser: { tailwindDirectives: true },
+    });
+  });
+
+  it("suppresses the JSON-LD innerHTML rule in Next with a reason", () => {
+    const layout =
+      rendered("next", ["biome", "seo"]).files.get("app/layout.tsx") ?? "";
+    expect(layout).toContain(
+      "// biome-ignore lint/security/noDangerouslySetInnerHtml:",
+    );
+  });
+
+  it("prints Astro markup the way Biome formats it", () => {
+    const counter =
+      rendered("astro", ["biome"]).files.get("src/components/Counter.astro") ??
+      "";
+    expect(counter).toContain(
+      '<button type="button" class="btn" data-step="1">+1</button>',
+    );
+  });
+});

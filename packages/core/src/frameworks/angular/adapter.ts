@@ -103,7 +103,7 @@ export const angularAdapter: FrameworkAdapter = {
     model.files.set(
       "src/app/app.config.ts",
       file([
-        'import { provideBrowserGlobalErrorListeners, type ApplicationConfig } from "@angular/core";',
+        'import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from "@angular/core";',
         'import { provideRouter } from "@angular/router";',
         'import { routes } from "./app.routes";',
         "",

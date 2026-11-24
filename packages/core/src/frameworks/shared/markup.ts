@@ -5,6 +5,8 @@
  *   line only when the tag does not fit in 80 columns;
  * - text content stays inline only for elements with at most one attribute and a line that
  *   fits; otherwise the text goes on its own line.
+ * Biome's HTML formatter keeps text inline whenever the line fits, whatever the attributes,
+ * and breaks an opening tag that does not fit even with a single attribute.
  */
 export interface El {
   tag: string;
@@ -24,7 +26,13 @@ export function el(
   return { tag, attrs, children };
 }
 
-export function printMarkup(node: El | string, depth = 0): string[] {
+export type MarkupStyle = "prettier" | "biome";
+
+export function printMarkup(
+  node: El | string,
+  depth = 0,
+  style: MarkupStyle = "prettier",
+): string[] {
   const pad = "  ".repeat(depth);
   if (typeof node === "string") return [pad + node];
   const attrs = node.attrs ?? [];
@@ -34,8 +42,10 @@ export function printMarkup(node: El | string, depth = 0): string[] {
     ...attrs.map((a) => `${pad}  ${a}`),
   ];
 
-  // A single attribute never breaks the opening tag; several do when it does not fit.
-  const breaks = (line: string) => line.length > WIDTH && attrs.length > 1;
+  // Prettier never breaks a single attribute; Biome breaks any opening tag that does not fit.
+  const minAttrs = style === "biome" ? 1 : 2;
+  const breaks = (line: string) =>
+    line.length > WIDTH && attrs.length >= minAttrs;
 
   if (node.selfClosing || node.children === undefined) {
     const line = `${pad}${inlineOpen} />`;
@@ -46,15 +56,16 @@ export function printMarkup(node: El | string, depth = 0): string[] {
   const open = `${pad}${inlineOpen}>`;
   const head = breaks(open) ? [...brokenOpen, `${pad}>`] : [open];
   if (typeof node.children === "string") {
-    // Text stays inline only with at most one attribute and a line that fits.
+    // Text stays inline when the line fits (for Prettier, only with at most one attribute).
     const line = `${pad}${inlineOpen}>${node.children}${close}`;
-    if (attrs.length <= 1 && line.length <= WIDTH) return [line];
+    const fewAttrs = style === "biome" || attrs.length <= 1;
+    if (fewAttrs && line.length <= WIDTH) return [line];
     return [...head, `${pad}  ${node.children}`, `${pad}${close}`];
   }
 
   return [
     ...head,
-    ...node.children.flatMap((child) => printMarkup(child, depth + 1)),
+    ...node.children.flatMap((child) => printMarkup(child, depth + 1, style)),
     `${pad}${close}`,
   ];
 }

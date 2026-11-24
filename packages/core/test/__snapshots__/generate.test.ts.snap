@@ -292,8 +292,8 @@ export const api = axios.create({
 });
 ",
   "src/app/app.config.ts": "import {
-  provideBrowserGlobalErrorListeners,
   type ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
 } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { routes } from "./app.routes";
@@ -668,8 +668,8 @@ git push -u origin main
 Disallow:
 ",
   "src/app/app.config.ts": "import {
-  provideBrowserGlobalErrorListeners,
   type ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
 } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { routes } from "./app.routes";
@@ -2070,6 +2070,692 @@ body {
 }
 `;
 
+exports[`biome snapshots > astro with biome and tailwind (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.astro
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Astro, TypeScript, Tailwind CSS, Biome.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run astro\`
+- \`npm run typecheck\`
+- \`npm run lint\`
+- \`npm run format\`
+- \`npm run format:check\`
+- \`npm run check\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "astro.config.mjs": "// @ts-check
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+",
+  "biome.json": "{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "html": {
+    "experimentalFullSupportEnabled": true,
+    "formatter": {
+      "enabled": true,
+      "selfCloseVoidElements": "always",
+      "indentScriptAndStyle": true
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check",
+    "lint": "biome lint",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "check": "biome check"
+  },
+  "dependencies": {
+    "astro": "^7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@biomejs/biome": "2.6.8",
+    "@tailwindcss/vite": "^4.3.5",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3"
+  }
+}
+",
+  "src/components/Counter.astro": "<counter-card>
+  <div
+    class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+  >
+    <p class="text-5xl font-bold tabular-nums" data-count>0</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        data-step="-1"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        data-step="1"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</counter-card>
+
+<script>
+  class CounterCard extends HTMLElement {
+    connectedCallback() {
+      const output = this.querySelector("[data-count]");
+      let count = 0;
+      for (const button of this.querySelectorAll("button")) {
+        button.addEventListener("click", () => {
+          count += Number(button.dataset.step);
+          if (output) output.textContent = String(count);
+        });
+      }
+    }
+  }
+
+  customElements.define("counter-card", CounterCard);
+</script>
+",
+  "src/layouts/Layout.astro": "---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main
+      class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+    >
+      <nav class="flex gap-4 text-sm font-medium">
+        <a class="text-slate-600 hover:text-slate-900" href="/">Home</a>
+        <a class="text-slate-600 hover:text-slate-900" href="/about">About</a>
+      </nav>
+      <slot />
+    </main>
+  </body>
+</html>
+",
+  "src/pages/about.astro": "---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">About</h1>
+    <p class="max-w-md text-center text-slate-600">
+      Built with Astro, TypeScript, Tailwind CSS, Biome.
+    </p>
+  </section>
+</Layout>
+",
+  "src/pages/index.astro": "---
+import Counter from "../components/Counter.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Home">
+  <section class="flex flex-col items-center gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <Counter />
+  </section>
+</Layout>
+",
+  "src/styles/global.css": "@import "tailwindcss";
+",
+  "tsconfig.json": "{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}
+",
+}
+`;
+
+exports[`biome snapshots > react with biome and tailwind (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: React 19, Vite, TypeScript, Tailwind CSS, Biome.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+- \`npm run lint\`
+- \`npm run format\`
+- \`npm run format:check\`
+- \`npm run check\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "biome.json": "{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "check": "biome check"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.tsx": "import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </main>
+  );
+}
+",
+  "src/components/Counter.tsx": "import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p className="text-5xl font-bold tabular-nums">{count}</p>
+      <div className="mt-6 flex justify-center gap-3">
+        <button
+          type="button"
+          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => setCount((n) => n - 1)}
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => setCount((n) => n + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": "@import "tailwindcss";
+",
+  "src/main.tsx": "import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+",
+  "tsconfig.json": "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`biome snapshots > vue with biome and tailwind (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Biome.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+- \`npm run lint\`
+- \`npm run format\`
+- \`npm run format:check\`
+- \`npm run check\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "biome.json": "{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "html": {
+    "experimentalFullSupportEnabled": true,
+    "formatter": {
+      "enabled": true,
+      "selfCloseVoidElements": "always"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}
+",
+  "env.d.ts": "/// <reference types="vite/client" />
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --build && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --build",
+    "lint": "biome lint",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "check": "biome check"
+  },
+  "dependencies": {
+    "vue": "^3.5.46"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@tailwindcss/vite": "^4.3.5",
+    "@tsconfig/node24": "^24.0.6",
+    "@types/node": "^24.19.2",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/tsconfig": "^0.9.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8",
+    "vue-tsc": "^3.3.14"
+  }
+}
+",
+  "src/App.vue": "<script setup lang="ts">
+import CounterCard from "./components/CounterCard.vue";
+</script>
+
+<template>
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <CounterCard />
+  </main>
+</template>
+",
+  "src/assets/main.css": "@import "tailwindcss";
+",
+  "src/components/CounterCard.vue": "<script setup lang="ts">
+import { ref } from "vue";
+
+const count = ref(0);
+</script>
+
+<template>
+  <div
+    class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+  >
+    <p class="text-5xl font-bold tabular-nums">{{ count }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="count--"
+      >
+        -1
+      </button>
+      <button
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        @click="count++"
+      >
+        +1
+      </button>
+    </div>
+  </div>
+</template>
+",
+  "src/main.ts": "import { createApp } from "vue";
+import App from "./App.vue";
+import "./assets/main.css";
+
+createApp(App).mount("#app");
+",
+  "tsconfig.app.json": "{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+  }
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": ["vite.config.*", "vitest.config.*", "eslint.config.*"],
+  "compilerOptions": {
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
+  }
+}
+",
+  "vite.config.ts": "import { fileURLToPath, URL } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import vue from "@vitejs/plugin-vue";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [vue(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
+",
+}
+`;
+
 exports[`next snapshots > everything (js) 1`] = `
 {
   ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
@@ -2175,8 +2861,8 @@ export default function About() {
 ",
   "app/globals.css": "@import "tailwindcss";
 ",
-  "app/layout.jsx": "import { siteDescription, siteName, siteUrl } from "@/lib/site";
-import Link from "next/link";
+  "app/layout.jsx": "import Link from "next/link";
+import { siteDescription, siteName, siteUrl } from "@/lib/site";
 import StoreProvider from "./StoreProvider";
 import "./globals.css";
 
@@ -2308,12 +2994,14 @@ export default function Counter() {
       <p className="text-5xl font-bold tabular-nums">{count}</p>
       <div className="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(decrement())}
         >
           -1
         </button>
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(increment())}
         >
@@ -2460,8 +3148,8 @@ export default nextConfig;
 
 export default config;
 ",
-  "vitest.config.mjs": "import react from "@vitejs/plugin-react";
-import { fileURLToPath } from "node:url";
+  "vitest.config.mjs": "import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -2597,9 +3285,9 @@ export default function About() {
 ",
   "app/globals.css": "@import "tailwindcss";
 ",
-  "app/layout.tsx": "import { siteDescription, siteName, siteUrl } from "@/lib/site";
-import type { Metadata } from "next";
+  "app/layout.tsx": "import type { Metadata } from "next";
 import Link from "next/link";
+import { siteDescription, siteName, siteUrl } from "@/lib/site";
 import StoreProvider from "./StoreProvider";
 import "./globals.css";
 
@@ -2754,12 +3442,14 @@ export default function Counter() {
       <p className="text-5xl font-bold tabular-nums">{count}</p>
       <div className="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(decrement())}
         >
           -1
         </button>
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(increment())}
         >
@@ -3149,10 +3839,18 @@ export default function Counter() {
     <div className="card">
       <p className="count">{count}</p>
       <div className="row">
-        <button className="btn" onClick={() => setCount((n) => n - 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
           -1
         </button>
-        <button className="btn" onClick={() => setCount((n) => n + 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
           +1
         </button>
       </div>
@@ -3388,10 +4086,18 @@ export default function Counter() {
     <div className="card">
       <p className="count">{count}</p>
       <div className="row">
-        <button className="btn" onClick={() => setCount((n) => n - 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
           -1
         </button>
-        <button className="btn" onClick={() => setCount((n) => n + 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
           +1
         </button>
       </div>
@@ -3796,8 +4502,8 @@ Sitemap: \${siteUrl}/sitemap.xml
   "test/nuxt/CounterCard.test.js": "import { renderSuspended } from "@nuxt/test-utils/runtime";
 import userEvent from "@testing-library/user-event";
 import { screen } from "@testing-library/vue";
-import CounterCard from "~/components/CounterCard.vue";
 import { describe, expect, it } from "vitest";
+import CounterCard from "~/components/CounterCard.vue";
 
 describe("CounterCard", () => {
   it("increments when +1 is clicked", async () => {
@@ -4171,8 +4877,8 @@ Sitemap: \${siteUrl}/sitemap.xml
   "test/nuxt/CounterCard.test.ts": "import { renderSuspended } from "@nuxt/test-utils/runtime";
 import userEvent from "@testing-library/user-event";
 import { screen } from "@testing-library/vue";
-import CounterCard from "~/components/CounterCard.vue";
 import { describe, expect, it } from "vitest";
+import CounterCard from "~/components/CounterCard.vue";
 
 describe("CounterCard", () => {
   it("increments when +1 is clicked", async () => {
@@ -4901,12 +5607,14 @@ export default function Counter() {
       <p class="text-5xl font-bold tabular-nums">{count}</p>
       <div class="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => setCount((value) => value - 1)}
         >
           -1
         </button>
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => setCount((value) => value + 1)}
         >
@@ -5243,12 +5951,14 @@ export default function Counter() {
       <p class="text-5xl font-bold tabular-nums">{count}</p>
       <div class="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => setCount((value) => value - 1)}
         >
           -1
         </button>
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => setCount((value) => value + 1)}
         >
@@ -5469,10 +6179,18 @@ export default function Counter() {
     <div class="card">
       <p class="count">{count}</p>
       <div class="row">
-        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value - 1)}
+        >
           -1
         </button>
-        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value + 1)}
+        >
           +1
         </button>
       </div>
@@ -5679,10 +6397,18 @@ export default function Counter() {
     <div class="card">
       <p class="count">{count}</p>
       <div class="row">
-        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value - 1)}
+        >
           -1
         </button>
-        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value + 1)}
+        >
           +1
         </button>
       </div>
@@ -5868,10 +6594,10 @@ export default function Counter() {
     <div className="card">
       <p className="count">{count}</p>
       <div className="row">
-        <button className="btn" onClick={decrement}>
+        <button type="button" className="btn" onClick={decrement}>
           -1
         </button>
-        <button className="btn" onClick={increment}>
+        <button type="button" className="btn" onClick={increment}>
           +1
         </button>
       </div>
@@ -6121,12 +6847,14 @@ export default function Counter() {
       <p className="text-5xl font-bold tabular-nums">{count}</p>
       <div className="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(decrement())}
         >
           -1
         </button>
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(increment())}
         >
@@ -6518,12 +7246,14 @@ export default function Counter() {
       <p className="text-5xl font-bold tabular-nums">{count}</p>
       <div className="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(decrement())}
         >
           -1
         </button>
         <button
+          type="button"
           className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={() => dispatch(increment())}
         >
@@ -6751,10 +7481,18 @@ export default function Counter() {
     <div className="card">
       <p className="count">{count}</p>
       <div className="row">
-        <button className="btn" onClick={() => setCount((n) => n - 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
           -1
         </button>
-        <button className="btn" onClick={() => setCount((n) => n + 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
           +1
         </button>
       </div>
@@ -6968,10 +7706,18 @@ export default function Counter() {
     <div className="card">
       <p className="count">{count}</p>
       <div className="row">
-        <button className="btn" onClick={() => setCount((n) => n - 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
           -1
         </button>
-        <button className="btn" onClick={() => setCount((n) => n + 1)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
           +1
         </button>
       </div>
@@ -7323,12 +8069,14 @@ export default function Counter() {
       <p class="text-5xl font-bold tabular-nums">{count()}</p>
       <div class="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={decrement}
         >
           -1
         </button>
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={increment}
         >
@@ -7626,8 +8374,8 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
-  "src/App.tsx": "import { A } from "@solidjs/router";
-import type { RouteSectionProps } from "@solidjs/router";
+  "src/App.tsx": "import type { RouteSectionProps } from "@solidjs/router";
+import { A } from "@solidjs/router";
 
 export default function App(props: RouteSectionProps) {
   return (
@@ -7676,12 +8424,14 @@ export default function Counter() {
       <p class="text-5xl font-bold tabular-nums">{count()}</p>
       <div class="mt-6 flex justify-center gap-3">
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={decrement}
         >
           -1
         </button>
         <button
+          type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
           onClick={increment}
         >
@@ -7921,10 +8671,18 @@ export default function Counter() {
     <div class="card">
       <p class="count">{count()}</p>
       <div class="row">
-        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value - 1)}
+        >
           -1
         </button>
-        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value + 1)}
+        >
           +1
         </button>
       </div>
@@ -8134,10 +8892,18 @@ export default function Counter() {
     <div class="card">
       <p class="count">{count()}</p>
       <div class="row">
-        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value - 1)}
+        >
           -1
         </button>
-        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+        <button
+          type="button"
+          class="btn"
+          onClick={() => setCount((value) => value + 1)}
+        >
           +1
         </button>
       </div>
@@ -11167,9 +11933,9 @@ import CounterCard from "../components/CounterCard.vue";
   </section>
 </template>
 ",
-  "vite.config.js": "import tailwindcss from "@tailwindcss/vite";
+  "vite.config.js": "import { fileURLToPath, URL } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
-import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -11605,9 +12371,9 @@ import CounterCard from "../components/CounterCard.vue";
   }
 }
 ",
-  "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
+  "vite.config.ts": "import { fileURLToPath, URL } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
-import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -11838,8 +12604,8 @@ import "./assets/main.css";
 
 createApp(App).mount("#app");
 ",
-  "vite.config.js": "import vue from "@vitejs/plugin-vue";
-import { fileURLToPath, URL } from "node:url";
+  "vite.config.js": "import { fileURLToPath, URL } from "node:url";
+import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -12093,8 +12859,8 @@ createApp(App).mount("#app");
   }
 }
 ",
-  "vite.config.ts": "import vue from "@vitejs/plugin-vue";
-import { fileURLToPath, URL } from "node:url";
+  "vite.config.ts": "import { fileURLToPath, URL } from "node:url";
+import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 
 export default defineConfig({

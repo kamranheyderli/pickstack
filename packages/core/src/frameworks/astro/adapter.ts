@@ -7,7 +7,7 @@ import {
   globalCss,
   type DemoClasses,
 } from "../shared/demo";
-import { el, printMarkup } from "../shared/markup";
+import { el, printMarkup, type El } from "../shared/markup";
 import { astroCounterTest } from "../shared/testing";
 
 /**
@@ -60,7 +60,7 @@ export const astroAdapter: FrameworkAdapter = {
     model.files.set("astro.config.mjs", astroConfig(model));
     model.files.set("src/styles/global.css", globalCss(model));
     model.files.set("src/layouts/Layout.astro", layout(model, ctx, cls));
-    model.files.set("src/components/Counter.astro", counter(cls));
+    model.files.set("src/components/Counter.astro", counter(model, cls));
     if (model.testing) {
       // Astro's testing guide: Vitest through `getViteConfig`, so tests share the project's
       // Vite settings, and components rendered with the Container API.
@@ -87,7 +87,8 @@ export const astroAdapter: FrameworkAdapter = {
           'import Counter from "../components/Counter.astro";',
           'import Layout from "../layouts/Layout.astro";',
         ],
-        printMarkup(
+        markup(
+          model,
           el(
             "Layout",
             ['title="Home"'],
@@ -109,7 +110,8 @@ export const astroAdapter: FrameworkAdapter = {
       "src/pages/about.astro",
       astroFile(
         ['import Layout from "../layouts/Layout.astro";'],
-        printMarkup(
+        markup(
+          model,
           el(
             "Layout",
             ['title="About"'],
@@ -129,6 +131,15 @@ export const astroAdapter: FrameworkAdapter = {
     );
   },
 };
+
+/** Markup in the style of the project's formatter (Prettier unless Biome is selected). */
+function markup(model: ProjectModel, node: El): string[] {
+  return printMarkup(
+    node,
+    0,
+    model.formatter === "biome" ? "biome" : "prettier",
+  );
+}
 
 function astroFile(
   frontmatter: string[],
@@ -197,7 +208,8 @@ function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
           ]
         : []),
     ],
-    printMarkup(
+    markup(
+      model,
       el(
         "html",
         ['lang="en"'],
@@ -255,10 +267,11 @@ function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
   );
 }
 
-function counter(cls: DemoClasses): string {
+function counter(model: ProjectModel, cls: DemoClasses): string {
   return astroFile(
     [],
-    printMarkup(
+    markup(
+      model,
       el(
         "counter-card",
         [],

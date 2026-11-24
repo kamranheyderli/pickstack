@@ -49,6 +49,8 @@ const shared: VersionSet = {
   "@nuxt/test-utils": "^4.4.0",
   "happy-dom": "^21.0.4",
   "@testing-library/angular": "^19.6.0",
+  // Exact: biome.json's $schema URL names this version (`biome init` pins with -E).
+  "@biomejs/biome": "2.6.8",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
