@@ -109,11 +109,13 @@ describe("generate", () => {
             { format: false },
           );
           if (!result.ok) {
-            // Only expected rejections: two picks in a single-select category, or Biome
-            // alongside ESLint/Prettier.
+            // Only expected rejections: two picks in a single-select category, Biome
+            // alongside ESLint/Prettier, or Husky without a tool to run.
             expect(
-              result.errors.every(
-                (e) => e.code === "single-category" || e.code === "conflict",
+              result.errors.every((e) =>
+                ["single-category", "conflict", "missing-one-of"].includes(
+                  e.code,
+                ),
               ),
             ).toBe(true);
             continue;

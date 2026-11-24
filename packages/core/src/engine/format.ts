@@ -56,7 +56,12 @@ export async function formatFiles(
   const entries = await Promise.all(
     [...files].map(async ([path, content]) => {
       const ext = extOf(path);
-      const parser = ext ? parsers[ext] : undefined;
+      // Prettier prints package.json like JSON.stringify (arrays always broken).
+      const parser = path.endsWith("package.json")
+        ? "json-stringify"
+        : ext
+          ? parsers[ext]
+          : undefined;
       if (!parser) return [path, content] as const;
       const formatted = await format(content, {
         parser,

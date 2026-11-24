@@ -205,6 +205,13 @@ Biome (`biome` modulu, 2.6.8, 2026-11 yoxlanılıb):
   - Astro markup Biome stilində çap olunur: mətn sığanda inline qalır, sığmayan teq tək atributla da bölünür (`model.formatter`).
   - Next JSON-LD sətrinə `biome-ignore` (səbəbi ilə) əlavə olunur.
 
+Husky + lint-staged (`husky-lint-staged`, husky 9.1.7, lint-staged 17.6.2, 2026-11 yoxlanılıb):
+
+- `prepare: "husky"` və bir sətirlik `.husky/pre-commit` (`lint-staged`). `.git` olmayanda husky xəbərdarlıq yazır və 0 ilə çıxır, ona görə zip-dən açılan layihənin install-u pozulmur. `git init`-dən sonra install bir də işlədilməlidir; README bunu deyir. SvelteKit-in `prepare` skripti saxlanılır (`… && husky`).
+- lint-staged konfiqi `package.json`-dadır və seçilmiş alətlərə görə qurulur. ESLint + Prettier-də skriptlər üçün ardıcıl massiv, qalan fayllar üçün inkar glob-u var: üst-üstə düşən glob-lar paralel yazıb yarışır (lint-staged README). ESLint glob-una framework faylları əlavə olunur (`vue`, `svelte`, `astro`, Angular-da `html`).
+- lint-staged 17 Node.js ≥22.22.1 istəyir; README-də qeyd olunur.
+- `package.json` artıq Prettier-in `json-stringify` parser-i ilə formatlanır (Prettier `package.json`-ı belə yoxlayır: massivlər həmişə sətirlərə bölünür).
+
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 
 - Hər layihəyə counter komponent testi yazılır. Yalnız `vitest` seçiləndə framework-ün öz mount API-si işlədilir: `react-dom/client` + `act`, `preact` + `preact/test-utils`, `solid-js/web`, Svelte `mount`, `@vue/test-utils`, Nuxt `mountSuspended`, Angular `TestBed`, Astro Container API. `testing-library` seçiləndə test `render`/`screen`/`user-event`-ə keçir. Elementlər class ilə yox, teq və mətnlə tapılır, ona görə Tailwind testi pozmur.

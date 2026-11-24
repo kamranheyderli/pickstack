@@ -51,6 +51,9 @@ const shared: VersionSet = {
   "@testing-library/angular": "^19.6.0",
   // Exact: biome.json's $schema URL names this version (`biome init` pins with -E).
   "@biomejs/biome": "2.6.8",
+  husky: "^9.1.7",
+  // Needs Node.js >=22.22.1 (engines); the generated README says so.
+  "lint-staged": "^17.6.2",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

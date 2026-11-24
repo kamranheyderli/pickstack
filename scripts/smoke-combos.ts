@@ -67,6 +67,7 @@ export const quickCombos: Combo[] = [
   ...eslintCombos(),
   ...testingCombos(),
   ...biomeCombos(),
+  ...huskyCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -250,4 +251,40 @@ function biomeCombos(): Combo[] {
       ? []
       : [{ framework, language: "js" as const, modules: ["biome"] }]),
   ]);
+}
+
+/** Husky + lint-staged with each tool combination its config branches on. */
+function huskyCombos(): Combo[] {
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["husky-lint-staged", "eslint", "prettier"],
+    },
+    {
+      framework: "vue",
+      language: "js",
+      modules: ["husky-lint-staged", "eslint"],
+    },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["husky-lint-staged", "prettier"],
+    },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: ["husky-lint-staged", "eslint", "prettier"],
+    },
+    {
+      framework: "astro",
+      language: "ts",
+      modules: ["husky-lint-staged", "biome"],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["husky-lint-staged", "eslint", "prettier"],
+    },
+  ];
 }

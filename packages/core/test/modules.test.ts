@@ -453,3 +453,48 @@ describe("biome", () => {
     );
   });
 });
+
+describe("husky-lint-staged", () => {
+  function model(frameworkId: FrameworkId, ids: string[]): ProjectModel {
+    const ctx = ctxFor("ts", ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const result = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(result, ctx);
+    return result;
+  }
+
+  it("adds the hook, the prepare script and a lint-staged config", () => {
+    const result = model("react", ["eslint", "prettier", "husky-lint-staged"]);
+    expect(result.files.get(".husky/pre-commit")).toBe("lint-staged\n");
+    expect(result.pkg.scripts["prepare"]).toBe("husky");
+    expect(result.pkg.fields["lint-staged"]).toEqual({
+      "*.{js,jsx,ts,tsx,mjs,cjs}": ["eslint --fix", "prettier --write"],
+      "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write",
+    });
+  });
+
+  it("runs only the selected tool", () => {
+    expect(
+      model("vue", ["eslint", "husky-lint-staged"]).pkg.fields["lint-staged"],
+    ).toEqual({ "*.{js,jsx,ts,tsx,mjs,cjs,vue}": "eslint --fix" });
+    expect(
+      model("react", ["prettier", "husky-lint-staged"]).pkg.fields[
+        "lint-staged"
+      ],
+    ).toEqual({ "*": "prettier --ignore-unknown --write" });
+    expect(
+      model("react", ["biome", "husky-lint-staged"]).pkg.fields["lint-staged"],
+    ).toEqual({
+      "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true",
+    });
+  });
+
+  it("keeps SvelteKit's prepare step", () => {
+    expect(
+      model("sveltekit", ["prettier", "husky-lint-staged"]).pkg.scripts[
+        "prepare"
+      ],
+    ).toBe("svelte-kit sync || echo '' && husky");
+  });
+});

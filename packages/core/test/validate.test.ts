@@ -147,6 +147,20 @@ describe("biome", () => {
   });
 });
 
+describe("husky-lint-staged", () => {
+  it("needs ESLint, Prettier or Biome to run", () => {
+    const alone = validate(selection({ modules: ["husky-lint-staged"] }));
+    expect(alone.ok).toBe(false);
+    if (!alone.ok)
+      expect(alone.errors[0]).toMatchObject({ code: "missing-one-of" });
+    for (const tool of ["eslint", "prettier", "biome"]) {
+      expect(
+        validate(selection({ modules: ["husky-lint-staged", tool] })).ok,
+      ).toBe(true);
+    }
+  });
+});
+
 describe("testing modules", () => {
   it("auto-adds vitest for testing-library and applies it first", () => {
     const result = resolve(["testing-library"]);

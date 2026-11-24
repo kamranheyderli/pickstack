@@ -9,6 +9,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".postcssrc.json": "{
   "plugins": {
     "@tailwindcss/postcss": {}
@@ -35,7 +37,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -54,10 +56,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Set \`apiUrl\` in \`src/environments/environment.ts\`. Import the client from \`src/app/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -203,6 +210,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,html})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",
@@ -212,7 +226,8 @@ export default defineConfig([
     "test": "ng test --watch=false",
     "lint": "ng lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@angular/common": "^22.3.0",
@@ -239,7 +254,9 @@ export default defineConfig([
     "angular-eslint": "^22.8.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
@@ -386,7 +403,8 @@ export class Counter {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Tailwind CSS, Angular signals service,
-    Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+    Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
+    llms.txt.
   </p>
 </section>
 ",
@@ -922,6 +940,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .astro
 pnpm-lock.yaml
@@ -943,7 +963,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+Stack: Astro, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -961,10 +981,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -1020,6 +1045,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,astro}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,astro})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -1028,7 +1060,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.6",
@@ -1042,6 +1075,8 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^3.2.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "tailwindcss": "^4.3.5",
@@ -1163,7 +1198,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+      Built with Astro, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -1244,6 +1279,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .astro
 pnpm-lock.yaml
@@ -1265,7 +1302,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, TypeScript, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+Stack: Astro, TypeScript, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -1284,10 +1321,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -1345,6 +1387,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,astro}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,astro})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -1354,7 +1403,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.6",
@@ -1369,6 +1419,8 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^3.2.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "tailwindcss": "^4.3.5",
@@ -1496,7 +1548,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+      Built with Astro, TypeScript, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -2770,6 +2822,8 @@ next-env.d.ts
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .next
 out
@@ -2784,7 +2838,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -2801,10 +2855,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -2853,7 +2912,8 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit,
-        Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+        Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
+        SEO, llms.txt.
       </p>
     </section>
   );
@@ -3105,6 +3165,13 @@ export default nextConfig;
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -3112,7 +3179,8 @@ export default nextConfig;
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
@@ -3132,7 +3200,9 @@ export default nextConfig;
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
@@ -3190,6 +3260,8 @@ next-env.d.ts
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .next
 out
@@ -3204,7 +3276,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -3222,10 +3294,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -3276,8 +3353,8 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, TypeScript, Tailwind CSS,
-        Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, SEO,
-        llms.txt.
+        Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
@@ -3541,6 +3618,13 @@ export default nextConfig;
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -3549,7 +3633,8 @@ export default nextConfig;
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
@@ -3572,7 +3657,9 @@ export default nextConfig;
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
@@ -4188,6 +4275,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .nuxt
 .output
@@ -4203,7 +4292,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -4222,10 +4311,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -4330,7 +4424,7 @@ useSeoMeta({ title: "About" });
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Vitest, Testing
-      Library, ESLint, Prettier, SEO, llms.txt.
+      Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -4404,6 +4498,13 @@ export default defineNuxtConfig({
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -4413,7 +4514,8 @@ export default defineNuxtConfig({
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@pinia/nuxt": "^1.0.3",
@@ -4436,6 +4538,8 @@ export default defineNuxtConfig({
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "happy-dom": "^21.0.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -4560,6 +4664,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .nuxt
 .output
@@ -4575,7 +4681,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -4595,10 +4701,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -4703,7 +4814,7 @@ useSeoMeta({ title: "About" });
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Vitest,
-      Testing Library, ESLint, Prettier, SEO, llms.txt.
+      Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -4777,6 +4888,13 @@ export default defineNuxtConfig({
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -4787,7 +4905,8 @@ export default defineNuxtConfig({
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@pinia/nuxt": "^1.0.3",
@@ -4810,6 +4929,8 @@ export default defineNuxtConfig({
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "happy-dom": "^21.0.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -5387,6 +5508,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -5397,7 +5520,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -5414,10 +5537,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -5494,6 +5622,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -5501,7 +5636,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "axios": "^1.21.1",
@@ -5521,7 +5657,9 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
@@ -5661,7 +5799,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, Vitest,
-        Testing Library, ESLint, Prettier, SEO, llms.txt.
+        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
@@ -5711,6 +5849,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -5721,7 +5861,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -5739,10 +5879,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -5818,6 +5963,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -5826,7 +5978,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "axios": "^1.21.1",
@@ -5847,7 +6000,9 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -5989,7 +6144,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios,
-        Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+        Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
+        llms.txt.
       </p>
     </section>
   );
@@ -6617,6 +6773,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -6627,7 +6785,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -6644,10 +6802,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -6729,6 +6892,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -6736,7 +6906,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
@@ -6759,7 +6930,9 @@ export default defineConfig([
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.8",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
@@ -6913,7 +7086,8 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Tailwind CSS, Redux Toolkit, React Router,
-        Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+        Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
+        SEO, llms.txt.
       </p>
     </section>
   );
@@ -6992,6 +7166,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -7002,7 +7178,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -7020,10 +7196,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -7101,6 +7282,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -7109,7 +7297,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
@@ -7134,7 +7323,9 @@ export default defineConfig([
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.8",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -7290,8 +7481,8 @@ createRoot(document.getElementById("root")!).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit,
-        React Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO,
-        llms.txt.
+        React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
@@ -7863,6 +8054,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -7873,7 +8066,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -7890,10 +8083,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -7964,6 +8162,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -7971,7 +8176,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@solidjs/router": "^1.0.3",
@@ -7989,7 +8195,9 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-solid": "^0.20.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
@@ -8131,7 +8339,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+        Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
@@ -8195,6 +8404,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -8205,7 +8416,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -8223,10 +8434,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -8298,6 +8514,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -8306,7 +8529,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@solidjs/router": "^1.0.3",
@@ -8325,7 +8549,9 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-solid": "^0.20.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -8470,8 +8696,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store,
-        Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO,
-        llms.txt.
+        Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
@@ -9086,6 +9312,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -9106,7 +9334,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -9123,10 +9351,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -9215,6 +9448,13 @@ export default defineConfig(
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -9222,7 +9462,8 @@ export default defineConfig(
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "axios": "^1.21.1"
@@ -9239,7 +9480,9 @@ export default defineConfig(
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -9396,6 +9639,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -9416,7 +9661,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -9434,10 +9679,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -9523,6 +9773,13 @@ export default defineConfig(
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -9531,7 +9788,8 @@ export default defineConfig(
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "axios": "^1.21.1"
@@ -9550,7 +9808,9 @@ export default defineConfig(
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -10234,6 +10494,8 @@ build
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .svelte-kit
 build
@@ -10256,7 +10518,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -10278,6 +10540,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -10335,11 +10601,18 @@ export default defineConfig(
     "#lib": "./src/lib/index.js",
     "#lib/*": "./src/lib/*"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "prepare": "svelte-kit sync || echo ''",
+    "prepare": "svelte-kit sync || echo '' && husky",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -10358,7 +10631,9 @@ export default defineConfig(
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -10520,7 +10795,7 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios,
-    Vitest, ESLint, Prettier, SEO, llms.txt.
+    Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -10645,6 +10920,8 @@ build
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 .svelte-kit
 build
@@ -10667,7 +10944,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -10690,6 +10967,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -10753,11 +11034,18 @@ export default defineConfig(
     "#lib": "./src/lib/index.js",
     "#lib/*": "./src/lib/*"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "prepare": "svelte-kit sync || echo ''",
+    "prepare": "svelte-kit sync || echo '' && husky",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
     "lint": "eslint .",
@@ -10777,7 +11065,9 @@ export default defineConfig(
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -10956,7 +11246,7 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes
-    store, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
+    store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -11591,6 +11881,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -11601,7 +11893,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -11618,10 +11910,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -11701,6 +11998,13 @@ export default defineConfig([
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11708,7 +12012,8 @@ export default defineConfig([
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@vue/devtools-api": "^8.2.1",
@@ -11730,7 +12035,9 @@ export default defineConfig([
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.12.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
@@ -11917,7 +12224,7 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Vitest,
-      Testing Library, ESLint, Prettier, SEO, llms.txt.
+      Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -11975,6 +12282,8 @@ dist
 .env.local
 .DS_Store
 ",
+  ".husky/pre-commit": "lint-staged
+",
   ".prettierignore": "dist
 pnpm-lock.yaml
 package-lock.json
@@ -11985,7 +12294,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -12003,10 +12312,15 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+- \`npm run prepare\`
 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Git hooks
+
+The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
 
 ## SEO
 
@@ -12080,6 +12394,13 @@ export default defineConfigWithVueTs(
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --build && vite build",
@@ -12088,7 +12409,8 @@ export default defineConfigWithVueTs(
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@vue/devtools-api": "^8.2.1",
@@ -12113,8 +12435,10 @@ export default defineConfigWithVueTs(
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.12.1",
+    "husky": "^9.1.7",
     "jiti": "^2.7.0",
     "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -12303,7 +12627,8 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router,
-      Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
+      Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
+      llms.txt.
     </p>
   </section>
 </template>

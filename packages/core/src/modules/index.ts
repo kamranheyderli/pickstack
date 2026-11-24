@@ -2,6 +2,7 @@ import type { Module } from "../types";
 import { axios } from "./data/axios";
 import { biome } from "./quality/biome";
 import { eslint } from "./quality/eslint";
+import { huskyLintStaged } from "./quality/husky-lint-staged";
 import { prettier } from "./quality/prettier";
 import { preactIso } from "./routing/preact-iso";
 import { reactRouter } from "./routing/react-router";
@@ -33,6 +34,7 @@ export const modules: readonly Module[] = [
   eslint,
   prettier,
   biome,
+  huskyLintStaged,
   seo,
   aio,
 ];
