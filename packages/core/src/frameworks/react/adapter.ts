@@ -5,14 +5,10 @@ import type {
   Ctx,
   FrameworkAdapter,
   ProjectModel,
-  RouteSpec,
 } from "../../types";
-import {
-  aboutText,
-  demoClasses,
-  globalCss,
-  type DemoClasses,
-} from "../shared/demo";
+import { demoClasses, globalCss } from "../shared/demo";
+import { viteEnv } from "../shared/env";
+import { plainViteConfig, wrapProviders, writeJsxDemo } from "../shared/jsx";
 import indexHtml from "../shared/templates/index-html";
 
 const localCounter: CounterSpec = {
@@ -28,6 +24,8 @@ export const reactAdapter: FrameworkAdapter = {
   name: "React",
   kind: "spa",
   languages: ["js", "ts"],
+  srcDir: "src",
+  publicEnv: viteEnv,
   componentExt: (language) => (language === "ts" ? "tsx" : "jsx"),
 
   base(ctx) {
@@ -78,28 +76,10 @@ export const reactAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
-    const cls = demoClasses(model);
-    const x = ctx.ext.component;
-
-    model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model));
-    model.files.set(`src/main.${x}`, mainEntry(model, ctx));
+    model.files.set(`vite.config.${ctx.ext.script}`, plainViteConfig(model));
+    model.files.set(`src/main.${ctx.ext.component}`, mainEntry(model, ctx));
     model.files.set("src/index.css", globalCss(model));
-    model.files.set(
-      `src/components/Counter.${x}`,
-      counter(model.demo.counter ?? localCounter, cls),
-    );
-
-    if (model.routing && model.routes.length) {
-      for (const route of model.routes) {
-        model.files.set(
-          `src/pages/${route.component}.${x}`,
-          page(route, model, ctx, cls),
-        );
-      }
-      model.files.set(`src/App.${x}`, routedApp(model, cls));
-    } else {
-      model.files.set(`src/App.${x}`, singleApp(ctx, cls));
-    }
+    writeJsxDemo(model, ctx, demoClasses(model), "className", localCounter);
   },
 };
 
@@ -122,34 +102,17 @@ function tsconfig() {
   };
 }
 
-function viteConfig(model: ProjectModel): string {
-  const plugins = model.bundler.plugins;
-  return file([
-    ...renderImports([
-      { from: "vite", named: ["defineConfig"] },
-      ...plugins.map((p) => p.import),
-    ]),
-    "",
-    "export default defineConfig({",
-    `  plugins: [${plugins.map((p) => p.call).join(", ")}],`,
-    "});",
-  ]);
-}
-
 function mainEntry(model: ProjectModel, ctx: Ctx): string {
-  const providers = [...model.entry.providers].sort(
-    (a, b) => a.order - b.order,
-  );
-  let tree = ["<App />"];
-  for (const provider of [...providers].reverse()) {
-    tree = [provider.open, ...indent(tree), provider.close];
-  }
-  tree = ["<StrictMode>", ...indent(tree), "</StrictMode>"];
+  const tree = [
+    "<StrictMode>",
+    ...indent(wrapProviders(model, ["<App />"])),
+    "</StrictMode>",
+  ];
 
   return file([
     ...renderImports([
       ...model.entry.imports,
-      ...providers.flatMap((p) => p.imports),
+      ...model.entry.providers.flatMap((p) => p.imports),
     ]),
     "",
     ...model.entry.setup,
@@ -157,107 +120,5 @@ function mainEntry(model: ProjectModel, ctx: Ctx): string {
     `createRoot(document.getElementById("root")${ctx.isTs ? "!" : ""}).render(`,
     ...indent(tree),
     ");",
-  ]);
-}
-
-function counter(spec: CounterSpec, cls: DemoClasses): string {
-  return file([
-    ...renderImports(spec.imports),
-    "",
-    "export default function Counter() {",
-    ...indent(spec.setup),
-    "",
-    "  return (",
-    `    <div className="${cls.card}">`,
-    `      <p className="${cls.count}">{${spec.value}}</p>`,
-    `      <div className="${cls.row}">`,
-    `        <button className="${cls.btn}" onClick={${spec.decrement}}>`,
-    "          -1",
-    "        </button>",
-    `        <button className="${cls.btn}" onClick={${spec.increment}}>`,
-    "          +1",
-    "        </button>",
-    "      </div>",
-    "    </div>",
-    "  );",
-    "}",
-  ]);
-}
-
-function singleApp(ctx: Ctx, cls: DemoClasses): string {
-  return file([
-    'import Counter from "./components/Counter";',
-    "",
-    "export default function App() {",
-    "  return (",
-    `    <main className="${cls.main}">`,
-    `      <h1 className="${cls.title}">${ctx.selection.name}</h1>`,
-    "      <Counter />",
-    "    </main>",
-    "  );",
-    "}",
-  ]);
-}
-
-function routedApp(model: ProjectModel, cls: DemoClasses): string {
-  const routing = model.routing;
-  if (!routing) throw new Error("routedApp requires model.routing");
-  const links = model.routes.flatMap((route) => [
-    `<${routing.link} className="${cls.link}" ${routing.linkProp}="${route.path}">`,
-    `  ${route.label}`,
-    `</${routing.link}>`,
-  ]);
-
-  return file([
-    ...renderImports([
-      ...routing.imports,
-      ...model.routes.map((r) => ({
-        from: `./pages/${r.component}`,
-        default: r.component,
-      })),
-    ]),
-    "",
-    "export default function App() {",
-    "  return (",
-    `    <main className="${cls.main}">`,
-    `      <nav className="${cls.nav}">`,
-    ...indent(links, 4),
-    "      </nav>",
-    ...indent(routing.outlet, 3),
-    "    </main>",
-    "  );",
-    "}",
-  ]);
-}
-
-function page(
-  route: RouteSpec,
-  model: ProjectModel,
-  ctx: Ctx,
-  cls: DemoClasses,
-): string {
-  if (route.page === "home") {
-    return file([
-      'import Counter from "../components/Counter";',
-      "",
-      `export default function ${route.component}() {`,
-      "  return (",
-      `    <section className="${cls.page}">`,
-      `      <h1 className="${cls.title}">${ctx.selection.name}</h1>`,
-      "      <Counter />",
-      "    </section>",
-      "  );",
-      "}",
-    ]);
-  }
-  return file([
-    `export default function ${route.component}() {`,
-    "  return (",
-    `    <section className="${cls.page}">`,
-    `      <h1 className="${cls.title}">${route.label}</h1>`,
-    `      <p className="${cls.text}">${aboutText(model)}</p>`,
-    "    </section>",
-    "  );",
-    "}",
   ]);
 }

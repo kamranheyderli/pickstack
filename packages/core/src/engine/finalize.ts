@@ -37,15 +37,25 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
       private: true,
       version: "0.1.0",
       type: "module",
+      ...model.pkg.fields,
       scripts: model.pkg.scripts,
-      dependencies: withVersions(model.pkg.dependencies),
+      ...(model.pkg.dependencies.size
+        ? { dependencies: withVersions(model.pkg.dependencies) }
+        : {}),
       devDependencies: withVersions(model.pkg.devDependencies),
     }),
   );
 
   model.files.set(
     ".gitignore",
-    file(["node_modules", "dist", ".env", ".env.local", ".DS_Store"]),
+    file([
+      "node_modules",
+      "dist",
+      ...ctx.ignore,
+      ".env",
+      ".env.local",
+      ".DS_Store",
+    ]),
   );
   model.files.set("README.md", readme(model, ctx));
 }

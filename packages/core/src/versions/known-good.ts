@@ -14,6 +14,9 @@ const shared: VersionSet = {
   "@tailwindcss/vite": "^4.3.5",
   axios: "^1.21.1",
   prettier: "^3.10.1",
+  "prettier-plugin-svelte": "^4.2.0",
+  "prettier-plugin-astro": "^1.1.2",
+  "@types/node": "^24.19.2",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
@@ -40,6 +43,34 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     pinia: "^4.1.0",
     "@vue/devtools-api": "^8.2.1",
     "vue-router": "^5.5.1",
+  },
+  svelte: {
+    svelte: "^5.59.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    vite: "^8.3.8",
+    "svelte-check": "^4.7.8",
+    "@tsconfig/svelte": "^5.0.9",
+  },
+  sveltekit: {
+    "@sveltejs/kit": "^3.4.0",
+    "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    svelte: "^5.59.1",
+    vite: "^8.3.8",
+    "svelte-check": "^4.7.8",
+  },
+  solid: {
+    "solid-js": "^1.9.20",
+    "vite-plugin-solid": "^2.11.17",
+    "@solidjs/router": "^1.0.3",
+    vite: "^8.3.8",
+  },
+  preact: {
+    preact: "^11.2.0",
+    "@preact/preset-vite": "^2.10.6",
+    "preact-iso": "^2.12.2",
+    "preact-render-to-string": "^6.8.3",
+    vite: "^8.3.8",
   },
 };
 

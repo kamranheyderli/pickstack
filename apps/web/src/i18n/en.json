@@ -50,5 +50,6 @@
   "framework.kind.spa": "SPA",
   "framework.kind.meta": "Meta-framework",
   "reason.framework-soon": "The {framework} generator lands in phase {phase}.",
-  "preview.files": "{count} files"
+  "preview.files": "{count} files",
+  "hint.svelteRouting": "Need routing? Pick SvelteKit: it has file-based routing built in."
 }

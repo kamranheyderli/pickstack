@@ -1,5 +1,963 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`preact snapshots > everything (js) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "axios": "^1.21.1",
+    "preact": "^11.2.0",
+    "preact-iso": "^2.12.2",
+    "preact-render-to-string": "^6.8.3"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.jsx": "import { Route, Router } from "preact-iso";
+import About from "./pages/About";
+import Home from "./pages/Home";
+
+export default function App() {
+  return (
+    <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <nav class="flex gap-4 text-sm font-medium">
+        <a class="text-slate-600 hover:text-slate-900" href="/">
+          Home
+        </a>
+        <a class="text-slate-600 hover:text-slate-900" href="/about">
+          About
+        </a>
+      </nav>
+      <Router>
+        <Route path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Router>
+    </main>
+  );
+}
+",
+  "src/api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/components/Counter.jsx": "import { useState } from "preact/hooks";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p class="text-5xl font-bold tabular-nums">{count}</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => setCount((value) => value - 1)}
+        >
+          -1
+        </button>
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => setCount((value) => value + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": "@import "tailwindcss";
+",
+  "src/main.jsx": "import { render } from "preact";
+import { LocationProvider } from "preact-iso";
+import App from "./App";
+import "./index.css";
+
+render(
+  <LocationProvider>
+    <App />
+  </LocationProvider>,
+  document.getElementById("app"),
+);
+",
+  "src/pages/About.jsx": "export default function About() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">About</h1>
+      <p class="max-w-md text-center text-slate-600">
+        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier.
+      </p>
+    </section>
+  );
+}
+",
+  "src/pages/Home.jsx": "import Counter from "../components/Counter";
+
+export default function Home() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "vite.config.js": "import preact from "@preact/preset-vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [preact(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`preact snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "axios": "^1.21.1",
+    "preact": "^11.2.0",
+    "preact-iso": "^2.12.2",
+    "preact-render-to-string": "^6.8.3"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.tsx": "import { Route, Router } from "preact-iso";
+import About from "./pages/About";
+import Home from "./pages/Home";
+
+export default function App() {
+  return (
+    <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <nav class="flex gap-4 text-sm font-medium">
+        <a class="text-slate-600 hover:text-slate-900" href="/">
+          Home
+        </a>
+        <a class="text-slate-600 hover:text-slate-900" href="/about">
+          About
+        </a>
+      </nav>
+      <Router>
+        <Route path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Router>
+    </main>
+  );
+}
+",
+  "src/api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/components/Counter.tsx": "import { useState } from "preact/hooks";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p class="text-5xl font-bold tabular-nums">{count}</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => setCount((value) => value - 1)}
+        >
+          -1
+        </button>
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={() => setCount((value) => value + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": "@import "tailwindcss";
+",
+  "src/main.tsx": "import { render } from "preact";
+import { LocationProvider } from "preact-iso";
+import App from "./App";
+import "./index.css";
+
+render(
+  <LocationProvider>
+    <App />
+  </LocationProvider>,
+  document.getElementById("app")!,
+);
+",
+  "src/pages/About.tsx": "export default function About() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">About</h1>
+      <p class="max-w-md text-center text-slate-600">
+        Built with Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios,
+        Prettier.
+      </p>
+    </section>
+  );
+}
+",
+  "src/pages/Home.tsx": "import Counter from "../components/Counter";
+
+export default function Home() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "tsconfig.app.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "lib": ["ES2023", "DOM"],
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react-dom": ["./node_modules/preact/compat/"]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+",
+  "vite.config.ts": "import preact from "@preact/preset-vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [preact(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`preact snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Preact, Vite.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.jsx": "import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main class="app">
+      <h1 class="title">my-app</h1>
+      <Counter />
+    </main>
+  );
+}
+",
+  "src/components/Counter.jsx": "import { useState } from "preact/hooks";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div class="card">
+      <p class="count">{count}</p>
+      <div class="row">
+        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+          -1
+        </button>
+        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/main.jsx": "import { render } from "preact";
+import App from "./App";
+import "./index.css";
+
+render(<App />, document.getElementById("app"));
+",
+  "vite.config.js": "import preact from "@preact/preset-vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [preact()],
+});
+",
+}
+`;
+
+exports[`preact snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Preact, Vite, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.tsx": "import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main class="app">
+      <h1 class="title">my-app</h1>
+      <Counter />
+    </main>
+  );
+}
+",
+  "src/components/Counter.tsx": "import { useState } from "preact/hooks";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div class="card">
+      <p class="count">{count}</p>
+      <div class="row">
+        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+          -1
+        </button>
+        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/main.tsx": "import { render } from "preact";
+import App from "./App";
+import "./index.css";
+
+render(<App />, document.getElementById("app")!);
+",
+  "tsconfig.app.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "lib": ["ES2023", "DOM"],
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react-dom": ["./node_modules/preact/compat/"]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+",
+  "vite.config.ts": "import preact from "@preact/preset-vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [preact()],
+});
+",
+}
+`;
+
+exports[`react extras > zustand without router (ts) 1`] = `
+"import { useCounterStore } from "../store/useCounterStore";
+
+export default function Counter() {
+  const count = useCounterStore((state) => state.count);
+  const increment = useCounterStore((state) => state.increment);
+  const decrement = useCounterStore((state) => state.decrement);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button className="btn" onClick={decrement}>
+          -1
+        </button>
+        <button className="btn" onClick={increment}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+"
+`;
+
 exports[`react snapshots > everything (js) 1`] = `
 {
   ".env.example": "VITE_API_URL=http://localhost:3000
@@ -12,6 +970,9 @@ dist
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
 ",
   ".prettierrc": "{}
 ",
@@ -245,6 +1206,9 @@ dist
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
 ",
   ".prettierrc": "{}
 ",
@@ -947,29 +1911,2859 @@ export default defineConfig({
 }
 `;
 
-exports[`react snapshots > zustand without router (ts) 1`] = `
-"import { useCounterStore } from "../store/useCounterStore";
+exports[`solid snapshots > everything (js) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.jsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@solidjs/router": "^1.0.3",
+    "axios": "^1.21.1",
+    "solid-js": "^1.9.20"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.17"
+  }
+}
+",
+  "src/App.jsx": "import { A } from "@solidjs/router";
+
+export default function App(props) {
+  return (
+    <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <nav class="flex gap-4 text-sm font-medium">
+        <A class="text-slate-600 hover:text-slate-900" href="/">
+          Home
+        </A>
+        <A class="text-slate-600 hover:text-slate-900" href="/about">
+          About
+        </A>
+      </nav>
+      {props.children}
+    </main>
+  );
+}
+",
+  "src/api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/components/Counter.jsx": "import { count, decrement, increment } from "../stores/counter";
 
 export default function Counter() {
-  const count = useCounterStore((state) => state.count);
-  const increment = useCounterStore((state) => state.increment);
-  const decrement = useCounterStore((state) => state.decrement);
-
   return (
-    <div className="card">
-      <p className="count">{count}</p>
-      <div className="row">
-        <button className="btn" onClick={decrement}>
+    <div class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p class="text-5xl font-bold tabular-nums">{count()}</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={decrement}
+        >
           -1
         </button>
-        <button className="btn" onClick={increment}>
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={increment}
+        >
           +1
         </button>
       </div>
     </div>
   );
 }
-"
+",
+  "src/index.css": "@import "tailwindcss";
+",
+  "src/index.jsx": "/* @refresh reload */
+import { Route, Router } from "@solidjs/router";
+import { render } from "solid-js/web";
+import App from "./App";
+import About from "./pages/About";
+import Home from "./pages/Home";
+import "./index.css";
+
+const root = document.getElementById("root");
+
+render(
+  () => (
+    <Router root={App}>
+      <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
+    </Router>
+  ),
+  root,
+);
+",
+  "src/pages/About.jsx": "export default function About() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">About</h1>
+      <p class="max-w-md text-center text-slate-600">
+        Built with SolidJS, Vite, Tailwind CSS, Solid signals store, Solid
+        Router, Axios, Prettier.
+      </p>
+    </section>
+  );
+}
+",
+  "src/pages/Home.jsx": "import Counter from "../components/Counter";
+
+export default function Home() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "src/stores/counter.js": "import { createSignal } from "solid-js";
+
+const [count, setCount] = createSignal(0);
+
+export { count };
+
+export function increment() {
+  setCount((value) => value + 1);
+}
+
+export function decrement() {
+  setCount((value) => value - 1);
+}
+",
+  "vite.config.js": "import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
+
+export default defineConfig({
+  plugins: [solid(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`solid snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{}
+",
+  "README.md": "# my-app
+
+Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@solidjs/router": "^1.0.3",
+    "axios": "^1.21.1",
+    "solid-js": "^1.9.20"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "prettier": "^3.10.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.17"
+  }
+}
+",
+  "src/App.tsx": "import { A } from "@solidjs/router";
+import type { RouteSectionProps } from "@solidjs/router";
+
+export default function App(props: RouteSectionProps) {
+  return (
+    <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
+      <nav class="flex gap-4 text-sm font-medium">
+        <A class="text-slate-600 hover:text-slate-900" href="/">
+          Home
+        </A>
+        <A class="text-slate-600 hover:text-slate-900" href="/about">
+          About
+        </A>
+      </nav>
+      {props.children}
+    </main>
+  );
+}
+",
+  "src/api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/components/Counter.tsx": "import { count, decrement, increment } from "../stores/counter";
+
+export default function Counter() {
+  return (
+    <div class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <p class="text-5xl font-bold tabular-nums">{count()}</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={decrement}
+        >
+          -1
+        </button>
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          onClick={increment}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": "@import "tailwindcss";
+",
+  "src/index.tsx": "/* @refresh reload */
+import { Route, Router } from "@solidjs/router";
+import { render } from "solid-js/web";
+import App from "./App";
+import About from "./pages/About";
+import Home from "./pages/Home";
+import "./index.css";
+
+const root = document.getElementById("root");
+
+render(
+  () => (
+    <Router root={App}>
+      <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
+    </Router>
+  ),
+  root!,
+);
+",
+  "src/pages/About.tsx": "export default function About() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">About</h1>
+      <p class="max-w-md text-center text-slate-600">
+        Built with SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store,
+        Solid Router, Axios, Prettier.
+      </p>
+    </section>
+  );
+}
+",
+  "src/pages/Home.tsx": "import Counter from "../components/Counter";
+
+export default function Home() {
+  return (
+    <section class="flex flex-col items-center gap-6">
+      <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+      <Counter />
+    </section>
+  );
+}
+",
+  "src/stores/counter.ts": "import { createSignal } from "solid-js";
+
+const [count, setCount] = createSignal(0);
+
+export { count };
+
+export function increment() {
+  setCount((value) => value + 1);
+}
+
+export function decrement() {
+  setCount((value) => value - 1);
+}
+",
+  "tsconfig.app.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "lib": ["ES2023", "DOM"],
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+",
+  "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
+
+export default defineConfig({
+  plugins: [solid(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`solid snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: SolidJS, Vite.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.jsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.20"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.17"
+  }
+}
+",
+  "src/App.jsx": "import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main class="app">
+      <h1 class="title">my-app</h1>
+      <Counter />
+    </main>
+  );
+}
+",
+  "src/components/Counter.jsx": "import { createSignal } from "solid-js";
+
+export default function Counter() {
+  const [count, setCount] = createSignal(0);
+
+  return (
+    <div class="card">
+      <p class="count">{count()}</p>
+      <div class="row">
+        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+          -1
+        </button>
+        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/index.jsx": "/* @refresh reload */
+import { render } from "solid-js/web";
+import App from "./App";
+import "./index.css";
+
+const root = document.getElementById("root");
+
+render(() => <App />, root);
+",
+  "vite.config.js": "import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
+
+export default defineConfig({
+  plugins: [solid()],
+});
+",
+}
+`;
+
+exports[`solid snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: SolidJS, Vite, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.20"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.17"
+  }
+}
+",
+  "src/App.tsx": "import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main class="app">
+      <h1 class="title">my-app</h1>
+      <Counter />
+    </main>
+  );
+}
+",
+  "src/components/Counter.tsx": "import { createSignal } from "solid-js";
+
+export default function Counter() {
+  const [count, setCount] = createSignal(0);
+
+  return (
+    <div class="card">
+      <p class="count">{count()}</p>
+      <div class="row">
+        <button class="btn" onClick={() => setCount((value) => value - 1)}>
+          -1
+        </button>
+        <button class="btn" onClick={() => setCount((value) => value + 1)}>
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "src/index.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/index.tsx": "/* @refresh reload */
+import { render } from "solid-js/web";
+import App from "./App";
+import "./index.css";
+
+const root = document.getElementById("root");
+
+render(() => <App />, root!);
+",
+  "tsconfig.app.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "lib": ["ES2023", "DOM"],
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+",
+  "vite.config.ts": "import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
+
+export default defineConfig({
+  plugins: [solid()],
+});
+",
+}
+`;
+
+exports[`svelte snapshots > everything (js) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "plugins": ["prettier-plugin-svelte"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+",
+  "jsconfig.json": "{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "module": "ESNext",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.svelte"]
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "axios": "^1.21.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^4.2.0",
+    "svelte": "^5.59.1",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.svelte": "<script>
+  import Counter from "./lib/Counter.svelte";
+</script>
+
+<main
+  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+>
+  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+  <Counter />
+</main>
+",
+  "src/api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/app.css": "@import "tailwindcss";
+",
+  "src/lib/Counter.svelte": "<script>
+  import { counter, decrement, increment } from "./counterStore.svelte.js";
+</script>
+
+<div
+  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+>
+  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  <div class="mt-6 flex justify-center gap-3">
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={decrement}
+    >
+      -1
+    </button>
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={increment}
+    >
+      +1
+    </button>
+  </div>
+</div>
+",
+  "src/lib/counterStore.svelte.js": "export const counter = $state({ count: 0 });
+
+export function increment() {
+  counter.count += 1;
+}
+
+export function decrement() {
+  counter.count -= 1;
+}
+",
+  "src/main.js": "import { mount } from "svelte";
+import App from "./App.svelte";
+import "./app.css";
+
+const app = mount(App, {
+  target: document.getElementById("app"),
+});
+
+export default app;
+",
+  "svelte.config.js": "/** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
+export default {};
+",
+  "vite.config.js": "import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [svelte(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`svelte snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "plugins": ["prettier-plugin-svelte"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "axios": "^1.21.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@tailwindcss/vite": "^4.3.5",
+    "@tsconfig/svelte": "^5.0.9",
+    "@types/node": "^24.19.2",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^4.2.0",
+    "svelte": "^5.59.1",
+    "svelte-check": "^4.7.8",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.svelte": "<script lang="ts">
+  import Counter from "./lib/Counter.svelte";
+</script>
+
+<main
+  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+>
+  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+  <Counter />
+</main>
+",
+  "src/api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/app.css": "@import "tailwindcss";
+",
+  "src/lib/Counter.svelte": "<script lang="ts">
+  import { counter, decrement, increment } from "./counterStore.svelte.js";
+</script>
+
+<div
+  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+>
+  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  <div class="mt-6 flex justify-center gap-3">
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={decrement}
+    >
+      -1
+    </button>
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={increment}
+    >
+      +1
+    </button>
+  </div>
+</div>
+",
+  "src/lib/counterStore.svelte.ts": "export const counter = $state({ count: 0 });
+
+export function increment() {
+  counter.count += 1;
+}
+
+export function decrement() {
+  counter.count -= 1;
+}
+",
+  "src/main.ts": "import { mount } from "svelte";
+import App from "./App.svelte";
+import "./app.css";
+
+const app = mount(App, {
+  target: document.getElementById("app")!,
+});
+
+export default app;
+",
+  "svelte.config.js": "/** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
+export default {};
+",
+  "tsconfig.app.json": "{
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "types": ["svelte", "vite/client"],
+    "allowArbitraryExtensions": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "moduleDetection": "force"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+",
+  "vite.config.ts": "import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [svelte(), tailwindcss()],
+});
+",
+}
+`;
+
+exports[`svelte snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Svelte 5, Vite.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+",
+  "jsconfig.json": "{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "module": "ESNext",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.svelte"]
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "svelte": "^5.59.1",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.svelte": "<script>
+  import Counter from "./lib/Counter.svelte";
+</script>
+
+<main class="app">
+  <h1 class="title">my-app</h1>
+  <Counter />
+</main>
+",
+  "src/app.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/lib/Counter.svelte": "<script>
+  let count = $state(0);
+</script>
+
+<div class="card">
+  <p class="count">{count}</p>
+  <div class="row">
+    <button type="button" class="btn" onclick={() => count--}>-1</button>
+    <button type="button" class="btn" onclick={() => count++}>+1</button>
+  </div>
+</div>
+",
+  "src/main.js": "import { mount } from "svelte";
+import App from "./App.svelte";
+import "./app.css";
+
+const app = mount(App, {
+  target: document.getElementById("app"),
+});
+
+export default app;
+",
+  "svelte.config.js": "/** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
+export default {};
+",
+  "vite.config.js": "import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [svelte()],
+});
+",
+}
+`;
+
+exports[`svelte snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: Svelte 5, Vite, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "index.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@tsconfig/svelte": "^5.0.9",
+    "@types/node": "^24.19.2",
+    "svelte": "^5.59.1",
+    "svelte-check": "^4.7.8",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/App.svelte": "<script lang="ts">
+  import Counter from "./lib/Counter.svelte";
+</script>
+
+<main class="app">
+  <h1 class="title">my-app</h1>
+  <Counter />
+</main>
+",
+  "src/app.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "src/lib/Counter.svelte": "<script lang="ts">
+  let count = $state(0);
+</script>
+
+<div class="card">
+  <p class="count">{count}</p>
+  <div class="row">
+    <button type="button" class="btn" onclick={() => count--}>-1</button>
+    <button type="button" class="btn" onclick={() => count++}>+1</button>
+  </div>
+</div>
+",
+  "src/main.ts": "import { mount } from "svelte";
+import App from "./App.svelte";
+import "./app.css";
+
+const app = mount(App, {
+  target: document.getElementById("app")!,
+});
+
+export default app;
+",
+  "svelte.config.js": "/** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
+export default {};
+",
+  "tsconfig.app.json": "{
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "types": ["svelte", "vite/client"],
+    "allowArbitraryExtensions": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "moduleDetection": "force"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
+}
+",
+  "tsconfig.json": "{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+",
+  "tsconfig.node.json": "{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+",
+  "vite.config.ts": "import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [svelte()],
+});
+",
+}
+`;
+
+exports[`sveltekit snapshots > everything (js) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.svelte-kit
+build
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.svelte-kit
+build
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "plugins": ["prettier-plugin-svelte"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run prepare\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "jsconfig.json": "{
+  "extends": "$app/tsconfig",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": ["src", "vite.config.js"]
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "axios": "^1.21.1"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/kit": "^3.4.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^4.2.0",
+    "svelte": "^5.59.1",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/api/client.js": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/app.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>
+",
+  "src/lib/Counter.svelte": "<script>
+  import { counter, decrement, increment } from "./counterStore.svelte.js";
+</script>
+
+<div
+  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+>
+  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  <div class="mt-6 flex justify-center gap-3">
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={decrement}
+    >
+      -1
+    </button>
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={increment}
+    >
+      +1
+    </button>
+  </div>
+</div>
+",
+  "src/lib/counterStore.svelte.js": "export const counter = $state({ count: 0 });
+
+export function increment() {
+  counter.count += 1;
+}
+
+export function decrement() {
+  counter.count -= 1;
+}
+",
+  "src/lib/index.js": "// Place files you want to import through the \`#lib\` alias in this folder.
+",
+  "src/routes/+layout.js": "export const prerender = true;
+",
+  "src/routes/+layout.svelte": "<script>
+  import { resolve } from "$app/paths";
+  import "./layout.css";
+
+  let { children } = $props();
+</script>
+
+<main
+  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+>
+  <nav class="flex gap-4 text-sm font-medium">
+    <a class="text-slate-600 hover:text-slate-900" href={resolve("/")}>Home</a>
+    <a class="text-slate-600 hover:text-slate-900" href={resolve("/about")}>
+      About
+    </a>
+  </nav>
+  {@render children()}
+</main>
+",
+  "src/routes/+page.svelte": "<script>
+  import Counter from "#lib/Counter.svelte";
+</script>
+
+<section class="flex flex-col items-center gap-6">
+  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+  <Counter />
+</section>
+",
+  "src/routes/about/+page.svelte": "<section class="flex flex-col items-center gap-6">
+  <h1 class="text-3xl font-bold tracking-tight">About</h1>
+  <p class="max-w-md text-center text-slate-600">
+    Built with SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios,
+    Prettier.
+  </p>
+</section>
+",
+  "src/routes/layout.css": "@import "tailwindcss";
+",
+  "static/robots.txt": "# allow crawling everything by default
+User-agent: *
+Disallow:
+",
+  "vite.config.js": "import adapter from "@sveltejs/adapter-static";
+import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    sveltekit({
+      compilerOptions: {
+        // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
+        runes: ({ filename }) =>
+          filename.split(/[/\\\\]/).includes("node_modules") ? undefined : true,
+      },
+      adapter: adapter(),
+    }),
+  ],
+});
+",
+}
+`;
+
+exports[`sveltekit snapshots > everything (ts) 1`] = `
+{
+  ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".gitignore": "node_modules
+dist
+.svelte-kit
+build
+.env
+.env.local
+.DS_Store
+",
+  ".prettierignore": "dist
+.svelte-kit
+build
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+",
+  ".prettierrc": "{
+  "plugins": ["prettier-plugin-svelte"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}
+",
+  "README.md": "# my-app
+
+Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run prepare\`
+- \`npm run typecheck\`
+- \`npm run format\`
+- \`npm run format:check\`
+
+## API client
+
+Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "axios": "^1.21.1"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/kit": "^3.4.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@tailwindcss/vite": "^4.3.5",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^4.2.0",
+    "svelte": "^5.59.1",
+    "svelte-check": "^4.7.8",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/api/client.ts": "import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+  timeout: 10_000,
+});
+",
+  "src/app.d.ts": "// See https://svelte.dev/docs/kit/types#app.d.ts
+declare global {
+  namespace App {
+    // interface Error {}
+    // interface Locals {}
+    // interface PageData {}
+    // interface PageState {}
+    // interface Platform {}
+  }
+}
+
+export {};
+",
+  "src/app.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>
+",
+  "src/lib/Counter.svelte": "<script lang="ts">
+  import { counter, decrement, increment } from "./counterStore.svelte.js";
+</script>
+
+<div
+  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
+>
+  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  <div class="mt-6 flex justify-center gap-3">
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={decrement}
+    >
+      -1
+    </button>
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      onclick={increment}
+    >
+      +1
+    </button>
+  </div>
+</div>
+",
+  "src/lib/counterStore.svelte.ts": "export const counter = $state({ count: 0 });
+
+export function increment() {
+  counter.count += 1;
+}
+
+export function decrement() {
+  counter.count -= 1;
+}
+",
+  "src/lib/index.ts": "// Place files you want to import through the \`#lib\` alias in this folder.
+",
+  "src/routes/+layout.svelte": "<script lang="ts">
+  import { resolve } from "$app/paths";
+  import type { LayoutProps } from "./$types";
+  import "./layout.css";
+
+  let { children }: LayoutProps = $props();
+</script>
+
+<main
+  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+>
+  <nav class="flex gap-4 text-sm font-medium">
+    <a class="text-slate-600 hover:text-slate-900" href={resolve("/")}>Home</a>
+    <a class="text-slate-600 hover:text-slate-900" href={resolve("/about")}>
+      About
+    </a>
+  </nav>
+  {@render children()}
+</main>
+",
+  "src/routes/+layout.ts": "export const prerender = true;
+",
+  "src/routes/+page.svelte": "<script lang="ts">
+  import Counter from "#lib/Counter.svelte";
+</script>
+
+<section class="flex flex-col items-center gap-6">
+  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+  <Counter />
+</section>
+",
+  "src/routes/about/+page.svelte": "<section class="flex flex-col items-center gap-6">
+  <h1 class="text-3xl font-bold tracking-tight">About</h1>
+  <p class="max-w-md text-center text-slate-600">
+    Built with SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes
+    store, Axios, Prettier.
+  </p>
+</section>
+",
+  "src/routes/layout.css": "@import "tailwindcss";
+",
+  "static/robots.txt": "# allow crawling everything by default
+User-agent: *
+Disallow:
+",
+  "tsconfig.json": "{
+  "extends": "$app/tsconfig",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "vite.config.ts": "import adapter from "@sveltejs/adapter-static";
+import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    sveltekit({
+      compilerOptions: {
+        // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
+        runes: ({ filename }) =>
+          filename.split(/[/\\\\]/).includes("node_modules") ? undefined : true,
+      },
+      adapter: adapter(),
+    }),
+  ],
+});
+",
+}
+`;
+
+exports[`sveltekit snapshots > minimal (js) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.svelte-kit
+build
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: SvelteKit, Svelte 5.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run prepare\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "jsconfig.json": "{
+  "extends": "$app/tsconfig",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": ["src", "vite.config.js"]
+}
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/kit": "^3.4.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "svelte": "^5.59.1",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/app.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>
+",
+  "src/lib/Counter.svelte": "<script>
+  let count = $state(0);
+</script>
+
+<div class="card">
+  <p class="count">{count}</p>
+  <div class="row">
+    <button type="button" class="btn" onclick={() => count--}>-1</button>
+    <button type="button" class="btn" onclick={() => count++}>+1</button>
+  </div>
+</div>
+",
+  "src/lib/index.js": "// Place files you want to import through the \`#lib\` alias in this folder.
+",
+  "src/routes/+layout.js": "export const prerender = true;
+",
+  "src/routes/+layout.svelte": "<script>
+  import { resolve } from "$app/paths";
+  import "./layout.css";
+
+  let { children } = $props();
+</script>
+
+<main class="app">
+  <nav class="nav">
+    <a class="link" href={resolve("/")}>Home</a>
+    <a class="link" href={resolve("/about")}>About</a>
+  </nav>
+  {@render children()}
+</main>
+",
+  "src/routes/+page.svelte": "<script>
+  import Counter from "#lib/Counter.svelte";
+</script>
+
+<section class="page">
+  <h1 class="title">my-app</h1>
+  <Counter />
+</section>
+",
+  "src/routes/about/+page.svelte": "<section class="page">
+  <h1 class="title">About</h1>
+  <p class="text">Built with SvelteKit, Svelte 5.</p>
+</section>
+",
+  "src/routes/layout.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "static/robots.txt": "# allow crawling everything by default
+User-agent: *
+Disallow:
+",
+  "vite.config.js": "import adapter from "@sveltejs/adapter-static";
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    sveltekit({
+      compilerOptions: {
+        // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
+        runes: ({ filename }) =>
+          filename.split(/[/\\\\]/).includes("node_modules") ? undefined : true,
+      },
+      adapter: adapter(),
+    }),
+  ],
+});
+",
+}
+`;
+
+exports[`sveltekit snapshots > minimal (ts) 1`] = `
+{
+  ".gitignore": "node_modules
+dist
+.svelte-kit
+build
+.env
+.env.local
+.DS_Store
+",
+  "README.md": "# my-app
+
+Stack: SvelteKit, Svelte 5, TypeScript.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run prepare\`
+- \`npm run typecheck\`
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "package.json": "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/kit": "^3.4.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "svelte": "^5.59.1",
+    "svelte-check": "^4.7.8",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "src/app.d.ts": "// See https://svelte.dev/docs/kit/types#app.d.ts
+declare global {
+  namespace App {
+    // interface Error {}
+    // interface Locals {}
+    // interface PageData {}
+    // interface PageState {}
+    // interface Platform {}
+  }
+}
+
+export {};
+",
+  "src/app.html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>
+",
+  "src/lib/Counter.svelte": "<script lang="ts">
+  let count = $state(0);
+</script>
+
+<div class="card">
+  <p class="count">{count}</p>
+  <div class="row">
+    <button type="button" class="btn" onclick={() => count--}>-1</button>
+    <button type="button" class="btn" onclick={() => count++}>+1</button>
+  </div>
+</div>
+",
+  "src/lib/index.ts": "// Place files you want to import through the \`#lib\` alias in this folder.
+",
+  "src/routes/+layout.svelte": "<script lang="ts">
+  import { resolve } from "$app/paths";
+  import type { LayoutProps } from "./$types";
+  import "./layout.css";
+
+  let { children }: LayoutProps = $props();
+</script>
+
+<main class="app">
+  <nav class="nav">
+    <a class="link" href={resolve("/")}>Home</a>
+    <a class="link" href={resolve("/about")}>About</a>
+  </nav>
+  {@render children()}
+</main>
+",
+  "src/routes/+layout.ts": "export const prerender = true;
+",
+  "src/routes/+page.svelte": "<script lang="ts">
+  import Counter from "#lib/Counter.svelte";
+</script>
+
+<section class="page">
+  <h1 class="title">my-app</h1>
+  <Counter />
+</section>
+",
+  "src/routes/about/+page.svelte": "<section class="page">
+  <h1 class="title">About</h1>
+  <p class="text">Built with SvelteKit, Svelte 5, TypeScript.</p>
+</section>
+",
+  "src/routes/layout.css": ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "static/robots.txt": "# allow crawling everything by default
+User-agent: *
+Disallow:
+",
+  "tsconfig.json": "{
+  "extends": "$app/tsconfig",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "vite.config.ts": "import adapter from "@sveltejs/adapter-static";
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    sveltekit({
+      compilerOptions: {
+        // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
+        runes: ({ filename }) =>
+          filename.split(/[/\\\\]/).includes("node_modules") ? undefined : true,
+      },
+      adapter: adapter(),
+    }),
+  ],
+});
+",
+}
 `;
 
 exports[`vue snapshots > everything (js) 1`] = `
@@ -984,6 +4778,9 @@ dist
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
 ",
   ".prettierrc": "{}
 ",
@@ -1231,6 +5028,9 @@ dist
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
 ",
   ".prettierrc": "{}
 ",

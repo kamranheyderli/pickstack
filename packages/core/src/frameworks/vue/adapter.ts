@@ -13,6 +13,7 @@ import {
   globalCss,
   type DemoClasses,
 } from "../shared/demo";
+import { viteEnv } from "../shared/env";
 import indexHtml from "../shared/templates/index-html";
 
 /**
@@ -39,6 +40,8 @@ export const vueAdapter: FrameworkAdapter = {
   name: "Vue",
   kind: "spa",
   languages: ["js", "ts"],
+  srcDir: "src",
+  publicEnv: viteEnv,
   componentExt: () => "vue",
 
   base(ctx) {

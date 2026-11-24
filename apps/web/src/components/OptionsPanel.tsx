@@ -129,6 +129,12 @@ export function OptionsPanel({
         );
       })}
 
+      {selection.framework === "svelte" && (
+        <p className="m-0 rounded-xl border border-line bg-panel-2 px-3 py-2.5 text-sm text-muted">
+          {t("hint.svelteRouting")}
+        </p>
+      )}
+
       <Segmented
         legend={t("field.packageManager")}
         name="packageManager"

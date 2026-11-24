@@ -50,5 +50,6 @@
   "framework.kind.spa": "SPA",
   "framework.kind.meta": "Meta-framework",
   "reason.framework-soon": "{framework} generatoru Faza {phase}-də əlavə olunacaq.",
-  "preview.files": "{count} fayl"
+  "preview.files": "{count} fayl",
+  "hint.svelteRouting": "Routing lazımdırsa SvelteKit seç: orada fayl əsaslı routing daxilidir."
 }

@@ -25,6 +25,10 @@ export function createCtx(
       script: isTs ? "ts" : "js",
       component: framework.componentExt(selection.language),
     },
+    srcDir: framework.srcDir,
+    src: (path) => (framework.srcDir ? `${framework.srcDir}/${path}` : path),
+    env: (name) => framework.publicEnv(name),
+    ignore: framework.ignore ?? [],
   };
 }
 
@@ -50,7 +54,10 @@ export async function generate(
   const sorted = new Map(
     [...model.files].sort(([a], [b]) => a.localeCompare(b)),
   );
-  const files = options.format === false ? sorted : await formatFiles(sorted);
+  const files =
+    options.format === false
+      ? sorted
+      : await formatFiles(sorted, framework.formatParsers);
 
   return {
     ok: true,

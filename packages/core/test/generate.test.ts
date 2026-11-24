@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { formatFiles, frameworks, generate, modules } from "../src";
+import {
+  formatFiles,
+  frameworks,
+  generate,
+  modules,
+  singleSelectCategories,
+} from "../src";
 import type { FrameworkId, Language } from "../src";
 import { selection } from "./helpers";
 
@@ -10,7 +16,6 @@ const ALL_REACT = [
   "axios",
   "prettier",
 ];
-const ALL_VUE = ["tailwind", "pinia", "vue-router", "axios", "prettier"];
 
 async function files(
   language: Language,
@@ -25,39 +30,45 @@ async function files(
   return result.files;
 }
 
-describe("react snapshots", () => {
-  for (const language of ["js", "ts"] as const) {
-    it(`minimal (${language})`, async () => {
-      expect(Object.fromEntries(await files(language, []))).toMatchSnapshot();
-    });
+/** Every module available for the framework, taking the first option in single-select categories. */
+function everything(framework: FrameworkId): string[] {
+  const taken = new Set<string>();
+  return modules
+    .filter((m) => m.frameworks === "all" || m.frameworks.includes(framework))
+    .filter((m) => {
+      if (!singleSelectCategories.has(m.category)) return true;
+      if (taken.has(m.category)) return false;
+      taken.add(m.category);
+      return true;
+    })
+    .map((m) => m.id);
+}
 
-    it(`everything (${language})`, async () => {
-      expect(
-        Object.fromEntries(await files(language, ALL_REACT)),
-      ).toMatchSnapshot();
-    });
-  }
+for (const framework of frameworks) {
+  describe(`${framework.id} snapshots`, () => {
+    for (const language of framework.languages) {
+      it(`minimal (${language})`, async () => {
+        expect(
+          Object.fromEntries(await files(language, [], framework.id)),
+        ).toMatchSnapshot();
+      });
 
+      it(`everything (${language})`, async () => {
+        expect(
+          Object.fromEntries(
+            await files(language, everything(framework.id), framework.id),
+          ),
+        ).toMatchSnapshot();
+      });
+    }
+  });
+}
+
+describe("react extras", () => {
   it("zustand without router (ts)", async () => {
     const result = await files("ts", ["zustand"]);
     expect(result.get("src/components/Counter.tsx")).toMatchSnapshot();
   });
-});
-
-describe("vue snapshots", () => {
-  for (const language of ["js", "ts"] as const) {
-    it(`minimal (${language})`, async () => {
-      expect(
-        Object.fromEntries(await files(language, [], "vue")),
-      ).toMatchSnapshot();
-    });
-
-    it(`everything (${language})`, async () => {
-      expect(
-        Object.fromEntries(await files(language, ALL_VUE, "vue")),
-      ).toMatchSnapshot();
-    });
-  }
 });
 
 describe("generate", () => {
@@ -91,11 +102,15 @@ describe("generate", () => {
           }
           generated++;
           const pkg = JSON.parse(result.files.get("package.json") ?? "{}") as {
-            dependencies: Record<string, string>;
+            dependencies?: Record<string, string>;
+            devDependencies?: Record<string, string>;
           };
-          expect(
-            Object.values(pkg.dependencies).every((v) => /^[~^]?\d/.test(v)),
-          ).toBe(true);
+          const versions = Object.values({
+            ...pkg.dependencies,
+            ...pkg.devDependencies,
+          });
+          expect(versions.length).toBeGreaterThan(0);
+          expect(versions.every((v) => /^[~^]?\d/.test(v))).toBe(true);
         }
       }
       expect(generated).toBeGreaterThan(0);
@@ -117,12 +132,14 @@ describe("generate", () => {
   });
 
   it("produces output that Prettier leaves unchanged", async () => {
-    for (const [framework, all] of [
-      ["react", ALL_REACT],
-      ["vue", ALL_VUE],
-    ] as const) {
-      const generated = await files("ts", [...all], framework);
-      expect([...(await formatFiles(generated))]).toEqual([...generated]);
+    for (const framework of frameworks) {
+      const generated = await files(
+        "ts",
+        everything(framework.id),
+        framework.id,
+      );
+      const reformatted = await formatFiles(generated, framework.formatParsers);
+      expect([...reformatted]).toEqual([...generated]);
     }
   });
 

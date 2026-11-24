@@ -1,8 +1,11 @@
 import type { Module } from "../types";
 import { axios } from "./data/axios";
 import { prettier } from "./quality/prettier";
+import { preactIso } from "./routing/preact-iso";
 import { reactRouter } from "./routing/react-router";
+import { solidRouter } from "./routing/solid-router";
 import { vueRouter } from "./routing/vue-router";
+import { builtin } from "./state/builtin";
 import { pinia } from "./state/pinia";
 import { reduxToolkit } from "./state/redux-toolkit";
 import { zustand } from "./state/zustand";
@@ -13,8 +16,11 @@ export const modules: readonly Module[] = [
   reduxToolkit,
   zustand,
   pinia,
+  builtin,
   reactRouter,
   vueRouter,
+  solidRouter,
+  preactIso,
   axios,
   prettier,
 ];

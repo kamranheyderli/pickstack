@@ -32,11 +32,24 @@ export interface Selection {
   modules: string[];
 }
 
+/** A public (client-exposed) environment variable: the `.env` key and the code that reads it. */
+export interface PublicEnv {
+  key: string;
+  read: string;
+}
+
 export interface Ctx {
   selection: Selection;
   has(moduleId: string): boolean;
   ext: { script: "js" | "ts"; component: string };
   isTs: boolean;
+  /** Directory holding app source (`src`, `app`, or `` for the project root). */
+  srcDir: string;
+  /** Joins a path under `srcDir`. */
+  src(path: string): string;
+  /** Framework build/cache directories (for ignore files). */
+  ignore: string[];
+  env(name: string): PublicEnv;
 }
 
 /** `import Default, { a, b } from "from"`, or a side-effect import when only `from` is set. */
@@ -92,6 +105,16 @@ export interface RoutingSpec {
   linkProp: string;
   /** JSX lines that render the active route, indented relative to the outlet position. */
   outlet: string[];
+  /**
+   * When the router owns the root (Solid's `<Router root={App}>`), the entry renders this tree
+   * instead of `<App />`, and App becomes a layout taking `layoutParam`.
+   */
+  root?: {
+    imports: ImportSpec[];
+    tree: string[];
+    layoutParam: string;
+    layoutImports: ImportSpec[];
+  };
 }
 
 export interface ProjectModel {
@@ -100,6 +123,8 @@ export interface ProjectModel {
     dependencies: Set<string>;
     devDependencies: Set<string>;
     scripts: Record<string, string>;
+    /** Extra top-level package.json fields, e.g. `imports` for SvelteKit's `#lib`. */
+    fields: Record<string, unknown>;
   };
   entry: {
     imports: ImportSpec[];
@@ -147,6 +172,12 @@ export interface FrameworkAdapter {
   languages: Language[];
   /** File extension for components in the given language. */
   componentExt(language: Language): string;
+  srcDir: string;
+  publicEnv(name: string): PublicEnv;
+  /** Framework build/cache directories added to .gitignore and .prettierignore. */
+  ignore?: string[];
+  /** Prettier parser overrides by extension (`null` skips formatting that extension). */
+  formatParsers?: Record<string, string | null>;
   base(ctx: Ctx): ProjectModel;
   render(model: ProjectModel, ctx: Ctx): void;
 }
