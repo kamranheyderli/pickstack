@@ -108,9 +108,30 @@ describe("validate", () => {
   });
 
   it("checks real module conflicts against the registry", () => {
-    for (const id of ["tailwind", "prettier"]) {
+    for (const id of ["tailwind", "prettier", "eslint"]) {
       const mod = getModule(id);
       expect(mod?.conflicts?.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("accepts eslint with prettier on every framework", () => {
+    const all: FrameworkId[] = [
+      "react",
+      "vue",
+      "svelte",
+      "solid",
+      "preact",
+      "angular",
+      "next",
+      "nuxt",
+      "sveltekit",
+      "astro",
+    ];
+    for (const framework of all) {
+      const result = validate(
+        selection({ framework, modules: ["eslint", "prettier"] }),
+      );
+      expect(result.ok).toBe(true);
     }
   });
 });

@@ -146,6 +146,8 @@ export const sveltekitAdapter: FrameworkAdapter = {
             ? [
                 "",
                 `const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: "${ctx.selection.name}", url: SITE_URL });`,
+                "// The closing tag is split so it neither ends this block nor trips svelte-eslint-parser.",
+                'const jsonLdScript = `<script type="application/ld+json">${jsonLd}</${"script"}>`;',
               ]
             : []),
         ],
@@ -159,7 +161,12 @@ export const sveltekitAdapter: FrameworkAdapter = {
                 `  <meta property="og:site_name" content="${ctx.selection.name}" />`,
                 '  <meta property="og:url" content={SITE_URL + page.url.pathname} />',
                 '  <meta name="twitter:card" content="summary" />',
-                '  {@html `<script type="application/ld+json">${jsonLd}</script>`}',
+                ...(model.linter === "eslint"
+                  ? [
+                      "  <!-- eslint-disable-next-line svelte/no-at-html-tags -->",
+                    ]
+                  : []),
+                "  {@html jsonLdScript}",
                 "</svelte:head>",
                 "",
               ]

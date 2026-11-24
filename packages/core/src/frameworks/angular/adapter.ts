@@ -52,7 +52,7 @@ export const angularAdapter: FrameworkAdapter = {
   formatParsers: { ".html": "angular" },
   componentExt: () => "ts",
 
-  base(ctx) {
+  base() {
     const model = createModel();
     const { pkg } = model;
     for (const name of [
@@ -78,7 +78,6 @@ export const angularAdapter: FrameworkAdapter = {
     // ngc also type-checks templates, which plain `tsc` does not.
     pkg.scripts["typecheck"] = "ngc -p tsconfig.app.json --noEmit";
 
-    model.files.set("angular.json", json(angularJson(ctx)));
     model.files.set("tsconfig.json", json(tsconfig()));
     model.files.set(
       "tsconfig.app.json",
@@ -96,6 +95,7 @@ export const angularAdapter: FrameworkAdapter = {
 
   render(model, ctx) {
     const cls = demoClasses(model);
+    model.files.set("angular.json", json(angularJson(model, ctx)));
     model.files.set("src/index.html", indexHtml(model, ctx));
     model.files.set("src/styles.css", globalCss(model));
     model.files.set(
@@ -289,12 +289,18 @@ function tsconfig() {
   };
 }
 
-function angularJson(ctx: Ctx) {
+function angularJson(model: ProjectModel, ctx: Ctx) {
   const name = ctx.selection.name;
+  const eslint = model.linter === "eslint";
   return {
     $schema: "./node_modules/@angular/cli/lib/config/schema.json",
     version: 1,
-    cli: { packageManager: ctx.selection.packageManager, analytics: false },
+    cli: {
+      packageManager: ctx.selection.packageManager,
+      analytics: false,
+      // Lets `ng generate` use angular-eslint's schematics, as `ng add angular-eslint` sets up.
+      ...(eslint ? { schematicCollections: ["angular-eslint"] } : {}),
+    },
     newProjectRoot: "projects",
     projects: {
       [name]: {
@@ -344,6 +350,16 @@ function angularJson(ctx: Ctx) {
             },
             defaultConfiguration: "development",
           },
+          ...(eslint
+            ? {
+                lint: {
+                  builder: "@angular-eslint/builder:lint",
+                  options: {
+                    lintFilePatterns: ["src/**/*.ts", "src/**/*.html"],
+                  },
+                },
+              }
+            : {}),
         },
       },
     },

@@ -35,7 +35,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Prettier, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -50,6 +50,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run watch\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -79,7 +80,8 @@ git push -u origin main
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": false
+    "analytics": false,
+    "schematicCollections": ["angular-eslint"]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -138,11 +140,56 @@ git push -u origin main
             }
           },
           "defaultConfiguration": "development"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
         }
       }
     }
   }
 }
+",
+  "eslint.config.js": "// @ts-check
+import eslint from "@eslint/js";
+import { defineConfig } from "eslint/config";
+import tseslint from "typescript-eslint";
+import angular from "angular-eslint";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+
+export default defineConfig([
+  {
+    files: ["**/*.ts"],
+    extends: [
+      eslint.configs.recommended,
+      tseslint.configs.recommended,
+      tseslint.configs.stylistic,
+      angular.configs.tsRecommended,
+    ],
+    processor: angular.processInlineTemplates,
+    rules: {
+      "@angular-eslint/directive-selector": [
+        "error",
+        { type: "attribute", prefix: "app", style: "camelCase" },
+      ],
+      "@angular-eslint/component-selector": [
+        "error",
+        { type: "element", prefix: "app", style: "kebab-case" },
+      ],
+    },
+  },
+  {
+    files: ["**/*.html"],
+    extends: [
+      angular.configs.templateRecommended,
+      angular.configs.templateAccessibility,
+    ],
+    rules: {},
+  },
+  eslintConfigPrettier,
+]);
 ",
   "package.json": "{
   "name": "my-app",
@@ -155,6 +202,7 @@ git push -u origin main
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "typecheck": "ngc -p tsconfig.app.json --noEmit",
+    "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -170,14 +218,20 @@ git push -u origin main
     "tslib": "^2.9.1"
   },
   "devDependencies": {
+    "@angular-eslint/builder": "^22.8.0",
     "@angular/build": "^22.3.0",
     "@angular/cli": "^22.3.0",
     "@angular/compiler-cli": "^22.3.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.3.5",
+    "angular-eslint": "^22.8.0",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0"
   }
 }
 ",
@@ -303,7 +357,7 @@ export class Counter {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Tailwind CSS, Angular signals service,
-    Axios, Prettier, SEO, llms.txt.
+    Axios, ESLint, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -847,7 +901,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
+Stack: Astro, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -861,6 +915,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run astro\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -899,6 +954,24 @@ export default defineConfig({
   },
 });
 ",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import eslintPluginAstro from "eslint-plugin-astro";
+import globals from "globals";
+
+export default defineConfig([
+  globalIgnores(["dist", ".astro"]),
+  js.configs.recommended,
+  eslintPluginAstro.configs.recommended,
+  {
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
+  eslintConfigPrettier,
+]);
+",
   "package.json": "{
   "name": "my-app",
   "private": true,
@@ -909,6 +982,7 @@ export default defineConfig({
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -918,7 +992,12 @@ export default defineConfig({
     "axios": "^1.21.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^3.2.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "tailwindcss": "^4.3.5"
@@ -1024,7 +1103,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
+      Built with Astro, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -1120,7 +1199,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, TypeScript, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
+Stack: Astro, TypeScript, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -1135,6 +1214,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run astro\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -1173,6 +1253,26 @@ export default defineConfig({
   },
 });
 ",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import eslintPluginAstro from "eslint-plugin-astro";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+
+export default defineConfig([
+  globalIgnores(["dist", ".astro"]),
+  js.configs.recommended,
+  tseslint.configs.recommended,
+  eslintPluginAstro.configs.recommended,
+  {
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
+  eslintConfigPrettier,
+]);
+",
   "package.json": "{
   "name": "my-app",
   "private": true,
@@ -1184,6 +1284,7 @@ export default defineConfig({
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -1194,11 +1295,17 @@ export default defineConfig({
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^3.2.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "tailwindcss": "^4.3.5",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0"
   }
 }
 ",
@@ -1305,7 +1412,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
+      Built with Astro, TypeScript, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -1900,7 +2007,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Prettier, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -1913,6 +2020,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run start\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -1967,7 +2075,7 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit,
-        Axios, Prettier, SEO, llms.txt.
+        Axios, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -2124,6 +2232,25 @@ export default function Counter() {
   );
 }
 ",
+  "eslint.config.mjs": "import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import prettier from "eslint-config-prettier/flat";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  prettier,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+",
   "jsconfig.json": "{
   "compilerOptions": {
     "paths": {
@@ -2181,6 +2308,7 @@ export default nextConfig;
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -2194,6 +2322,9 @@ export default nextConfig;
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
+    "eslint-config-prettier": "^10.1.8",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5"
@@ -2239,7 +2370,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Prettier, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -2253,6 +2384,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run start\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -2309,7 +2441,7 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, TypeScript, Tailwind CSS,
-        Redux Toolkit, Axios, Prettier, SEO, llms.txt.
+        Redux Toolkit, Axios, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -2469,6 +2601,27 @@ export default function Counter() {
   );
 }
 ",
+  "eslint.config.mjs": "import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+import prettier from "eslint-config-prettier/flat";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  prettier,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+",
   "lib/counterSlice.ts": "import { createSlice } from "@reduxjs/toolkit";
 
 interface CounterState {
@@ -2534,6 +2687,7 @@ export default nextConfig;
     "build": "next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -2550,6 +2704,9 @@ export default nextConfig;
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
+    "eslint-config-prettier": "^10.1.8",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
@@ -3141,7 +3298,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3156,6 +3313,7 @@ npm run dev
 - \`npm run generate\`
 - \`npm run preview\`
 - \`npm run postinstall\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -3265,8 +3423,8 @@ useSeoMeta({ title: "About" });
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier, SEO,
-      llms.txt.
+      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, ESLint, Prettier,
+      SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -3311,13 +3469,19 @@ export const useCounterStore = defineStore("counter", () => {
   return { count, increment, decrement };
 });
 ",
+  "eslint.config.mjs": "// @ts-check
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import withNuxt from "./.nuxt/eslint.config.mjs";
+
+export default withNuxt(eslintConfigPrettier);
+",
   "nuxt.config.js": "import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@pinia/nuxt"],
+  modules: ["@pinia/nuxt", "@nuxt/eslint"],
   css: ["~/assets/css/main.css"],
   vite: { plugins: [tailwindcss()] },
   runtimeConfig: {
@@ -3340,6 +3504,7 @@ export default defineNuxtConfig({
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -3353,9 +3518,13 @@ export default defineNuxtConfig({
     "vue-router": "^5.5.1"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.10.1",
-    "tailwindcss": "^4.3.5"
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3"
   }
 }
 ",
@@ -3448,7 +3617,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Prettier, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3464,6 +3633,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run postinstall\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -3573,7 +3743,7 @@ useSeoMeta({ title: "About" });
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios,
+      Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, ESLint,
       Prettier, SEO, llms.txt.
     </p>
   </section>
@@ -3619,13 +3789,19 @@ export const useCounterStore = defineStore("counter", () => {
   return { count, increment, decrement };
 });
 ",
+  "eslint.config.mjs": "// @ts-check
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import withNuxt from "./.nuxt/eslint.config.mjs";
+
+export default withNuxt(eslintConfigPrettier);
+",
   "nuxt.config.ts": "import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@pinia/nuxt"],
+  modules: ["@pinia/nuxt", "@nuxt/eslint"],
   css: ["~/assets/css/main.css"],
   vite: { plugins: [tailwindcss()] },
   runtimeConfig: {
@@ -3649,6 +3825,7 @@ export default defineNuxtConfig({
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -3662,7 +3839,10 @@ export default defineNuxtConfig({
     "vue-router": "^5.5.1"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
@@ -4206,7 +4386,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier, SEO, llms.txt.
+Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -4219,6 +4399,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -4242,6 +4423,30 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import reactHooks from "eslint-plugin-react-hooks";
+import globals from "globals";
+
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{js,jsx}"],
+    extends: [js.configs.recommended, reactHooks.configs.flat.recommended],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    rules: {
+      "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
+    },
+  },
+  eslintConfigPrettier,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -4281,6 +4486,7 @@ git push -u origin main
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -4291,8 +4497,13 @@ git push -u origin main
     "preact-render-to-string": "^6.8.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8"
@@ -4412,8 +4623,8 @@ render(
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
-        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier, SEO,
-        llms.txt.
+        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, ESLint,
+        Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -4461,7 +4672,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Prettier, SEO, llms.txt.
+Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -4475,6 +4686,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -4498,6 +4710,29 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import reactHooks from "eslint-plugin-react-hooks";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  eslintConfigPrettier,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -4538,6 +4773,7 @@ git push -u origin main
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -4548,12 +4784,18 @@ git push -u origin main
     "preact-render-to-string": "^6.8.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^24.19.2",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8"
   }
 }
@@ -4672,7 +4914,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios,
-        Prettier, SEO, llms.txt.
+        ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -5281,7 +5523,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, Prettier, SEO, llms.txt.
+Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -5294,6 +5536,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -5317,6 +5560,35 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import globals from "globals";
+
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{js,jsx}"],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    rules: {
+      "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
+    },
+  },
+  eslintConfigPrettier,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -5356,6 +5628,7 @@ git push -u origin main
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -5368,8 +5641,14 @@ git push -u origin main
     "react-router": "^8.5.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-react": "^6.3.0",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.8",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8"
@@ -5498,7 +5777,7 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Tailwind CSS, Redux Toolkit, React Router,
-        Axios, Prettier, SEO, llms.txt.
+        Axios, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -5575,7 +5854,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, Prettier, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -5589,6 +5868,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -5612,6 +5892,31 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  eslintConfigPrettier,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -5652,6 +5957,7 @@ git push -u origin main
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -5664,13 +5970,20 @@ git push -u origin main
     "react-router": "^8.5.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.8",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8"
   }
 }
@@ -5797,7 +6110,7 @@ createRoot(document.getElementById("root")!).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit,
-        React Router, Axios, Prettier, SEO, llms.txt.
+        React Router, Axios, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -6350,7 +6663,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier, SEO, llms.txt.
+Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -6363,6 +6676,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -6386,6 +6700,24 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import solid from "eslint-plugin-solid/configs/recommended";
+import globals from "globals";
+
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{js,jsx}"],
+    extends: [js.configs.recommended, solid],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  eslintConfigPrettier,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -6425,6 +6757,7 @@ git push -u origin main
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -6434,7 +6767,12 @@ git push -u origin main
     "solid-js": "^1.9.20"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-solid": "^0.20.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
@@ -6557,7 +6895,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, Prettier, SEO, llms.txt.
+        Router, Axios, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -6619,7 +6957,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -6633,6 +6971,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -6656,6 +6995,25 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import solid from "eslint-plugin-solid/configs/typescript";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [js.configs.recommended, tseslint.configs.recommended, solid],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  eslintConfigPrettier,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -6696,6 +7054,7 @@ git push -u origin main
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -6705,11 +7064,17 @@ git push -u origin main
     "solid-js": "^1.9.20"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^24.19.2",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-solid": "^0.20.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
     "vite-plugin-solid": "^2.11.17"
   }
@@ -6831,7 +7196,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store,
-        Solid Router, Axios, Prettier, SEO, llms.txt.
+        Solid Router, Axios, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -7437,7 +7802,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
+Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -7450,6 +7815,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -7473,6 +7839,25 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import svelte from "eslint-plugin-svelte";
+import globals from "globals";
+
+export default defineConfig(
+  globalIgnores(["dist"]),
+  js.configs.recommended,
+  svelte.configs.recommended,
+  eslintConfigPrettier,
+  svelte.configs.prettier,
+  {
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
+);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -7529,6 +7914,7 @@ git push -u origin main
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -7536,8 +7922,13 @@ git push -u origin main
     "axios": "^1.21.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.24.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -7690,7 +8081,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -7704,6 +8095,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -7727,6 +8119,39 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import svelte from "eslint-plugin-svelte";
+import globals from "globals";
+import ts from "typescript-eslint";
+
+export default defineConfig(
+  globalIgnores(["dist"]),
+  js.configs.recommended,
+  ts.configs.recommended,
+  svelte.configs.recommended,
+  eslintConfigPrettier,
+  svelte.configs.prettier,
+  {
+    languageOptions: {
+      parserOptions: { extraFileExtensions: [".svelte"] },
+      globals: { ...globals.browser, ...globals.node },
+    },
+    rules: {
+      // typescript-eslint recommends turning no-undef off in TypeScript projects:
+      // https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
+      "no-undef": "off",
+    },
+  },
+  {
+    files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
+    languageOptions: {
+      parserOptions: { projectService: true, parser: ts.parser },
+    },
+  },
+);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -7767,6 +8192,7 @@ git push -u origin main
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -7774,16 +8200,22 @@ git push -u origin main
     "axios": "^1.21.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@tsconfig/svelte": "^5.0.9",
     "@types/node": "^24.19.2",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.24.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
     "svelte-check": "^4.7.8",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8"
   }
 }
@@ -8457,7 +8889,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -8471,6 +8903,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run prepare\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -8495,6 +8928,28 @@ git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
 ",
+  "eslint.config.js": "import path from "node:path";
+import js from "@eslint/js";
+import { defineConfig, includeIgnoreFile } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import svelte from "eslint-plugin-svelte";
+import globals from "globals";
+
+const gitignorePath = path.resolve(import.meta.dirname, ".gitignore");
+
+export default defineConfig(
+  includeIgnoreFile(gitignorePath),
+  js.configs.recommended,
+  svelte.configs.recommended,
+  eslintConfigPrettier,
+  svelte.configs.prettier,
+  {
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
+);
+",
   "jsconfig.json": "{
   "extends": "$app/tsconfig",
   "compilerOptions": {
@@ -8517,6 +8972,7 @@ git push -u origin main
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -8524,10 +8980,15 @@ git push -u origin main
     "axios": "^1.21.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.24.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -8620,6 +9081,8 @@ export function decrement() {
     name: "my-app",
     url: SITE_URL,
   });
+  // The closing tag is split so it neither ends this block nor trips svelte-eslint-parser.
+  const jsonLdScript = \`<script type="application/ld+json">\${jsonLd}</\${"script"}>\`;
 </script>
 
 <svelte:head>
@@ -8629,7 +9092,8 @@ export function decrement() {
   <meta property="og:site_name" content="my-app" />
   <meta property="og:url" content={SITE_URL + page.url.pathname} />
   <meta name="twitter:card" content="summary" />
-  {@html \`<script type="application/ld+json">\${jsonLd}</script>\`}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html jsonLdScript}
 </svelte:head>
 
 <main
@@ -8665,7 +9129,7 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios,
-    Prettier, SEO, llms.txt.
+    ESLint, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -8789,7 +9253,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -8804,6 +9268,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run prepare\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -8828,6 +9293,42 @@ git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
 ",
+  "eslint.config.js": "import path from "node:path";
+import js from "@eslint/js";
+import { defineConfig, includeIgnoreFile } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import svelte from "eslint-plugin-svelte";
+import globals from "globals";
+import ts from "typescript-eslint";
+
+const gitignorePath = path.resolve(import.meta.dirname, ".gitignore");
+
+export default defineConfig(
+  includeIgnoreFile(gitignorePath),
+  js.configs.recommended,
+  ts.configs.recommended,
+  svelte.configs.recommended,
+  eslintConfigPrettier,
+  svelte.configs.prettier,
+  {
+    languageOptions: {
+      parserOptions: { extraFileExtensions: [".svelte"] },
+      globals: { ...globals.browser, ...globals.node },
+    },
+    rules: {
+      // typescript-eslint recommends turning no-undef off in TypeScript projects:
+      // https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
+      "no-undef": "off",
+    },
+  },
+  {
+    files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
+    languageOptions: {
+      parserOptions: { projectService: true, parser: ts.parser },
+    },
+  },
+);
+",
   "package.json": "{
   "name": "my-app",
   "private": true,
@@ -8843,6 +9344,7 @@ git push -u origin main
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -8850,16 +9352,22 @@ git push -u origin main
     "axios": "^1.21.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.24.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
     "svelte-check": "^4.7.8",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8"
   }
 }
@@ -8960,6 +9468,8 @@ export function decrement() {
     name: "my-app",
     url: SITE_URL,
   });
+  // The closing tag is split so it neither ends this block nor trips svelte-eslint-parser.
+  const jsonLdScript = \`<script type="application/ld+json">\${jsonLd}</\${"script"}>\`;
 </script>
 
 <svelte:head>
@@ -8969,7 +9479,8 @@ export function decrement() {
   <meta property="og:site_name" content="my-app" />
   <meta property="og:url" content={SITE_URL + page.url.pathname} />
   <meta name="twitter:card" content="summary" />
-  {@html \`<script type="application/ld+json">\${jsonLd}</script>\`}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html jsonLdScript}
 </svelte:head>
 
 <main
@@ -9007,7 +9518,7 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes
-    store, Axios, Prettier, SEO, llms.txt.
+    store, Axios, ESLint, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -9629,7 +10140,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier, SEO, llms.txt.
+Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -9642,6 +10153,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -9665,6 +10177,24 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "eslint.config.js": "import js from "@eslint/js";
+import pluginVue from "eslint-plugin-vue";
+import skipFormatting from "eslint-config-prettier/flat";
+import { defineConfig, globalIgnores } from "eslint/config";
+import globals from "globals";
+
+export default defineConfig([
+  {
+    name: "app/files-to-lint",
+    files: ["**/*.{vue,js,mjs,jsx}"],
+  },
+  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),
+  { languageOptions: { globals: { ...globals.browser } } },
+  js.configs.recommended,
+  ...pluginVue.configs["flat/essential"],
+  skipFormatting,
+]);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -9713,6 +10243,7 @@ git push -u origin main
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -9724,11 +10255,17 @@ git push -u origin main
     "vue-router": "^5.5.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-vue": "^6.0.11",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.12.1",
+    "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vue-eslint-parser": "^10.4.2"
   }
 }
 ",
@@ -9884,8 +10421,8 @@ export const useCounterStore = defineStore("counter", () => {
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier,
-      SEO, llms.txt.
+      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, ESLint,
+      Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -9938,7 +10475,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Prettier, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -9952,6 +10489,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
 
@@ -9977,6 +10515,25 @@ git push -u origin main
 \`\`\`
 ",
   "env.d.ts": "/// <reference types="vite/client" />
+",
+  "eslint.config.ts": "import { globalIgnores } from "eslint/config";
+import {
+  defineConfigWithVueTs,
+  vueTsConfigs,
+} from "@vue/eslint-config-typescript";
+import pluginVue from "eslint-plugin-vue";
+import skipFormatting from "eslint-config-prettier/flat";
+
+export default defineConfigWithVueTs(
+  {
+    name: "app/files-to-lint",
+    files: ["**/*.{vue,ts,mts,tsx}"],
+  },
+  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),
+  ...pluginVue.configs["flat/essential"],
+  vueTsConfigs.recommended,
+  skipFormatting,
+);
 ",
   "index.html": "<!doctype html>
 <html lang="en">
@@ -10017,6 +10574,7 @@ git push -u origin main
     "build": "vue-tsc --build && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --build",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -10032,11 +10590,17 @@ git push -u origin main
     "@tsconfig/node24": "^24.0.6",
     "@types/node": "^24.19.2",
     "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.12.1",
+    "jiti": "^2.7.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "vite": "^8.3.8",
+    "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "^3.3.14"
   }
 }
@@ -10194,7 +10758,7 @@ export const useCounterStore = defineStore("counter", () => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router,
-      Axios, Prettier, SEO, llms.txt.
+      Axios, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>

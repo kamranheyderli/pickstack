@@ -64,6 +64,7 @@ export const quickCombos: Combo[] = [
     modules: ["tailwind", "builtin", "axios", "prettier"],
   },
   ...seoCombos(),
+  ...eslintCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -96,6 +97,32 @@ function seoCombos(): Combo[] {
       framework: "angular",
       language: "ts",
       modules: ["seo", "aio", "prettier"],
+    },
+  ];
+}
+
+/** ESLint + Prettier (TS) and ESLint alone (JS) for every framework. */
+function eslintCombos(): Combo[] {
+  const all: FrameworkId[] = [
+    "react",
+    "vue",
+    "svelte",
+    "solid",
+    "preact",
+    "next",
+    "nuxt",
+    "sveltekit",
+    "astro",
+  ];
+  return [
+    ...all.flatMap((framework): Combo[] => [
+      { framework, language: "ts", modules: ["eslint", "prettier"] },
+      { framework, language: "js", modules: ["eslint"] },
+    ]),
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["eslint", "prettier"],
     },
   ];
 }

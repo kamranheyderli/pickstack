@@ -164,6 +164,8 @@ export interface ProjectModel {
   demo: { counter: CounterSpec | null };
   /** Set by the `seo` module; `ai` is turned on by `aio`. Adapters render head tags from it. */
   seo: SeoSpec | null;
+  /** Set by a linter module. Angular wires it into angular.json as the `ng lint` target. */
+  linter: "eslint" | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];
 }

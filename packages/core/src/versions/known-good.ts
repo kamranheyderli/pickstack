@@ -19,6 +19,21 @@ const shared: VersionSet = {
   "@types/node": "^24.19.2",
   "@tailwindcss/postcss": "^4.3.5",
   postcss: "^8.5.33",
+  eslint: "^10.15.0",
+  "@eslint/js": "^10.0.1",
+  globals: "^17.14.0",
+  "typescript-eslint": "^8.74.0",
+  "eslint-config-prettier": "^10.1.8",
+  "eslint-plugin-react-hooks": "^7.1.1",
+  "eslint-plugin-react-refresh": "^0.5.8",
+  "eslint-plugin-solid": "^0.20.1",
+  "eslint-plugin-svelte": "^3.24.1",
+  "eslint-plugin-vue": "^10.12.1",
+  "vue-eslint-parser": "^10.4.2",
+  "@vue/eslint-config-typescript": "^14.9.0",
+  jiti: "^2.7.0",
+  "@nuxt/eslint": "^1.17.0",
+  "eslint-plugin-astro": "^3.2.1",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
@@ -83,6 +98,9 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     "@reduxjs/toolkit": "^2.15.0",
     "react-redux": "^9.3.1",
     zustand: "^5.1.0",
+    // create-next-app still scaffolds ESLint 9: eslint-plugin-react/import/jsx-a11y peer on <=9.
+    eslint: "^9.39.5",
+    "eslint-config-next": "^16.4.6",
   },
   nuxt: {
     nuxt: "^4.7.0",
@@ -110,6 +128,8 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     "@angular/router": "^22.3.0",
     rxjs: "~7.8.2",
     tslib: "^2.9.1",
+    "angular-eslint": "^22.8.0",
+    "@angular-eslint/builder": "^22.8.0",
   },
 };
 

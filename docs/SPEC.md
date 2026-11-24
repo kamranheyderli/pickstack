@@ -183,6 +183,16 @@ Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı, lisenziya fayl
 
 Ümumi: Astro, Angular, SvelteKit və Nuxt (`vue-tsc`) TypeScript 7-ni qəbul etmir, ona görə bütün frameworklərdə `typescript ~6.0.3` saxlanılır.
 
+ESLint (`eslint` modulu, flat config, 2026-11 yoxlanılıb):
+
+- ESLint 10 hamısında, **Next.js istisna**: `create-next-app` hələ `eslint ^9` yazır; `eslint-config-next` 10 ilə işləyir, amma daxilindəki `eslint-plugin-react`/`import`/`jsx-a11y` peer-də ≤9 istəyir (xəbərdarlıq, strict-peer-də xəta). Ona görə Next dəstində `eslint ^9`.
+- React: create-vite 9.1-dən oxlint-ə keçib; konfiq create-vite 9.0-ın son ESLint şablonudur. Preact: `eslint-config-preact` (2.0) yalnız ESLint 9-u dəstəkləyir və 10-da çökür, ona görə `eslint-plugin-react-hooks` konfiqi istifadə olunur (`preact/hooks` adla tanınır). Solid: `eslint-plugin-solid` (`typescript`/`recommended`).
+- Vue: create-vue-nun konfiqi oxlint hissəsi olmadan; TS-də `eslint.config.ts` + `jiti`.
+- Svelte/SvelteKit: `sv add eslint` əsasında, amma type-checked qaydalar yoxdur (`ts.configs.recommended`): Vite-in `import.meta.env` indeks imzası `any` verir və type-checked qaydalar axios modulunda xəta çıxarır. SvelteKit JSON-LD `{@html}` bağlanan teqi bölünmüş sətirdən gəlir (svelte-eslint-parser şablondakı `</script>`-i parse edə bilmir); ESLint seçiləndə `svelte/no-at-html-tags` həmin sətirdə söndürülür.
+- Nuxt: `@nuxt/eslint` modulu; `eslint.config.mjs` `.nuxt/eslint.config.mjs`-dəki `withNuxt`-u genişləndirir (postinstall `nuxt prepare` yaradır). JS-də də `typescript` lazımdır.
+- Angular: `ng add angular-eslint`-in nəticəsi; `lint` skripti `ng lint`, `angular.json`-a `lint` hədəfi və `schematicCollections` adapter tərəfindən yazılır (`model.linter`).
+- Prettier seçiləndə `eslint-config-prettier/flat` sonuncu əlavə olunur (Svelte-də üstəlik `svelte.configs.prettier`).
+
 ## 6. Mühərrik dizaynı
 
 ### 6.1 Əsas tiplər

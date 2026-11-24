@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getFramework, getModule } from "../src";
+import { getFramework, getModule, knownGoodVersion } from "../src";
 import type { FrameworkId, ProjectModel } from "../src";
 import { ctxFor } from "./helpers";
 
@@ -94,6 +94,139 @@ describe("prettier", () => {
     const model = applied("prettier");
     expect(model.files.has(".prettierrc")).toBe(true);
     expect(model.pkg.scripts["format:check"]).toBe("prettier --check .");
+  });
+});
+
+describe("eslint", () => {
+  function rendered(
+    language: "js" | "ts",
+    frameworkId: FrameworkId,
+    ids: string[] = ["eslint"],
+  ): ProjectModel {
+    const ctx = ctxFor(language, ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("uses create-vite's React config with typescript-eslint in TS", () => {
+    const model = applied("eslint");
+    const config = model.files.get("eslint.config.js") ?? "";
+    expect(config).toContain("tseslint.configs.recommended");
+    expect(config).toContain("reactRefresh.configs.vite");
+    expect(config).not.toContain("eslint-config-prettier");
+    expect([...model.pkg.devDependencies]).toEqual(
+      expect.arrayContaining([
+        "eslint",
+        "@eslint/js",
+        "globals",
+        "eslint-plugin-react-hooks",
+        "eslint-plugin-react-refresh",
+        "typescript-eslint",
+      ]),
+    );
+    expect(model.pkg.scripts["lint"]).toBe("eslint .");
+  });
+
+  it("enables JSX parsing and drops typescript-eslint in JS", () => {
+    const model = applied("eslint", "js");
+    const config = model.files.get("eslint.config.js") ?? "";
+    expect(config).toContain("ecmaFeatures: { jsx: true }");
+    expect(config).not.toContain("tseslint");
+    expect(model.pkg.devDependencies.has("typescript-eslint")).toBe(false);
+  });
+
+  it("adds eslint-config-prettier last when prettier is selected", () => {
+    const model = rendered("ts", "react", ["eslint", "prettier"]);
+    const config = model.files.get("eslint.config.js") ?? "";
+    expect(model.pkg.devDependencies.has("eslint-config-prettier")).toBe(true);
+    expect(config.trimEnd().split("\n").slice(-2)).toEqual([
+      "  eslintConfigPrettier,",
+      "]);",
+    ]);
+  });
+
+  it("uses the react-hooks rules for Preact instead of eslint-config-preact", () => {
+    const model = applied("eslint", "ts", "preact");
+    expect(model.files.get("eslint.config.js")).toContain(
+      "reactHooks.configs.flat.recommended",
+    );
+    expect(model.pkg.devDependencies.has("eslint-config-preact")).toBe(false);
+  });
+
+  it("writes eslint.config.ts with jiti for Vue TS", () => {
+    const model = applied("eslint", "ts", "vue");
+    expect(model.files.get("eslint.config.ts")).toContain(
+      "defineConfigWithVueTs(",
+    );
+    expect(model.pkg.devDependencies.has("jiti")).toBe(true);
+  });
+
+  it("follows create-next-app for Next.js", () => {
+    const model = applied("eslint", "ts", "next");
+    const config = model.files.get("eslint.config.mjs") ?? "";
+    expect(config).toContain("...nextVitals,");
+    expect(config).toContain("...nextTs,");
+    expect([...model.pkg.devDependencies]).toEqual(
+      expect.arrayContaining(["eslint", "eslint-config-next"]),
+    );
+    expect(knownGoodVersion("eslint", "next")).toMatch(/^\^9\./);
+  });
+
+  it("registers @nuxt/eslint and extends the generated config", () => {
+    const model = applied("eslint", "js", "nuxt");
+    expect(model.bundler.modules).toContain("@nuxt/eslint");
+    expect(model.files.get("eslint.config.mjs")).toContain(
+      'import withNuxt from "./.nuxt/eslint.config.mjs";',
+    );
+    expect(model.pkg.devDependencies.has("typescript")).toBe(true);
+  });
+
+  it("uses non-type-checked rules for Svelte and SvelteKit", () => {
+    for (const framework of ["svelte", "sveltekit"] as const) {
+      const config =
+        applied("eslint", "ts", framework).files.get("eslint.config.js") ?? "";
+      expect(config).toContain("ts.configs.recommended,");
+      expect(config).not.toContain("recommendedTypeChecked");
+    }
+    expect(
+      applied("eslint", "ts", "sveltekit").files.get("eslint.config.js"),
+    ).toContain("includeIgnoreFile(gitignorePath)");
+  });
+
+  it("allows SvelteKit's JSON-LD {@html} only when ESLint is selected", () => {
+    const withLint = rendered("ts", "sveltekit", ["seo", "eslint"]);
+    expect(withLint.files.get("src/routes/+layout.svelte")).toContain(
+      "<!-- eslint-disable-next-line svelte/no-at-html-tags -->",
+    );
+    const without = rendered("ts", "sveltekit", ["seo"]);
+    expect(without.files.get("src/routes/+layout.svelte")).not.toContain(
+      "eslint-disable",
+    );
+  });
+
+  it("wires ng lint into angular.json", () => {
+    const model = rendered("ts", "angular");
+    const angularJson = JSON.parse(model.files.get("angular.json") ?? "{}") as {
+      cli: { schematicCollections?: string[] };
+      projects: Record<
+        string,
+        { architect: Record<string, { builder: string }> }
+      >;
+    };
+    expect(model.pkg.scripts["lint"]).toBe("ng lint");
+    expect(angularJson.cli.schematicCollections).toEqual(["angular-eslint"]);
+    expect(angularJson.projects["my-app"]?.architect["lint"]?.builder).toBe(
+      "@angular-eslint/builder:lint",
+    );
+  });
+
+  it("leaves angular.json without a lint target when eslint is not selected", () => {
+    const model = rendered("ts", "angular", []);
+    expect(model.files.get("angular.json")).not.toContain("lint");
   });
 });
 

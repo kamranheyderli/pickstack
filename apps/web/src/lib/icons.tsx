@@ -4,6 +4,7 @@ import {
   siAstro,
   siAxios,
   siBun,
+  siEslint,
   siJavascript,
   siNextdotjs,
   siNpm,
@@ -42,6 +43,7 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   "redux-toolkit": siRedux,
   "react-router": siReactrouter,
   axios: siAxios,
+  eslint: siEslint,
   prettier: siPrettier,
   pinia: siPinia,
   // Vue Router has no mark of its own; it ships under the Vue logo.

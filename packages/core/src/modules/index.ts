@@ -1,5 +1,6 @@
 import type { Module } from "../types";
 import { axios } from "./data/axios";
+import { eslint } from "./quality/eslint";
 import { prettier } from "./quality/prettier";
 import { preactIso } from "./routing/preact-iso";
 import { reactRouter } from "./routing/react-router";
@@ -24,6 +25,7 @@ export const modules: readonly Module[] = [
   solidRouter,
   preactIso,
   axios,
+  eslint,
   prettier,
   seo,
   aio,
