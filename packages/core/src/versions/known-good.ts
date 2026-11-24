@@ -34,6 +34,21 @@ const shared: VersionSet = {
   jiti: "^2.7.0",
   "@nuxt/eslint": "^1.17.0",
   "eslint-plugin-astro": "^3.2.1",
+  vitest: "^5.1.1",
+  jsdom: "^31.0.1",
+  "@types/jsdom": "^30.0.0",
+  "@vue/test-utils": "^2.6.0",
+  "@testing-library/dom": "^10.4.2",
+  "@testing-library/jest-dom": "^8.0.0",
+  "@testing-library/user-event": "^14.6.13",
+  "@testing-library/react": "^16.3.3",
+  "@testing-library/preact": "^3.2.6",
+  "@solidjs/testing-library": "^0.8.10",
+  "@testing-library/svelte": "^5.4.2",
+  "@testing-library/vue": "^8.1.0",
+  "@nuxt/test-utils": "^4.4.0",
+  "happy-dom": "^21.0.4",
+  "@testing-library/angular": "^19.6.0",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
@@ -101,6 +116,7 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
     // create-next-app still scaffolds ESLint 9: eslint-plugin-react/import/jsx-a11y peer on <=9.
     eslint: "^9.39.5",
     "eslint-config-next": "^16.4.6",
+    "@vitejs/plugin-react": "^6.3.0",
   },
   nuxt: {
     nuxt: "^4.7.0",

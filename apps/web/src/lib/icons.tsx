@@ -19,7 +19,9 @@ import {
   siSolid,
   siSvelte,
   siTailwindcss,
+  siTestinglibrary,
   siTypescript,
+  siVitest,
   siVuedotjs,
   siYarn,
   type SimpleIcon,
@@ -45,6 +47,8 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   axios: siAxios,
   eslint: siEslint,
   prettier: siPrettier,
+  vitest: siVitest,
+  "testing-library": siTestinglibrary,
   pinia: siPinia,
   // Vue Router has no mark of its own; it ships under the Vue logo.
   "vue-router": siVuedotjs,

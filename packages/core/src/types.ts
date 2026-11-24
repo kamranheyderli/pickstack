@@ -98,6 +98,20 @@ export interface CounterSpec {
   value: string;
   increment: string;
   decrement: string;
+  /** What a component test needs around the counter, e.g. the store provider it reads from. */
+  testHarness?: CounterTestHarness;
+}
+
+/**
+ * Context a component test mounts the counter with. Relative import paths are relative to the
+ * counter's own directory (tests that live elsewhere only use package imports).
+ */
+export interface CounterTestHarness {
+  imports: ImportSpec[];
+  /** JSX wrapper around `<Counter />`, e.g. `<Provider store={store}>`. */
+  wrapper?: { open: string; close: string };
+  /** Vue app plugins installed on mount, e.g. `createPinia()`. */
+  plugins?: string[];
 }
 
 /** How the demo app renders navigation and the active route. Filled by routing modules. */
@@ -126,6 +140,14 @@ export interface SeoSpec {
   description: string;
   /** AI crawler rules in robots.txt and an llms.txt file. */
   ai: boolean;
+}
+
+/** Set by the `vitest` module. Adapters render the test config and a counter test from it. */
+export interface TestingSpec {
+  /** Set by `testing-library`: the counter test uses `render`, `screen` and `user-event`. */
+  library: boolean;
+  /** Vitest `setupFiles`, relative to the project root. */
+  setupFiles: string[];
 }
 
 export interface ProjectModel {
@@ -166,6 +188,7 @@ export interface ProjectModel {
   seo: SeoSpec | null;
   /** Set by a linter module. Angular wires it into angular.json as the `ng lint` target. */
   linter: "eslint" | null;
+  testing: TestingSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];
 }

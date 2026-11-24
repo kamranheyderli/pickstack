@@ -151,21 +151,6 @@ export function writeJsxDemo(
   }
 }
 
-/** `vite.config` with the model's plugins and nothing else. */
-export function plainViteConfig(model: ProjectModel): string {
-  const plugins = model.bundler.plugins;
-  return file([
-    ...renderImports([
-      { from: "vite", named: ["defineConfig"] },
-      ...plugins.map((p) => p.import),
-    ]),
-    "",
-    "export default defineConfig({",
-    `  plugins: [${plugins.map((p) => p.call).join(", ")}],`,
-    "});",
-  ]);
-}
-
 /** Wraps `inner` in the model's providers, outermost (lowest `order`) first. */
 export function wrapProviders(model: ProjectModel, inner: string[]): string[] {
   const providers = [...model.entry.providers].sort(

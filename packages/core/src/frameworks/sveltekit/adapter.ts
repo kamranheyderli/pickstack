@@ -1,6 +1,6 @@
 import { file, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
-import type { FrameworkAdapter } from "../../types";
+import type { Ctx, FrameworkAdapter, ProjectModel } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import {
@@ -10,6 +10,7 @@ import {
   svelteCounter,
   svelteHome,
 } from "../shared/svelte";
+import { svelteCounterTest } from "../shared/testing";
 
 /**
  * SvelteKit 3, following `sv create --template minimal`: kit options live in `vite.config`,
@@ -117,12 +118,19 @@ export const sveltekitAdapter: FrameworkAdapter = {
 
   render(model, ctx) {
     const cls = demoClasses(model);
-    model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model));
+    model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model, ctx));
     model.files.set("src/routes/layout.css", globalCss(model));
     model.files.set(
       "src/lib/Counter.svelte",
       svelteCounter(model.demo.counter ?? localSvelteCounter, ctx, cls),
     );
+    if (model.testing) {
+      // `.svelte.test` files run in the jsdom "client" project of vite.config.
+      model.files.set(
+        `src/lib/Counter.svelte.test.${ctx.ext.script}`,
+        svelteCounterTest(model),
+      );
+    }
     model.files.set(
       "src/routes/+layout.svelte",
       svelteComponent(
@@ -203,13 +211,48 @@ export const sveltekitAdapter: FrameworkAdapter = {
   },
 };
 
-function viteConfig(model: Parameters<FrameworkAdapter["render"]>[0]): string {
+/**
+ * Kit options live in `vite.config`. With Vitest it follows `sv add vitest`: a jsdom "client"
+ * project (browser build of Svelte) for `.svelte.test` files and a node "server" project.
+ */
+function viteConfig(model: ProjectModel, ctx: Ctx): string {
   const plugins = model.bundler.plugins;
+  const self = `./vite.config.${ctx.ext.script}`;
+  const test = model.testing
+    ? [
+        "  test: {",
+        "    expect: { requireAssertions: true },",
+        "    projects: [",
+        "      {",
+        `        extends: "${self}",`,
+        '        resolve: { conditions: ["browser"] },',
+        "        test: {",
+        '          name: "client",',
+        '          environment: "jsdom",',
+        '          include: ["src/**/*.svelte.{test,spec}.{js,ts}"],',
+        "        },",
+        "      },",
+        "      {",
+        `        extends: "${self}",`,
+        "        test: {",
+        '          name: "server",',
+        '          environment: "node",',
+        '          include: ["src/**/*.{test,spec}.{js,ts}"],',
+        '          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],',
+        "        },",
+        "      },",
+        "    ],",
+        "  },",
+      ]
+    : [];
   return file([
     ...renderImports([
       { from: "@sveltejs/adapter-static", default: "adapter" },
       { from: "@sveltejs/kit/vite", named: ["sveltekit"] },
-      { from: "vite", named: ["defineConfig"] },
+      {
+        from: model.testing ? "vitest/config" : "vite",
+        named: ["defineConfig"],
+      },
       ...plugins.map((p) => p.import),
     ]),
     "",
@@ -226,6 +269,7 @@ function viteConfig(model: Parameters<FrameworkAdapter["render"]>[0]): string {
     "      adapter: adapter(),",
     "    }),",
     "  ],",
+    ...test,
     "});",
   ]);
 }

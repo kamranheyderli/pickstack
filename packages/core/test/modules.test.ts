@@ -256,3 +256,132 @@ describe("vue-router", () => {
     expect(model.routing?.outlet).toEqual(["<RouterView />"]);
   });
 });
+
+describe("vitest and testing-library", () => {
+  function rendered(
+    frameworkId: FrameworkId,
+    ids: string[],
+    language: "js" | "ts" = "ts",
+  ): ProjectModel {
+    const ctx = ctxFor(language, ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("adds a vite.config test block and a react-dom counter test", () => {
+    const model = rendered("react", ["vitest"]);
+    const config = model.files.get("vite.config.ts") ?? "";
+    expect(config).toContain('/// <reference types="vitest/config" />');
+    expect(config).toContain('environment: "jsdom"');
+    expect(config).toContain('setupFiles: ["./src/test-setup.ts"]');
+    expect(model.files.get("src/test-setup.ts")).toContain(
+      "IS_REACT_ACT_ENVIRONMENT",
+    );
+    const test = model.files.get("src/components/Counter.test.tsx") ?? "";
+    expect(test).toContain('from "react-dom/client"');
+    expect(test).not.toContain("@testing-library");
+    expect(model.pkg.scripts["test"]).toBe("vitest run");
+    expect([...model.pkg.devDependencies]).toEqual(
+      expect.arrayContaining(["vitest", "jsdom"]),
+    );
+  });
+
+  it("switches the counter test to Testing Library queries", () => {
+    const model = rendered("react", ["vitest", "testing-library"]);
+    const test = model.files.get("src/components/Counter.test.tsx") ?? "";
+    expect(test).toContain('screen.getByRole("button", { name: "+1" })');
+    expect(test).toContain("toBeInTheDocument()");
+    const setup = model.files.get("src/test-setup.ts") ?? "";
+    expect(setup).toContain('import "@testing-library/jest-dom/vitest";');
+    expect(setup).toContain("cleanup()");
+    expect(setup).not.toContain("IS_REACT_ACT_ENVIRONMENT");
+    expect([...model.pkg.devDependencies]).toEqual(
+      expect.arrayContaining([
+        "@testing-library/react",
+        "@testing-library/dom",
+        "@testing-library/user-event",
+      ]),
+    );
+  });
+
+  it("mounts the counter inside the store provider when Redux is selected", () => {
+    const model = rendered("react", ["vitest", "redux-toolkit"]);
+    const test = model.files.get("src/components/Counter.test.tsx") ?? "";
+    expect(test).toContain('import { store } from "../store";');
+    expect(test).toContain("<Provider store={store}>");
+  });
+
+  it("installs Pinia when mounting the Vue counter", () => {
+    const model = rendered("vue", ["vitest", "pinia"]);
+    const test =
+      model.files.get("src/components/__tests__/CounterCard.spec.ts") ?? "";
+    expect(test).toContain("global: { plugins: [createPinia()] }");
+    expect(model.files.get("vitest.config.ts")).toContain("mergeConfig");
+    expect(model.files.get("tsconfig.json")).toContain("tsconfig.vitest.json");
+  });
+
+  it("uses the Svelte browser build without Testing Library's plugin", () => {
+    const plain = rendered("svelte", ["vitest"]);
+    expect(plain.files.get("vite.config.ts")).toContain(
+      'conditions: ["browser"]',
+    );
+    const library = rendered("svelte", ["vitest", "testing-library"]);
+    const config = library.files.get("vite.config.ts") ?? "";
+    expect(config).toContain("svelteTesting()");
+    expect(config).not.toContain("conditions");
+  });
+
+  it("writes framework-specific setups for the meta-frameworks", () => {
+    expect(
+      rendered("next", ["vitest"]).files.get("vitest.config.mts"),
+    ).toContain("tsconfigPaths: true");
+    expect(
+      rendered("next", ["vitest"], "js").files.get("vitest.config.mjs"),
+    ).toContain('"@": fileURLToPath');
+    expect(
+      rendered("nuxt", ["vitest"]).files.get("vitest.config.ts"),
+    ).toContain("defineVitestProject");
+    expect(
+      rendered("sveltekit", ["vitest"]).files.get("vite.config.ts"),
+    ).toContain('name: "client"');
+    expect(
+      rendered("astro", ["vitest"]).files.get("vitest.config.ts"),
+    ).toContain("getViteConfig");
+  });
+
+  it("wires Angular's unit-test builder and spec tsconfig", () => {
+    const model = rendered("angular", ["vitest", "testing-library"]);
+    const angular = model.files.get("angular.json") ?? "";
+    expect(angular).toContain("@angular/build:unit-test");
+    expect(angular).toContain("src/test-setup.ts");
+    expect(model.files.get("tsconfig.spec.json")).toContain("vitest/globals");
+    expect(model.files.get("tsconfig.app.json")).toContain("src/test-setup.ts");
+    expect(model.pkg.scripts["test"]).toBe("ng test --watch=false");
+    expect(
+      model.files.get("src/app/components/counter/counter.spec.ts"),
+    ).toContain('from "@testing-library/angular"');
+  });
+
+  it("has a known-good version for every dev dependency it adds", () => {
+    const frameworks: FrameworkId[] = [
+      "react",
+      "preact",
+      "solid",
+      "svelte",
+      "vue",
+      "next",
+      "nuxt",
+      "angular",
+    ];
+    for (const framework of frameworks) {
+      const model = rendered(framework, ["vitest", "testing-library"]);
+      for (const dep of model.pkg.devDependencies) {
+        expect(knownGoodVersion(dep, framework), dep).toBeTruthy();
+      }
+    }
+  });
+});

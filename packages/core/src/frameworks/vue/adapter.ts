@@ -5,6 +5,7 @@ import type {
   FrameworkAdapter,
   ProjectModel,
   RouteSpec,
+  TestingSpec,
 } from "../../types";
 import {
   aboutText,
@@ -14,6 +15,7 @@ import {
 } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
+import { testBlock, vueCounterTest } from "../shared/testing";
 import { counterCard, localVueCounter, sfc } from "../shared/vue";
 
 /**
@@ -56,7 +58,6 @@ export const vueAdapter: FrameworkAdapter = {
         .add("@tsconfig/node24")
         .add("@types/node");
       pkg.scripts["typecheck"] = "vue-tsc --build";
-      writeTsconfigs(model);
       model.files.set(
         "env.d.ts",
         file(['/// <reference types="vite/client" />']),
@@ -95,6 +96,18 @@ export const vueAdapter: FrameworkAdapter = {
     );
     const cls = demoClasses(model);
     model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model));
+    // tsconfigs depend on the test setup, so they are written here rather than in base().
+    if (ctx.isTs) writeTsconfigs(model);
+    if (model.testing) {
+      model.files.set(
+        `vitest.config.${ctx.ext.script}`,
+        vitestConfig(model.testing, ctx),
+      );
+      model.files.set(
+        `src/components/__tests__/CounterCard.spec.${ctx.ext.script}`,
+        vueCounterTest(model, "vue"),
+      );
+    }
     model.files.set(`src/main.${ctx.ext.script}`, mainEntry(model));
     model.files.set("src/assets/main.css", globalCss(model));
     model.files.set(
@@ -128,7 +141,10 @@ export const vueAdapter: FrameworkAdapter = {
   },
 };
 
+/** create-vue's tsconfigs; with Vitest, tests and their setup get their own project. */
 function writeTsconfigs(model: ProjectModel): void {
+  const testing = model.testing;
+  const testFiles = ["src/**/__tests__/*", ...(testing?.setupFiles ?? [])];
   model.files.set(
     "tsconfig.json",
     json({
@@ -136,15 +152,31 @@ function writeTsconfigs(model: ProjectModel): void {
       references: [
         { path: "./tsconfig.node.json" },
         { path: "./tsconfig.app.json" },
+        ...(testing ? [{ path: "./tsconfig.vitest.json" }] : []),
       ],
     }),
   );
+  if (testing) {
+    model.files.set(
+      "tsconfig.vitest.json",
+      json({
+        extends: "./tsconfig.app.json",
+        include: [...testFiles, "env.d.ts"],
+        exclude: [],
+        compilerOptions: {
+          lib: [],
+          types: ["node", "jsdom"],
+          tsBuildInfoFile: "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+        },
+      }),
+    );
+  }
   model.files.set(
     "tsconfig.app.json",
     json({
       extends: "@vue/tsconfig/tsconfig.dom.json",
       include: ["env.d.ts", "src/**/*", "src/**/*.vue"],
-      exclude: ["src/**/__tests__/*"],
+      exclude: testFiles,
       compilerOptions: {
         noUncheckedIndexedAccess: true,
         paths: { "@/*": ["./src/*"] },
@@ -186,6 +218,29 @@ function viteConfig(model: ProjectModel): string {
     "    },",
     "  },",
     "});",
+  ]);
+}
+
+/** create-vue's `vitest.config`: the Vite config merged with the test options. */
+function vitestConfig(testing: TestingSpec, ctx: Ctx): string {
+  return file([
+    'import { fileURLToPath } from "node:url";',
+    'import { defineConfig, mergeConfig } from "vitest/config";',
+    `import viteConfig from "./vite.config.${ctx.ext.script}";`,
+    "",
+    "export default mergeConfig(",
+    "  viteConfig,",
+    "  defineConfig({",
+    ...indent(
+      [
+        ...testBlock(testing).slice(0, -1),
+        '  root: fileURLToPath(new URL("./", import.meta.url)),',
+        "},",
+      ],
+      2,
+    ),
+    "  }),",
+    ");",
   ]);
 }
 

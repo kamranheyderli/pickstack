@@ -5,6 +5,7 @@ import type {
   Ctx,
   FrameworkAdapter,
   ProjectModel,
+  TestingSpec,
 } from "../../types";
 import {
   aboutText,
@@ -13,6 +14,7 @@ import {
   type DemoClasses,
 } from "../shared/demo";
 import { jsxCounter, wrapProviders } from "../shared/jsx";
+import { jsxCounterTest, testBlock } from "../shared/testing";
 
 const localCounter: CounterSpec = {
   imports: [{ from: "react", named: ["useState"] }],
@@ -106,8 +108,47 @@ export const nextAdapter: FrameworkAdapter = {
       // Hooks and onClick need a client component.
       `"use client";\n\n${jsxCounter(model.demo.counter ?? localCounter, cls, "className")}`,
     );
+    if (model.testing) {
+      model.files.set(
+        `vitest.config.${ctx.isTs ? "mts" : "mjs"}`,
+        vitestConfig(model.testing, ctx),
+      );
+      model.files.set(
+        `components/Counter.test.${x}`,
+        jsxCounterTest(model, "react"),
+      );
+    }
   },
 };
+
+/**
+ * Next's Vitest guide: the React plugin, `@/*` resolved from tsconfig paths (a plain alias for
+ * JS projects, which have no tsconfig) and jsdom.
+ */
+function vitestConfig(testing: TestingSpec, ctx: Ctx): string {
+  const resolve = ctx.isTs
+    ? ["resolve: {", "  tsconfigPaths: true,", "},"]
+    : [
+        "resolve: {",
+        "  alias: {",
+        '    "@": fileURLToPath(new URL("./", import.meta.url)),',
+        "  },",
+        "},",
+      ];
+  return file([
+    ...renderImports([
+      { from: "@vitejs/plugin-react", default: "react" },
+      ...(ctx.isTs ? [] : [{ from: "node:url", named: ["fileURLToPath"] }]),
+      { from: "vitest/config", named: ["defineConfig"] },
+    ]),
+    "",
+    "export default defineConfig({",
+    "  plugins: [react()],",
+    ...indent(resolve),
+    ...indent(testBlock(testing)),
+    "});",
+  ]);
+}
 
 function tsconfig() {
   return {

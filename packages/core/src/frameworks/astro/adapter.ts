@@ -8,6 +8,7 @@ import {
   type DemoClasses,
 } from "../shared/demo";
 import { el, printMarkup } from "../shared/markup";
+import { astroCounterTest } from "../shared/testing";
 
 /**
  * Astro 7, following the `minimal` template. No UI framework is added: the counter is a
@@ -60,6 +61,25 @@ export const astroAdapter: FrameworkAdapter = {
     model.files.set("src/styles/global.css", globalCss(model));
     model.files.set("src/layouts/Layout.astro", layout(model, ctx, cls));
     model.files.set("src/components/Counter.astro", counter(cls));
+    if (model.testing) {
+      // Astro's testing guide: Vitest through `getViteConfig`, so tests share the project's
+      // Vite settings, and components rendered with the Container API.
+      model.files.set(
+        `vitest.config.${ctx.ext.script}`,
+        file([
+          ...(ctx.isTs ? ['/// <reference types="vitest/config" />'] : []),
+          'import { getViteConfig } from "astro/config";',
+          "",
+          "export default getViteConfig({",
+          "  test: {},",
+          "});",
+        ]),
+      );
+      model.files.set(
+        `src/components/Counter.test.${ctx.ext.script}`,
+        astroCounterTest(),
+      );
+    }
     model.files.set(
       "src/pages/index.astro",
       astroFile(

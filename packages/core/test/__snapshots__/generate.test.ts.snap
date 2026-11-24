@@ -35,7 +35,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -50,6 +50,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run watch\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -141,6 +142,12 @@ git push -u origin main
           },
           "defaultConfiguration": "development"
         },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "setupFiles": ["src/test-setup.ts"]
+          }
+        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -202,6 +209,7 @@ export default defineConfig([
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "typecheck": "ngc -p tsconfig.app.json --noEmit",
+    "test": "ng test --watch=false",
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -224,14 +232,20 @@ export default defineConfig([
     "@angular/compiler-cli": "^22.3.0",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.3.5",
+    "@testing-library/angular": "^19.6.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
     "angular-eslint": "^22.8.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^31.0.1",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.74.0"
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -342,6 +356,21 @@ export class App {}
   </div>
 </div>
 ",
+  "src/app/components/counter/counter.spec.ts": "import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { Counter } from "./counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    await render(Counter);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/app/components/counter/counter.ts": "import { Component, inject } from "@angular/core";
 import { CounterService } from "../../services/counter.service";
 
@@ -357,7 +386,7 @@ export class Counter {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Tailwind CSS, Angular signals service,
-    Axios, ESLint, Prettier, SEO, llms.txt.
+    Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -441,13 +470,15 @@ bootstrapApplication(App, appConfig).catch((err) => console.error(err));
 ",
   "src/styles.css": "@import "tailwindcss";
 ",
+  "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
+",
   "tsconfig.app.json": "{
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "types": []
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts"]
+  "exclude": ["src/**/*.spec.ts", "src/test-setup.ts"]
 }
 ",
   "tsconfig.json": "{
@@ -475,8 +506,19 @@ bootstrapApplication(App, appConfig).catch((err) => console.error(err));
   "references": [
     {
       "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
     }
   ]
+}
+",
+  "tsconfig.spec.json": "{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"]
+  },
+  "include": ["src/**/*.d.ts", "src/**/*.spec.ts", "src/test-setup.ts"]
 }
 ",
 }
@@ -901,7 +943,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Astro, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -915,6 +957,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run astro\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -982,6 +1025,7 @@ export default defineConfig([
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -1000,7 +1044,8 @@ export default defineConfig([
     "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
-    "tailwindcss": "^4.3.5"
+    "tailwindcss": "^4.3.5",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -1051,6 +1096,21 @@ export const api = axios.create({
 
   customElements.define("counter-card", CounterCard);
 </script>
+",
+  "src/components/Counter.test.js": "import { experimental_AstroContainer as AstroContainer } from "astro/container";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter.astro";
+
+describe("Counter", () => {
+  it("renders the count and both buttons", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(Counter);
+
+    expect(html).toMatch(/data-count[^>]*>\\s*0\\s*</);
+    expect(html).toContain('data-step="1"');
+    expect(html).toContain('data-step="-1"');
+  });
+});
 ",
   "src/layouts/Layout.astro": "---
 import "../styles/global.css";
@@ -1103,7 +1163,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
+      Built with Astro, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -1164,6 +1224,12 @@ Sitemap: \${siteUrl}/sitemap-index.xml
   "exclude": ["dist"]
 }
 ",
+  "vitest.config.js": "import { getViteConfig } from "astro/config";
+
+export default getViteConfig({
+  test: {},
+});
+",
 }
 `;
 
@@ -1199,7 +1265,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, TypeScript, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Astro, TypeScript, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -1214,6 +1280,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run astro\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -1284,6 +1351,7 @@ export default defineConfig([
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -1305,7 +1373,8 @@ export default defineConfig([
     "prettier-plugin-astro": "^1.1.2",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.74.0"
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -1356,6 +1425,21 @@ export const api = axios.create({
 
   customElements.define("counter-card", CounterCard);
 </script>
+",
+  "src/components/Counter.test.ts": "import { experimental_AstroContainer as AstroContainer } from "astro/container";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter.astro";
+
+describe("Counter", () => {
+  it("renders the count and both buttons", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(Counter);
+
+    expect(html).toMatch(/data-count[^>]*>\\s*0\\s*</);
+    expect(html).toContain('data-step="1"');
+    expect(html).toContain('data-step="-1"');
+  });
+});
 ",
   "src/layouts/Layout.astro": "---
 import "../styles/global.css";
@@ -1412,7 +1496,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Tailwind CSS, Axios, ESLint, Prettier, SEO, llms.txt.
+      Built with Astro, TypeScript, Tailwind CSS, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -1476,6 +1560,13 @@ Sitemap: \${siteUrl}/sitemap-index.xml
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist"]
 }
+",
+  "vitest.config.ts": "/// <reference types="vitest/config" />
+import { getViteConfig } from "astro/config";
+
+export default getViteConfig({
+  test: {},
+});
 ",
 }
 `;
@@ -2007,7 +2098,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -2020,6 +2111,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run start\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -2075,7 +2167,7 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit,
-        Axios, ESLint, Prettier, SEO, llms.txt.
+        Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -2232,6 +2324,27 @@ export default function Counter() {
   );
 }
 ",
+  "components/Counter.test.jsx": "import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import StoreProvider from "../app/StoreProvider";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <StoreProvider>
+        <Counter />
+      </StoreProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "eslint.config.mjs": "import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import prettier from "eslint-config-prettier/flat";
@@ -2308,6 +2421,7 @@ export default nextConfig;
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -2322,12 +2436,19 @@ export default nextConfig;
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
+    "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^31.0.1",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
-    "tailwindcss": "^4.3.5"
+    "tailwindcss": "^4.3.5",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -2338,6 +2459,31 @@ export default nextConfig;
 };
 
 export default config;
+",
+  "vitest.config.mjs": "import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./", import.meta.url)),
+    },
+  },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./vitest.setup.js"],
+  },
+});
+",
+  "vitest.setup.js": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
 ",
 }
 `;
@@ -2370,7 +2516,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -2384,6 +2530,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run start\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -2441,7 +2588,8 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, TypeScript, Tailwind CSS,
-        Redux Toolkit, Axios, ESLint, Prettier, SEO, llms.txt.
+        Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, SEO,
+        llms.txt.
       </p>
     </section>
   );
@@ -2571,6 +2719,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [{ url: \`\${siteUrl}/\` }, { url: \`\${siteUrl}/about\` }];
 }
 ",
+  "components/Counter.test.tsx": "import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import StoreProvider from "../app/StoreProvider";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <StoreProvider>
+        <Counter />
+      </StoreProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "components/Counter.tsx": ""use client";
 
 import { decrement, increment } from "../lib/counterSlice";
@@ -2687,6 +2856,7 @@ export default nextConfig;
     "build": "next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -2701,16 +2871,23 @@ export default nextConfig;
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^31.0.1",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -2756,6 +2933,28 @@ export default config;
   ],
   "exclude": ["node_modules"]
 }
+",
+  "vitest.config.mts": "import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    tsconfigPaths: true,
+  },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./vitest.setup.ts"],
+  },
+});
+",
+  "vitest.setup.ts": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
 ",
 }
 `;
@@ -3298,7 +3497,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3313,6 +3512,7 @@ npm run dev
 - \`npm run generate\`
 - \`npm run preview\`
 - \`npm run postinstall\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -3423,8 +3623,8 @@ useSeoMeta({ title: "About" });
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, ESLint, Prettier,
-      SEO, llms.txt.
+      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Vitest, Testing
+      Library, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -3504,6 +3704,7 @@ export default defineNuxtConfig({
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -3519,12 +3720,20 @@ export default defineNuxtConfig({
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.4.0",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
+    "@testing-library/vue": "^8.1.0",
+    "@vue/test-utils": "^2.6.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
+    "happy-dom": "^21.0.4",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -3584,6 +3793,49 @@ Sitemap: \${siteUrl}/sitemap.xml
 \`;
 });
 ",
+  "test/nuxt/CounterCard.test.js": "import { renderSuspended } from "@nuxt/test-utils/runtime";
+import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/vue";
+import CounterCard from "~/components/CounterCard.vue";
+import { describe, expect, it } from "vitest";
+
+describe("CounterCard", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    await renderSuspended(CounterCard);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
+  "test/nuxt/setup.js": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/vue";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
+  "vitest.config.js": "import { defineVitestProject } from "@nuxt/test-utils/config";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    projects: [
+      await defineVitestProject({
+        test: {
+          name: "nuxt",
+          include: ["test/nuxt/*.{test,spec}.js"],
+          environment: "nuxt",
+          setupFiles: ["./test/nuxt/setup.js"],
+        },
+      }),
+    ],
+  },
+});
+",
 }
 `;
 
@@ -3617,7 +3869,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3633,6 +3885,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run postinstall\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -3743,8 +3996,8 @@ useSeoMeta({ title: "About" });
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, ESLint,
-      Prettier, SEO, llms.txt.
+      Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Vitest,
+      Testing Library, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -3825,6 +4078,7 @@ export default defineNuxtConfig({
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -3840,12 +4094,20 @@ export default defineNuxtConfig({
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.4.0",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
+    "@testing-library/vue": "^8.1.0",
+    "@vue/test-utils": "^2.6.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
+    "happy-dom": "^21.0.4",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
+    "vitest": "^5.1.1",
     "vue-tsc": "^3.3.14"
   }
 }
@@ -3906,6 +4168,31 @@ Sitemap: \${siteUrl}/sitemap.xml
 \`;
 });
 ",
+  "test/nuxt/CounterCard.test.ts": "import { renderSuspended } from "@nuxt/test-utils/runtime";
+import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/vue";
+import CounterCard from "~/components/CounterCard.vue";
+import { describe, expect, it } from "vitest";
+
+describe("CounterCard", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    await renderSuspended(CounterCard);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
+  "test/nuxt/setup.ts": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/vue";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "tsconfig.json": "{
   "files": [],
   "references": [
@@ -3923,6 +4210,24 @@ Sitemap: \${siteUrl}/sitemap.xml
     }
   ]
 }
+",
+  "vitest.config.ts": "import { defineVitestProject } from "@nuxt/test-utils/config";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    projects: [
+      await defineVitestProject({
+        test: {
+          name: "nuxt",
+          include: ["test/nuxt/*.{test,spec}.ts"],
+          environment: "nuxt",
+          setupFiles: ["./test/nuxt/setup.ts"],
+        },
+      }),
+    ],
+  },
+});
 ",
 }
 `;
@@ -4386,7 +4691,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -4399,6 +4704,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -4486,6 +4792,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -4500,13 +4807,19 @@ export default defineConfig([
     "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/preact": "^3.2.6",
+    "@testing-library/user-event": "^14.6.13",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -4604,6 +4917,22 @@ export default function Counter() {
   );
 }
 ",
+  "src/components/Counter.test.jsx": "import { render, screen } from "@testing-library/preact";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(<Counter />);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/index.css": "@import "tailwindcss";
 ",
   "src/main.jsx": "import { render } from "preact";
@@ -4623,8 +4952,8 @@ render(
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
-        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, ESLint,
-        Prettier, SEO, llms.txt.
+        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, Vitest,
+        Testing Library, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -4641,12 +4970,24 @@ export default function Home() {
   );
 }
 ",
+  "src/test-setup.js": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/preact";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "vite.config.js": "import preact from "@preact/preset-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [preact(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.js"],
+  },
 });
 ",
 }
@@ -4672,7 +5013,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -4686,6 +5027,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -4773,6 +5115,7 @@ export default defineConfig([
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -4787,16 +5130,22 @@ export default defineConfig([
     "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/preact": "^3.2.6",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^24.19.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -4868,6 +5217,22 @@ export const api = axios.create({
   timeout: 10_000,
 });
 ",
+  "src/components/Counter.test.tsx": "import { render, screen } from "@testing-library/preact";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(<Counter />);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/components/Counter.tsx": "import { useState } from "preact/hooks";
 
 export default function Counter() {
@@ -4914,7 +5279,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios,
-        ESLint, Prettier, SEO, llms.txt.
+        Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -4930,6 +5295,14 @@ export default function Home() {
     </section>
   );
 }
+",
+  "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/preact";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
 ",
   "tsconfig.app.json": "{
   "compilerOptions": {
@@ -4991,12 +5364,17 @@ export default function Home() {
   "include": ["vite.config.ts"]
 }
 ",
-  "vite.config.ts": "import preact from "@preact/preset-vite";
+  "vite.config.ts": "/// <reference types="vitest/config" />
+import preact from "@preact/preset-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [preact(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+  },
 });
 ",
 }
@@ -5523,7 +5901,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -5536,6 +5914,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -5628,6 +6007,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -5643,15 +6023,21 @@ export default defineConfig([
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.8",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -5751,6 +6137,28 @@ export default function Counter() {
   );
 }
 ",
+  "src/components/Counter.test.jsx": "import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { describe, expect, it } from "vitest";
+import { store } from "../store";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <Provider store={store}>
+        <Counter />
+      </Provider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/index.css": "@import "tailwindcss";
 ",
   "src/main.jsx": "import { StrictMode } from "react";
@@ -5777,7 +6185,7 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Tailwind CSS, Redux Toolkit, React Router,
-        Axios, ESLint, Prettier, SEO, llms.txt.
+        Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -5823,12 +6231,24 @@ export const store = configureStore({
   },
 });
 ",
+  "src/test-setup.js": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "vite.config.js": "import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.js"],
+  },
 });
 ",
 }
@@ -5854,7 +6274,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -5868,6 +6288,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -5957,6 +6378,7 @@ export default defineConfig([
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -5972,6 +6394,10 @@ export default defineConfig([
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
@@ -5980,11 +6406,13 @@ export default defineConfig([
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.8",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -6056,6 +6484,28 @@ export const api = axios.create({
   timeout: 10_000,
 });
 ",
+  "src/components/Counter.test.tsx": "import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { describe, expect, it } from "vitest";
+import { store } from "../store";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <Provider store={store}>
+        <Counter />
+      </Provider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/components/Counter.tsx": "import { decrement, increment } from "../store/counterSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
@@ -6110,7 +6560,8 @@ createRoot(document.getElementById("root")!).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit,
-        React Router, Axios, ESLint, Prettier, SEO, llms.txt.
+        React Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO,
+        llms.txt.
       </p>
     </section>
   );
@@ -6169,6 +6620,14 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 ",
+  "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "tsconfig.json": "{
   "compilerOptions": {
     "target": "ES2022",
@@ -6186,12 +6645,17 @@ export type AppDispatch = typeof store.dispatch;
   "include": ["src", "vite.config.ts"]
 }
 ",
-  "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
+  "vite.config.ts": "/// <reference types="vitest/config" />
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+  },
 });
 ",
 }
@@ -6663,7 +7127,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -6676,6 +7140,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -6757,6 +7222,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -6768,15 +7234,21 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-solid": "^0.20.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
-    "vite-plugin-solid": "^2.11.17"
+    "vite-plugin-solid": "^2.11.17",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -6867,6 +7339,22 @@ export default function Counter() {
   );
 }
 ",
+  "src/components/Counter.test.jsx": "import { render, screen } from "@solidjs/testing-library";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(() => <Counter />);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/index.css": "@import "tailwindcss";
 ",
   "src/index.jsx": "/* @refresh reload */
@@ -6895,7 +7383,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, ESLint, Prettier, SEO, llms.txt.
+        Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -6926,12 +7414,24 @@ export function decrement() {
   setCount((value) => value - 1);
 }
 ",
+  "src/test-setup.js": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@solidjs/testing-library";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "vite.config.js": "import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 
 export default defineConfig({
   plugins: [solid(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.js"],
+  },
 });
 ",
 }
@@ -6957,7 +7457,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -6971,6 +7471,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -7054,6 +7555,7 @@ export default defineConfig([
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -7065,18 +7567,24 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^24.19.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-solid": "^0.20.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
-    "vite-plugin-solid": "^2.11.17"
+    "vite-plugin-solid": "^2.11.17",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -7144,6 +7652,22 @@ export const api = axios.create({
   timeout: 10_000,
 });
 ",
+  "src/components/Counter.test.tsx": "import { render, screen } from "@solidjs/testing-library";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(() => <Counter />);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/components/Counter.tsx": "import { count, decrement, increment } from "../stores/counter";
 
 export default function Counter() {
@@ -7196,7 +7720,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store,
-        Solid Router, Axios, ESLint, Prettier, SEO, llms.txt.
+        Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO,
+        llms.txt.
       </p>
     </section>
   );
@@ -7226,6 +7751,14 @@ export function increment() {
 export function decrement() {
   setCount((value) => value - 1);
 }
+",
+  "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@solidjs/testing-library";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
 ",
   "tsconfig.app.json": "{
   "compilerOptions": {
@@ -7283,12 +7816,17 @@ export function decrement() {
   "include": ["vite.config.ts"]
 }
 ",
-  "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
+  "vite.config.ts": "/// <reference types="vitest/config" />
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 
 export default defineConfig({
   plugins: [solid(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+  },
 });
 ",
 }
@@ -7802,7 +8340,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -7815,6 +8353,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -7914,6 +8453,7 @@ export default defineConfig(
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -7925,15 +8465,21 @@ export default defineConfig(
     "@eslint/js": "^10.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/svelte": "^5.4.2",
+    "@testing-library/user-event": "^14.6.13",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
     "tailwindcss": "^4.3.5",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -8017,6 +8563,22 @@ export const api = axios.create({
   </div>
 </div>
 ",
+  "src/lib/Counter.test.js": "import { render, screen } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter.svelte";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(Counter);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/lib/counterStore.svelte.js": "export const counter = $state({ count: 0 });
 
 export function increment() {
@@ -8037,15 +8599,22 @@ const app = mount(App, {
 
 export default app;
 ",
+  "src/test-setup.js": "import "@testing-library/jest-dom/vitest";
+",
   "svelte.config.js": "/** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
 export default {};
 ",
   "vite.config.js": "import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
+import { svelteTesting } from "@testing-library/svelte/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [svelte(), tailwindcss()],
+  plugins: [svelte(), tailwindcss(), svelteTesting()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.js"],
+  },
 });
 ",
 }
@@ -8081,7 +8650,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -8095,6 +8664,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -8192,6 +8762,7 @@ export default defineConfig(
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -8203,12 +8774,17 @@ export default defineConfig(
     "@eslint/js": "^10.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/svelte": "^5.4.2",
+    "@testing-library/user-event": "^14.6.13",
     "@tsconfig/svelte": "^5.0.9",
     "@types/node": "^24.19.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -8216,7 +8792,8 @@ export default defineConfig(
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -8300,6 +8877,22 @@ export const api = axios.create({
   </div>
 </div>
 ",
+  "src/lib/Counter.test.ts": "import { render, screen } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter.svelte";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(Counter);
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/lib/counterStore.svelte.ts": "export const counter = $state({ count: 0 });
 
 export function increment() {
@@ -8319,6 +8912,8 @@ const app = mount(App, {
 });
 
 export default app;
+",
+  "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
 ",
   "svelte.config.js": "/** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
 export default {};
@@ -8371,12 +8966,18 @@ export default {};
   "include": ["vite.config.ts"]
 }
 ",
-  "vite.config.ts": "import { svelte } from "@sveltejs/vite-plugin-svelte";
+  "vite.config.ts": "/// <reference types="vitest/config" />
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
+import { svelteTesting } from "@testing-library/svelte/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [svelte(), tailwindcss()],
+  plugins: [svelte(), tailwindcss(), svelteTesting()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+  },
 });
 ",
 }
@@ -8889,7 +9490,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -8903,6 +9504,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run prepare\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -8972,6 +9574,7 @@ export default defineConfig(
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -8989,11 +9592,13 @@ export default defineConfig(
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
     "tailwindcss": "^4.3.5",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -9052,6 +9657,26 @@ export const variables = defineEnvVars({
     </button>
   </div>
 </div>
+",
+  "src/lib/Counter.svelte.test.js": "import { flushSync, mount, unmount } from "svelte";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter.svelte";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", () => {
+    const component = mount(Counter, { target: document.body });
+
+    const plus = [...document.querySelectorAll("button")].find(
+      (b) => b.textContent?.trim() === "+1",
+    );
+    plus?.click();
+    flushSync();
+
+    expect(document.querySelector("p")?.textContent).toBe("1");
+
+    unmount(component);
+  });
+});
 ",
   "src/lib/counterStore.svelte.js": "export const counter = $state({ count: 0 });
 
@@ -9129,7 +9754,7 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios,
-    ESLint, Prettier, SEO, llms.txt.
+    Vitest, ESLint, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -9200,7 +9825,7 @@ export function GET() {
   "vite.config.js": "import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [
@@ -9214,6 +9839,29 @@ export default defineConfig({
       adapter: adapter(),
     }),
   ],
+  test: {
+    expect: { requireAssertions: true },
+    projects: [
+      {
+        extends: "./vite.config.js",
+        resolve: { conditions: ["browser"] },
+        test: {
+          name: "client",
+          environment: "jsdom",
+          include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+        },
+      },
+      {
+        extends: "./vite.config.js",
+        test: {
+          name: "server",
+          environment: "node",
+          include: ["src/**/*.{test,spec}.{js,ts}"],
+          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+        },
+      },
+    ],
+  },
 });
 ",
 }
@@ -9253,7 +9901,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -9268,6 +9916,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run prepare\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -9344,6 +9993,7 @@ export default defineConfig(
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -9361,6 +10011,7 @@ export default defineConfig(
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.1",
@@ -9368,7 +10019,8 @@ export default defineConfig(
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }
 ",
@@ -9440,6 +10092,26 @@ export const variables = defineEnvVars({
     </button>
   </div>
 </div>
+",
+  "src/lib/Counter.svelte.test.ts": "import { flushSync, mount, unmount } from "svelte";
+import { describe, expect, it } from "vitest";
+import Counter from "./Counter.svelte";
+
+describe("Counter", () => {
+  it("increments when +1 is clicked", () => {
+    const component = mount(Counter, { target: document.body });
+
+    const plus = [...document.querySelectorAll("button")].find(
+      (b) => b.textContent?.trim() === "+1",
+    );
+    plus?.click();
+    flushSync();
+
+    expect(document.querySelector("p")?.textContent).toBe("1");
+
+    unmount(component);
+  });
+});
 ",
   "src/lib/counterStore.svelte.ts": "export const counter = $state({ count: 0 });
 
@@ -9518,7 +10190,7 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes
-    store, Axios, ESLint, Prettier, SEO, llms.txt.
+    store, Axios, Vitest, ESLint, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -9597,7 +10269,7 @@ export function GET() {
   "vite.config.ts": "import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [
@@ -9611,6 +10283,29 @@ export default defineConfig({
       adapter: adapter(),
     }),
   ],
+  test: {
+    expect: { requireAssertions: true },
+    projects: [
+      {
+        extends: "./vite.config.ts",
+        resolve: { conditions: ["browser"] },
+        test: {
+          name: "client",
+          environment: "jsdom",
+          include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+        },
+      },
+      {
+        extends: "./vite.config.ts",
+        test: {
+          name: "server",
+          environment: "node",
+          include: ["src/**/*.{test,spec}.{js,ts}"],
+          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+        },
+      },
+    ],
+  },
 });
 ",
 }
@@ -10140,7 +10835,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -10153,6 +10848,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -10243,6 +10939,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -10257,14 +10954,21 @@ export default defineConfig([
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
+    "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/test-utils": "^2.6.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.12.1",
     "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
+    "vitest": "^5.1.1",
     "vue-eslint-parser": "^10.4.2"
   }
 }
@@ -10366,6 +11070,23 @@ const counter = useCounterStore();
   </div>
 </template>
 ",
+  "src/components/__tests__/CounterCard.spec.js": "import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/vue";
+import { createPinia } from "pinia";
+import { describe, expect, it } from "vitest";
+import CounterCard from "../CounterCard.vue";
+
+describe("CounterCard", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(CounterCard, { global: { plugins: [createPinia()] } });
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/main.js": "import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
@@ -10417,12 +11138,20 @@ export const useCounterStore = defineStore("counter", () => {
   return { count, increment, decrement };
 });
 ",
+  "src/test-setup.js": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/vue";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "src/views/AboutView.vue": "<template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, ESLint,
-      Prettier, SEO, llms.txt.
+      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Vitest,
+      Testing Library, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -10452,6 +11181,21 @@ export default defineConfig({
   },
 });
 ",
+  "vitest.config.js": "import { fileURLToPath } from "node:url";
+import { defineConfig, mergeConfig } from "vitest/config";
+import viteConfig from "./vite.config.js";
+
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      environment: "jsdom",
+      setupFiles: ["./src/test-setup.js"],
+      root: fileURLToPath(new URL("./", import.meta.url)),
+    },
+  }),
+);
+",
 }
 `;
 
@@ -10475,7 +11219,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, ESLint, Prettier, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -10489,6 +11233,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
@@ -10574,6 +11319,7 @@ export default defineConfigWithVueTs(
     "build": "vue-tsc --build && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --build",
+    "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -10587,19 +11333,27 @@ export default defineConfigWithVueTs(
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/user-event": "^14.6.13",
+    "@testing-library/vue": "^8.1.0",
     "@tsconfig/node24": "^24.0.6",
+    "@types/jsdom": "^30.0.0",
     "@types/node": "^24.19.2",
     "@vitejs/plugin-vue": "^6.0.11",
     "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/test-utils": "^2.6.0",
     "@vue/tsconfig": "^0.9.1",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.12.1",
     "jiti": "^2.7.0",
+    "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "vite": "^8.3.8",
+    "vitest": "^5.1.1",
     "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "^3.3.14"
   }
@@ -10702,6 +11456,23 @@ const counter = useCounterStore();
   </div>
 </template>
 ",
+  "src/components/__tests__/CounterCard.spec.ts": "import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/vue";
+import { createPinia } from "pinia";
+import { describe, expect, it } from "vitest";
+import CounterCard from "../CounterCard.vue";
+
+describe("CounterCard", () => {
+  it("increments when +1 is clicked", async () => {
+    const user = userEvent.setup();
+    render(CounterCard, { global: { plugins: [createPinia()] } });
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+});
+",
   "src/main.ts": "import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
@@ -10753,12 +11524,20 @@ export const useCounterStore = defineStore("counter", () => {
   return { count, increment, decrement };
 });
 ",
+  "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/vue";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+",
   "src/views/AboutView.vue": "<template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router,
-      Axios, ESLint, Prettier, SEO, llms.txt.
+      Axios, Vitest, Testing Library, ESLint, Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -10777,7 +11556,7 @@ import CounterCard from "../components/CounterCard.vue";
   "tsconfig.app.json": "{
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
-  "exclude": ["src/**/__tests__/*"],
+  "exclude": ["src/**/__tests__/*", "src/test-setup.ts"],
   "compilerOptions": {
     "noUncheckedIndexedAccess": true,
     "paths": {
@@ -10795,6 +11574,9 @@ import CounterCard from "../components/CounterCard.vue";
     },
     {
       "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
     }
   ]
 }
@@ -10812,6 +11594,17 @@ import CounterCard from "../components/CounterCard.vue";
   }
 }
 ",
+  "tsconfig.vitest.json": "{
+  "extends": "./tsconfig.app.json",
+  "include": ["src/**/__tests__/*", "src/test-setup.ts", "env.d.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    "lib": [],
+    "types": ["node", "jsdom"],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo"
+  }
+}
+",
   "vite.config.ts": "import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
@@ -10825,6 +11618,21 @@ export default defineConfig({
     },
   },
 });
+",
+  "vitest.config.ts": "import { fileURLToPath } from "node:url";
+import { defineConfig, mergeConfig } from "vitest/config";
+import viteConfig from "./vite.config.ts";
+
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      environment: "jsdom",
+      setupFiles: ["./src/test-setup.ts"],
+      root: fileURLToPath(new URL("./", import.meta.url)),
+    },
+  }),
+);
 ",
 }
 `;

@@ -13,6 +13,7 @@ import {
   globalCss,
   type DemoClasses,
 } from "../shared/demo";
+import { angularCounterTest } from "../shared/testing";
 
 /**
  * Local counter for Angular. Specs use Angular conventions: `setup` lines are class members,
@@ -78,16 +79,6 @@ export const angularAdapter: FrameworkAdapter = {
     // ngc also type-checks templates, which plain `tsc` does not.
     pkg.scripts["typecheck"] = "ngc -p tsconfig.app.json --noEmit";
 
-    model.files.set("tsconfig.json", json(tsconfig()));
-    model.files.set(
-      "tsconfig.app.json",
-      json({
-        extends: "./tsconfig.json",
-        compilerOptions: { types: [] },
-        include: ["src/**/*.ts"],
-        exclude: ["src/**/*.spec.ts"],
-      }),
-    );
     model.files.set("public/robots.txt", file(["User-agent: *", "Disallow:"]));
     model.readme.stack.push("Angular 22", "TypeScript");
     return model;
@@ -96,6 +87,7 @@ export const angularAdapter: FrameworkAdapter = {
   render(model, ctx) {
     const cls = demoClasses(model);
     model.files.set("angular.json", json(angularJson(model, ctx)));
+    writeTsconfigs(model);
     model.files.set("src/index.html", indexHtml(model, ctx));
     model.files.set("src/styles.css", globalCss(model));
     model.files.set(
@@ -160,6 +152,12 @@ export const angularAdapter: FrameworkAdapter = {
       ]),
     );
     writeCounter(model, model.demo.counter ?? localCounter, cls);
+    if (model.testing) {
+      model.files.set(
+        "src/app/components/counter/counter.spec.ts",
+        angularCounterTest(model),
+      );
+    }
     model.files.set(
       "src/app/pages/home/home.ts",
       component(
@@ -262,7 +260,33 @@ function indexHtml(model: ProjectModel, ctx: Ctx): string {
   ]);
 }
 
-function tsconfig() {
+/** `ng new`'s tsconfigs; specs get `tsconfig.spec.json` when the `vitest` module is selected. */
+function writeTsconfigs(model: ProjectModel): void {
+  const testing = model.testing;
+  const setupFiles = testing?.setupFiles ?? [];
+  model.files.set("tsconfig.json", json(tsconfig(testing !== null)));
+  model.files.set(
+    "tsconfig.app.json",
+    json({
+      extends: "./tsconfig.json",
+      compilerOptions: { types: [] },
+      include: ["src/**/*.ts"],
+      exclude: ["src/**/*.spec.ts", ...setupFiles],
+    }),
+  );
+  if (testing) {
+    model.files.set(
+      "tsconfig.spec.json",
+      json({
+        extends: "./tsconfig.json",
+        compilerOptions: { types: ["vitest/globals"] },
+        include: ["src/**/*.d.ts", "src/**/*.spec.ts", ...setupFiles],
+      }),
+    );
+  }
+}
+
+function tsconfig(spec: boolean) {
   return {
     compileOnSave: false,
     compilerOptions: {
@@ -285,7 +309,10 @@ function tsconfig() {
       strictTemplates: true,
     },
     files: [],
-    references: [{ path: "./tsconfig.app.json" }],
+    references: [
+      { path: "./tsconfig.app.json" },
+      ...(spec ? [{ path: "./tsconfig.spec.json" }] : []),
+    ],
   };
 }
 
@@ -350,6 +377,17 @@ function angularJson(model: ProjectModel, ctx: Ctx) {
             },
             defaultConfiguration: "development",
           },
+          ...(model.testing
+            ? {
+                // Runs Vitest; `tsconfig.spec.json` is the builder's default tsConfig.
+                test: {
+                  builder: "@angular/build:unit-test",
+                  ...(model.testing.setupFiles.length
+                    ? { options: { setupFiles: model.testing.setupFiles } }
+                    : {}),
+                },
+              }
+            : {}),
           ...(eslint
             ? {
                 lint: {

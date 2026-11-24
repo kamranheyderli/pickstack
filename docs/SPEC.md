@@ -151,8 +151,8 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 
 | Modul | Uyğun |
 |---|---|
-| `vitest` | Angular xaricində hamısı (Angular dəstəyi: yoxla) |
-| `testing-library` | R, V, S, So, P, N (tələb: `vitest`) |
+| `vitest` | hamısı (Angular: `ng test`, `@angular/build:unit-test`) |
+| `testing-library` | R, V, S, So, P, N, Nu, A (tələb: `vitest`) |
 | `playwright` | hamısı |
 
 ### 5.8 Kod keyfiyyəti
@@ -192,6 +192,15 @@ ESLint (`eslint` modulu, flat config, 2026-11 yoxlanılıb):
 - Nuxt: `@nuxt/eslint` modulu; `eslint.config.mjs` `.nuxt/eslint.config.mjs`-dəki `withNuxt`-u genişləndirir (postinstall `nuxt prepare` yaradır). JS-də də `typescript` lazımdır.
 - Angular: `ng add angular-eslint`-in nəticəsi; `lint` skripti `ng lint`, `angular.json`-a `lint` hədəfi və `schematicCollections` adapter tərəfindən yazılır (`model.linter`).
 - Prettier seçiləndə `eslint-config-prettier/flat` sonuncu əlavə olunur (Svelte-də üstəlik `svelte.configs.prettier`).
+
+Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
+
+- Hər layihəyə counter komponent testi yazılır. Yalnız `vitest` seçiləndə framework-ün öz mount API-si işlədilir: `react-dom/client` + `act`, `preact` + `preact/test-utils`, `solid-js/web`, Svelte `mount`, `@vue/test-utils`, Nuxt `mountSuspended`, Angular `TestBed`, Astro Container API. `testing-library` seçiləndə test `render`/`screen`/`user-event`-ə keçir. Elementlər class ilə yox, teq və mətnlə tapılır, ona görə Tailwind testi pozmur.
+- Konfiq rəsmi qurulumlara uyğundur. Vite SPA-larda `vite.config`-də `test` bloku var (TS-də `/// <reference types="vitest/config" />`). Vue-da create-vue kimi `vitest.config` (`mergeConfig`) və `tsconfig.vitest.json`. Next-də Next sənədindəki `vitest.config.mts` (`resolve.tsconfigPaths`; JS-də alias). Nuxt-da `@nuxt/test-utils` `defineVitestProject` (happy-dom). SvelteKit-də `sv add vitest`-in client/server layihələri. Astro-da `getViteConfig`. Angular-da `ng test` (`@angular/build:unit-test`) və `tsconfig.spec.json`.
+- Redux və Pinia seçiləndə test counter-i store provider-i və ya plugin-i ilə mount edir: `CounterSpec.testHarness`.
+- React `act` mühitini yalnız `IS_REACT_ACT_ENVIRONMENT` ilə tanıyır. Testing Library bunu özü edir; düz `react-dom` testi üçün setup faylı bayrağı qoyur.
+- Plain Svelte-də Testing Library-nin `svelteTesting()` plugin-i olmayanda `resolve.conditions: ["browser"]` yalnız Vitest altında qoyulur (Svelte sənədi).
+- `testing-library` SvelteKit və Astro-da yoxdur. `sv` SvelteKit üçün brauzer rejimini (`vitest-browser-svelte`) təklif edir. Astro komponentləri serverdə render olunur, interaktivlik isə client skriptindədir.
 
 ## 6. Mühərrik dizaynı
 

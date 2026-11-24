@@ -1,4 +1,4 @@
-import { file, json, renderImports } from "../../engine/code";
+import { file, json } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type { FrameworkAdapter, ProjectModel } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";
@@ -9,6 +9,8 @@ import {
   svelteCounter,
   svelteHome,
 } from "../shared/svelte";
+import { svelteCounterTest } from "../shared/testing";
+import { plainViteConfig } from "../shared/vite";
 
 /**
  * Svelte 5 SPA on Vite, following create-vite's `svelte` / `svelte-ts` templates.
@@ -90,19 +92,16 @@ export const svelteAdapter: FrameworkAdapter = {
       spaIndexHtml(model, ctx, "app", `main.${ctx.ext.script}`),
     );
     const cls = demoClasses(model);
-    const plugins = model.bundler.plugins;
+    // Without Testing Library's Vite plugin, tests need Svelte's browser build (Svelte docs).
+    const browserConditions =
+      model.testing && !model.testing.library
+        ? [
+            'resolve: process.env.VITEST ? { conditions: ["browser"] } : undefined,',
+          ]
+        : [];
     model.files.set(
       `vite.config.${ctx.ext.script}`,
-      file([
-        ...renderImports([
-          { from: "vite", named: ["defineConfig"] },
-          ...plugins.map((p) => p.import),
-        ]),
-        "",
-        "export default defineConfig({",
-        `  plugins: [${plugins.map((p) => p.call).join(", ")}],`,
-        "});",
-      ]),
+      plainViteConfig(model, ctx, browserConditions),
     );
     model.files.set(
       `src/main.${ctx.ext.script}`,
@@ -127,6 +126,12 @@ export const svelteAdapter: FrameworkAdapter = {
       "src/App.svelte",
       svelteHome(ctx, cls, "./lib/Counter.svelte", "main"),
     );
+    if (model.testing) {
+      model.files.set(
+        `src/lib/Counter.test.${ctx.ext.script}`,
+        svelteCounterTest(model),
+      );
+    }
   },
 };
 

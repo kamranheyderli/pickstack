@@ -83,6 +83,20 @@ export const reduxToolkit: Module = {
       value: "count",
       increment: "() => dispatch(increment())",
       decrement: "() => dispatch(decrement())",
+      testHarness: next
+        ? {
+            imports: [
+              { from: "../app/StoreProvider", default: "StoreProvider" },
+            ],
+            wrapper: { open: "<StoreProvider>", close: "</StoreProvider>" },
+          }
+        : {
+            imports: [
+              { from: "react-redux", named: ["Provider"] },
+              { from: "../store", named: ["store"] },
+            ],
+            wrapper: { open: "<Provider store={store}>", close: "</Provider>" },
+          },
     };
     model.readme.stack.push("Redux Toolkit");
   },

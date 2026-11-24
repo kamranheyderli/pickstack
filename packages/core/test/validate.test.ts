@@ -136,6 +136,32 @@ describe("validate", () => {
   });
 });
 
+describe("testing modules", () => {
+  it("auto-adds vitest for testing-library and applies it first", () => {
+    const result = resolve(["testing-library"]);
+    expect(result.autoAdded).toEqual(["vitest"]);
+    expect(result.modules.map((m) => m.id)).toEqual([
+      "vitest",
+      "testing-library",
+    ]);
+  });
+
+  it("offers testing-library only where a binding exists", () => {
+    for (const framework of ["sveltekit", "astro"] as const) {
+      const result = validate(
+        selection({ framework, modules: ["vitest", "testing-library"] }),
+      );
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.errors[0]).toMatchObject({
+          code: "framework-mismatch",
+          moduleId: "testing-library",
+        });
+    }
+    expect(getModule("vitest")?.frameworks).toHaveLength(10);
+  });
+});
+
 describe("resolve", () => {
   it("adds transitive requires and reports them as auto-added", () => {
     const mods = [

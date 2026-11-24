@@ -17,6 +17,7 @@ export function createModel(): ProjectModel {
     demo: { counter: null },
     seo: null,
     linter: null,
+    testing: null,
     readme: { stack: [], sections: [] },
     warnings: [],
   };

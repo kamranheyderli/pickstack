@@ -13,6 +13,8 @@ import { seo } from "./seo/seo";
 import { reduxToolkit } from "./state/redux-toolkit";
 import { zustand } from "./state/zustand";
 import { tailwind } from "./style/tailwind";
+import { testingLibrary } from "./testing/testing-library";
+import { vitest } from "./testing/vitest";
 
 export const modules: readonly Module[] = [
   tailwind,
@@ -25,6 +27,8 @@ export const modules: readonly Module[] = [
   solidRouter,
   preactIso,
   axios,
+  vitest,
+  testingLibrary,
   eslint,
   prettier,
   seo,

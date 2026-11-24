@@ -56,6 +56,15 @@ export const pinia: Module = {
       value: "counter.count",
       increment: "counter.increment()",
       decrement: "counter.decrement()",
+      // Nuxt's test environment boots the app, which already installs Pinia.
+      ...(nuxt
+        ? {}
+        : {
+            testHarness: {
+              imports: [{ from: "pinia", named: ["createPinia"] }],
+              plugins: ["createPinia()"],
+            },
+          }),
     };
     model.readme.stack.push("Pinia");
   },

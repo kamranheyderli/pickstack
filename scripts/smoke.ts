@@ -93,7 +93,7 @@ async function smoke(combo: Combo): Promise<Outcome> {
       "install",
       ["install", "--prefer-offline", "--config.confirmModulesPurge=false"],
     ],
-    ...["build", "typecheck", "lint", "format:check"]
+    ...["build", "typecheck", "lint", "format:check", "test"]
       .filter((s) => scripts.includes(s))
       .map((s): [string, string[]] => [s, ["run", s]]),
   ];

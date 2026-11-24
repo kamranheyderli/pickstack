@@ -1,7 +1,14 @@
 import { file, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
-import type { Ctx, FrameworkAdapter, ProjectModel, SeoSpec } from "../../types";
+import type {
+  Ctx,
+  FrameworkAdapter,
+  ProjectModel,
+  SeoSpec,
+  TestingSpec,
+} from "../../types";
 import { aboutText, demoClasses, globalCss } from "../shared/demo";
+import { testBlock, vueCounterTest } from "../shared/testing";
 import { counterCard, localVueCounter, sfc, vueNavLinks } from "../shared/vue";
 
 const routes = [
@@ -68,6 +75,16 @@ export const nuxtAdapter: FrameworkAdapter = {
       "app/components/CounterCard.vue",
       counterCard(model.demo.counter ?? localVueCounter, ctx, cls),
     );
+    if (model.testing) {
+      model.files.set(
+        `vitest.config.${ctx.ext.script}`,
+        vitestConfig(model.testing, ctx),
+      );
+      model.files.set(
+        `test/nuxt/CounterCard.test.${ctx.ext.script}`,
+        vueCounterTest(model, "nuxt"),
+      );
+    }
     model.files.set(
       "app/app.vue",
       sfc(ctx, model.seo ? appSeoScript(model.seo, ctx) : [], [
@@ -146,6 +163,32 @@ function nuxtConfig(model: ProjectModel): string {
     ...Object.entries(config).map(
       ([key, value]) => `  ${key}: ${JSON.stringify(value)},`,
     ),
+    "});",
+  ]);
+}
+
+/**
+ * `@nuxt/test-utils`' Vitest project: tests under `test/nuxt` run inside a booted Nuxt app
+ * (happy-dom), so auto-imports, plugins and modules such as Pinia work as in the app.
+ */
+function vitestConfig(testing: TestingSpec, ctx: Ctx): string {
+  const block = testBlock(testing, "nuxt");
+  return file([
+    'import { defineVitestProject } from "@nuxt/test-utils/config";',
+    'import { defineConfig } from "vitest/config";',
+    "",
+    "export default defineConfig({",
+    "  test: {",
+    "    projects: [",
+    "      await defineVitestProject({",
+    "        test: {",
+    '          name: "nuxt",',
+    `          include: ["test/nuxt/*.{test,spec}.${ctx.ext.script}"],`,
+    ...block.slice(1, -1).map((line) => `        ${line}`),
+    "        },",
+    "      }),",
+    "    ],",
+    "  },",
     "});",
   ]);
 }

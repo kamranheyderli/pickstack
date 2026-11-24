@@ -9,7 +9,9 @@ import type {
 import { demoClasses, globalCss } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
-import { plainViteConfig, wrapProviders, writeJsxDemo } from "../shared/jsx";
+import { wrapProviders, writeJsxDemo } from "../shared/jsx";
+import { jsxCounterTest } from "../shared/testing";
+import { plainViteConfig } from "../shared/vite";
 import { writeViteTsconfigs } from "../shared/vite-ts";
 
 const localCounter: CounterSpec = {
@@ -67,10 +69,19 @@ export const preactAdapter: FrameworkAdapter = {
       "index.html",
       spaIndexHtml(model, ctx, "app", `main.${ctx.ext.component}`),
     );
-    model.files.set(`vite.config.${ctx.ext.script}`, plainViteConfig(model));
+    model.files.set(
+      `vite.config.${ctx.ext.script}`,
+      plainViteConfig(model, ctx),
+    );
     model.files.set(`src/main.${ctx.ext.component}`, entry(model, ctx));
     model.files.set("src/index.css", globalCss(model));
     writeJsxDemo(model, ctx, demoClasses(model), "class", localCounter);
+    if (model.testing) {
+      model.files.set(
+        `src/components/Counter.test.${ctx.ext.component}`,
+        jsxCounterTest(model, "preact"),
+      );
+    }
   },
 };
 
