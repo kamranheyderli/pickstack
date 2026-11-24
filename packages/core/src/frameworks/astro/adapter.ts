@@ -5,6 +5,7 @@ import {
   aboutText,
   demoClasses,
   globalCss,
+  styleExt,
   type DemoClasses,
 } from "../shared/demo";
 import { el, printMarkup, type El } from "../shared/markup";
@@ -58,7 +59,7 @@ export const astroAdapter: FrameworkAdapter = {
   render(model, ctx) {
     const cls = demoClasses(model);
     model.files.set("astro.config.mjs", astroConfig(model));
-    model.files.set("src/styles/global.css", globalCss(model));
+    model.files.set(`src/styles/global.${styleExt(model)}`, globalCss(model));
     model.files.set("src/layouts/Layout.astro", layout(model, ctx, cls));
     model.files.set("src/components/Counter.astro", counter(model, cls));
     if (model.testing) {
@@ -192,7 +193,7 @@ function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
   const seo = model.seo;
   return astroFile(
     [
-      'import "../styles/global.css";',
+      `import "../styles/global.${styleExt(model)}";`,
       "",
       ...(ctx.isTs ? ["interface Props {", "  title: string;", "}", ""] : []),
       "const { title } = Astro.props;",

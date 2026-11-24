@@ -6,7 +6,7 @@ import type {
   FrameworkAdapter,
   ProjectModel,
 } from "../../types";
-import { demoClasses, globalCss } from "../shared/demo";
+import { demoClasses, globalCss, styleExt } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
 import { wrapProviders, writeJsxDemo } from "../shared/jsx";
@@ -70,7 +70,7 @@ export const solidAdapter: FrameworkAdapter = {
       plainViteConfig(model, ctx),
     );
     model.files.set(`src/index.${ctx.ext.component}`, entry(model, ctx));
-    model.files.set("src/index.css", globalCss(model));
+    model.files.set(`src/index.${styleExt(model)}`, globalCss(model));
     writeJsxDemo(model, ctx, demoClasses(model), "class", localCounter);
     if (model.testing) {
       model.files.set(
@@ -100,7 +100,7 @@ function entry(model: ProjectModel, ctx: Ctx): string {
     ...renderImports([
       { from: "solid-js/web", named: ["render"] },
       { from: "./App", default: "App" },
-      { from: "./index.css" },
+      { from: `./index.${styleExt(model)}` },
       ...(root?.imports ?? []),
       ...model.entry.imports,
       ...model.entry.providers.flatMap((p) => p.imports),

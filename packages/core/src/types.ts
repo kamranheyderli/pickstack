@@ -180,6 +180,8 @@ export interface ProjectModel {
     globalCss: string[];
     /** Utility-first frameworks replace the demo's hand-written CSS classes. */
     mode: "plain" | "tailwind";
+    /** Set by the `sass` module: the global stylesheet is SCSS unless Tailwind owns it. */
+    sass: boolean;
   };
   routes: RouteSpec[];
   routing: RoutingSpec | null;

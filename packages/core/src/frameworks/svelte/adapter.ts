@@ -1,7 +1,7 @@
 import { file, json } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type { FrameworkAdapter, ProjectModel } from "../../types";
-import { demoClasses, globalCss } from "../shared/demo";
+import { demoClasses, globalCss, styleExt } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
 import {
@@ -108,7 +108,7 @@ export const svelteAdapter: FrameworkAdapter = {
       file([
         'import { mount } from "svelte";',
         'import App from "./App.svelte";',
-        'import "./app.css";',
+        `import "./app.${styleExt(model)}";`,
         "",
         "const app = mount(App, {",
         `  target: document.getElementById("app")${ctx.isTs ? "!" : ""},`,
@@ -117,7 +117,7 @@ export const svelteAdapter: FrameworkAdapter = {
         "export default app;",
       ]),
     );
-    model.files.set("src/app.css", globalCss(model));
+    model.files.set(`src/app.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/lib/Counter.svelte",
       svelteCounter(model.demo.counter ?? localSvelteCounter, ctx, cls),

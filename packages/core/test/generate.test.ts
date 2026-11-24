@@ -78,6 +78,16 @@ describe("biome snapshots", () => {
   }
 });
 
+describe("sass snapshots", () => {
+  // "everything" pairs Sass with Tailwind, which keeps the stylesheet CSS.
+  for (const framework of ["react", "angular"] as const) {
+    it(`${framework} with sass (ts)`, async () => {
+      const result = await files("ts", ["sass"], framework);
+      expect(Object.fromEntries(result)).toMatchSnapshot();
+    });
+  }
+});
+
 describe("react extras", () => {
   it("zustand without router (ts)", async () => {
     const result = await files("ts", ["zustand"]);

@@ -1,5 +1,6 @@
 import type { ProjectModel } from "../../types";
 import plainCss from "./templates/plain-css";
+import plainScss from "./templates/plain-scss";
 
 /** Style slots used by every framework's demo app (counter card, nav, pages). */
 export type ClassKey =
@@ -47,11 +48,21 @@ export function demoClasses(model: ProjectModel): DemoClasses {
   return model.styles.mode === "tailwind" ? tailwindClasses : plainClasses;
 }
 
+/**
+ * Extension of the global stylesheet. With Sass it is SCSS, except when Tailwind is the
+ * stylesheet's entry: Tailwind v4 is not meant to run through a preprocessor, so that file
+ * stays CSS (Sass is still available for component styles).
+ */
+export function styleExt(model: ProjectModel): "css" | "scss" {
+  return model.styles.sass && model.styles.mode === "plain" ? "scss" : "css";
+}
+
 /** Global stylesheet: module `@import`s, the demo's plain CSS (unless utility-first), module CSS. */
 export function globalCss(model: ProjectModel): string {
+  const demo = styleExt(model) === "scss" ? plainScss : plainCss;
   const blocks = [
     model.styles.globalImports.join("\n"),
-    model.styles.mode === "plain" ? plainCss.trimEnd() : "",
+    model.styles.mode === "plain" ? demo.trimEnd() : "",
     model.styles.globalCss.join("\n\n"),
   ].filter(Boolean);
   return blocks.join("\n\n") + "\n";

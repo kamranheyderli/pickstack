@@ -7,7 +7,7 @@ import type {
   SeoSpec,
   TestingSpec,
 } from "../../types";
-import { aboutText, demoClasses, globalCss } from "../shared/demo";
+import { aboutText, demoClasses, globalCss, styleExt } from "../shared/demo";
 import { testBlock, vueCounterTest } from "../shared/testing";
 import { counterCard, localVueCounter, sfc, vueNavLinks } from "../shared/vue";
 
@@ -70,7 +70,7 @@ export const nuxtAdapter: FrameworkAdapter = {
   render(model, ctx) {
     const cls = demoClasses(model);
     model.files.set(`nuxt.config.${ctx.ext.script}`, nuxtConfig(model));
-    model.files.set("app/assets/css/main.css", globalCss(model));
+    model.files.set(`app/assets/css/main.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "app/components/CounterCard.vue",
       counterCard(model.demo.counter ?? localVueCounter, ctx, cls),
@@ -156,7 +156,7 @@ function nuxtConfig(model: ProjectModel): string {
     '  compatibilityDate: "2025-07-15",',
     "  devtools: { enabled: true },",
     ...(modules.length ? [`  modules: ${JSON.stringify(modules)},`] : []),
-    '  css: ["~/assets/css/main.css"],',
+    `  css: ["~/assets/css/main.${styleExt(model)}"],`,
     ...(plugins.length
       ? [`  vite: { plugins: [${plugins.map((p) => p.call).join(", ")}] },`]
       : []),

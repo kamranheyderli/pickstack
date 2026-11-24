@@ -11,6 +11,7 @@ import {
   aboutText,
   demoClasses,
   globalCss,
+  styleExt,
   type DemoClasses,
 } from "../shared/demo";
 import { angularCounterTest } from "../shared/testing";
@@ -89,7 +90,7 @@ export const angularAdapter: FrameworkAdapter = {
     model.files.set("angular.json", json(angularJson(model, ctx)));
     writeTsconfigs(model);
     model.files.set("src/index.html", indexHtml(model, ctx));
-    model.files.set("src/styles.css", globalCss(model));
+    model.files.set(`src/styles.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/main.ts",
       file([
@@ -332,7 +333,9 @@ function angularJson(model: ProjectModel, ctx: Ctx) {
     projects: {
       [name]: {
         projectType: "application",
-        schematics: {},
+        schematics: model.styles.sass
+          ? { "@schematics/angular:component": { style: "scss" } }
+          : {},
         root: "",
         sourceRoot: "src",
         prefix: "app",
@@ -343,7 +346,9 @@ function angularJson(model: ProjectModel, ctx: Ctx) {
               browser: "src/main.ts",
               tsConfig: "tsconfig.app.json",
               assets: [{ glob: "**/*", input: "public" }],
-              styles: ["src/styles.css"],
+              styles: [`src/styles.${styleExt(model)}`],
+              // As `ng new --style=scss` sets it: inline component styles are SCSS too.
+              ...(model.styles.sass ? { inlineStyleLanguage: "scss" } : {}),
             },
             configurations: {
               production: {

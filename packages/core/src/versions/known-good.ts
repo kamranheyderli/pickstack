@@ -54,6 +54,7 @@ const shared: VersionSet = {
   husky: "^9.1.7",
   // Needs Node.js >=22.22.1 (engines); the generated README says so.
   "lint-staged": "^17.6.2",
+  sass: "^1.108.2",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

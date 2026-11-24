@@ -17,6 +17,7 @@ import {
   siReact,
   siReactrouter,
   siRedux,
+  siSass,
   siSolid,
   siSvelte,
   siTailwindcss,
@@ -43,6 +44,7 @@ export const frameworkIcons: Record<FrameworkId, SimpleIcon> = {
 
 export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   tailwind: siTailwindcss,
+  sass: siSass,
   "redux-toolkit": siRedux,
   "react-router": siReactrouter,
   axios: siAxios,

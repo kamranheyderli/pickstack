@@ -11,7 +11,7 @@ export function createModel(): ProjectModel {
     },
     entry: { imports: [], providers: [], appUses: [], setup: [] },
     bundler: { plugins: [], modules: [], config: {}, integrations: [] },
-    styles: { globalImports: [], globalCss: [], mode: "plain" },
+    styles: { globalImports: [], globalCss: [], mode: "plain", sass: false },
     routes: [],
     routing: null,
     demo: { counter: null },

@@ -1,7 +1,7 @@
 import { file, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type { Ctx, FrameworkAdapter, ProjectModel } from "../../types";
-import { demoClasses, globalCss } from "../shared/demo";
+import { demoClasses, globalCss, styleExt } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import {
   localSvelteCounter,
@@ -119,7 +119,7 @@ export const sveltekitAdapter: FrameworkAdapter = {
   render(model, ctx) {
     const cls = demoClasses(model);
     model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model, ctx));
-    model.files.set("src/routes/layout.css", globalCss(model));
+    model.files.set(`src/routes/layout.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/lib/Counter.svelte",
       svelteCounter(model.demo.counter ?? localSvelteCounter, ctx, cls),
@@ -136,7 +136,7 @@ export const sveltekitAdapter: FrameworkAdapter = {
       svelteComponent(
         ctx,
         [
-          { from: "./layout.css" },
+          { from: `./layout.${styleExt(model)}` },
           { from: "$app/paths", named: ["resolve"] },
           ...(model.seo
             ? [

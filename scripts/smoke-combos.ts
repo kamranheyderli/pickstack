@@ -68,6 +68,7 @@ export const quickCombos: Combo[] = [
   ...testingCombos(),
   ...biomeCombos(),
   ...huskyCombos(),
+  ...sassCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -287,4 +288,29 @@ function huskyCombos(): Combo[] {
       modules: ["husky-lint-staged", "eslint", "prettier"],
     },
   ];
+}
+
+/** Sass alone (SCSS global stylesheet) and with Tailwind (CSS entry kept, Sass installed). */
+function sassCombos(): Combo[] {
+  const all: FrameworkId[] = [
+    "react",
+    "vue",
+    "svelte",
+    "solid",
+    "preact",
+    "next",
+    "nuxt",
+    "sveltekit",
+    "astro",
+    "angular",
+  ];
+  return all.flatMap((framework): Combo[] => [
+    { framework, language: "ts", modules: ["sass", "prettier"] },
+    ...(framework === "angular"
+      ? [{ framework, language: "ts" as const, modules: ["sass", "biome"] }]
+      : [
+          { framework, language: "js" as const, modules: ["sass", "biome"] },
+          { framework, language: "js" as const, modules: ["sass", "tailwind"] },
+        ]),
+  ]);
 }

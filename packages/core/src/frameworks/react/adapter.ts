@@ -6,7 +6,7 @@ import type {
   FrameworkAdapter,
   ProjectModel,
 } from "../../types";
-import { demoClasses, globalCss } from "../shared/demo";
+import { demoClasses, globalCss, styleExt } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
 import { wrapProviders, writeJsxDemo } from "../shared/jsx";
@@ -59,7 +59,6 @@ export const reactAdapter: FrameworkAdapter = {
       { from: "react", named: ["StrictMode"] },
       { from: "react-dom/client", named: ["createRoot"] },
       { from: "./App", default: "App" },
-      { from: "./index.css" },
     );
     model.readme.stack.push(
       "React 19",
@@ -79,7 +78,7 @@ export const reactAdapter: FrameworkAdapter = {
       plainViteConfig(model, ctx),
     );
     model.files.set(`src/main.${ctx.ext.component}`, mainEntry(model, ctx));
-    model.files.set("src/index.css", globalCss(model));
+    model.files.set(`src/index.${styleExt(model)}`, globalCss(model));
     writeJsxDemo(model, ctx, demoClasses(model), "className", localCounter);
     if (model.testing) {
       model.files.set(
@@ -120,6 +119,7 @@ function mainEntry(model: ProjectModel, ctx: Ctx): string {
     ...renderImports([
       ...model.entry.imports,
       ...model.entry.providers.flatMap((p) => p.imports),
+      { from: `./index.${styleExt(model)}` },
     ]),
     "",
     ...model.entry.setup,

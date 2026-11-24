@@ -498,3 +498,44 @@ describe("husky-lint-staged", () => {
     ).toBe("svelte-kit sync || echo '' && husky");
   });
 });
+
+describe("sass", () => {
+  function rendered(frameworkId: FrameworkId, ids: string[]): ProjectModel {
+    const ctx = ctxFor("ts", ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("turns the global stylesheet into SCSS and imports it", () => {
+    const model = rendered("react", ["sass"]);
+    expect(model.files.has("src/index.css")).toBe(false);
+    expect(model.files.get("src/index.scss")).toContain("&:hover");
+    expect(model.files.get("src/main.tsx")).toContain('import "./index.scss";');
+    expect(model.pkg.devDependencies.has("sass")).toBe(true);
+  });
+
+  it("points framework configs at the SCSS file", () => {
+    expect(rendered("nuxt", ["sass"]).files.get("nuxt.config.ts")).toContain(
+      "~/assets/css/main.scss",
+    );
+    const angular = rendered("angular", ["sass"]);
+    const json = angular.files.get("angular.json") ?? "";
+    expect(json).toContain("src/styles.scss");
+    expect(json).toContain('"inlineStyleLanguage": "scss"');
+    // Angular's builder ships Sass.
+    expect(angular.pkg.devDependencies.has("sass")).toBe(false);
+  });
+
+  it("keeps Tailwind's entry as CSS and warns", () => {
+    const model = rendered("react", ["sass", "tailwind"]);
+    expect(model.files.get("src/index.css")).toContain(
+      '@import "tailwindcss";',
+    );
+    expect(model.files.has("src/index.scss")).toBe(false);
+    expect(model.warnings.some((w) => w.includes("Tailwind"))).toBe(true);
+  });
+});

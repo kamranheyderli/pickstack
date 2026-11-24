@@ -11,6 +11,7 @@ import {
   aboutText,
   demoClasses,
   globalCss,
+  styleExt,
   type DemoClasses,
 } from "../shared/demo";
 import { jsxCounter, wrapProviders } from "../shared/jsx";
@@ -99,7 +100,7 @@ export const nextAdapter: FrameworkAdapter = {
   render(model, ctx) {
     const cls = demoClasses(model);
     const x = ctx.ext.component;
-    model.files.set("app/globals.css", globalCss(model));
+    model.files.set(`app/globals.${styleExt(model)}`, globalCss(model));
     model.files.set(`app/layout.${x}`, layout(model, ctx, cls));
     model.files.set(`app/page.${x}`, homePage(ctx, cls));
     model.files.set(`app/about/page.${x}`, aboutPage(model, ctx, cls));
@@ -236,7 +237,7 @@ function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
           ]
         : []),
       ...model.entry.providers.flatMap((p) => p.imports),
-      { from: "./globals.css" },
+      { from: `./globals.${styleExt(model)}` },
     ]),
     "",
     `export const metadata${ctx.isTs ? ": Metadata" : ""} = {`,

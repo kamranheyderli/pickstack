@@ -212,6 +212,12 @@ Husky + lint-staged (`husky-lint-staged`, husky 9.1.7, lint-staged 17.6.2, 2026-
 - lint-staged 17 Node.js ≥22.22.1 istəyir; README-də qeyd olunur.
 - `package.json` artıq Prettier-in `json-stringify` parser-i ilə formatlanır (Prettier `package.json`-ı belə yoxlayır: massivlər həmişə sətirlərə bölünür).
 
+Sass (`sass` modulu, `sass` 1.108, 2026-11 yoxlanılıb):
+
+- Qlobal stil faylı `.scss` olur (demo stili Sass dəyişənləri və nesting ilə yazılır), istinad edən yer də yenilənir: entry importu, `nuxt.config` `css`, Astro Layout, `angular.json` `styles`.
+- `sass` (saf JS, Next-in default-u) Angular xaricində hamısına dev dependency kimi əlavə olunur. Vite 8 `sass-embedded`-i, sonra `sass`-ı axtarır. Angular-ın `@angular/build` paketi Sass-ı özü gətirir; `ng new --style=scss` kimi `inlineStyleLanguage: "scss"` və komponent schematic-i qurulur.
+- Tailwind ilə: Tailwind v4 "preprocessor-larla istifadə üçün nəzərdə tutulmayıb" (tailwindcss.com/docs/compatibility). `.scss`-də yazılan Tailwind girişi xətasız build olunur, amma CSS pozulur (utility-lər yaranmır). Ona görə konflikt yox, xəbərdarlıq var: Tailwind faylı `.css` qalır, Sass isə digər stillər üçün quraşdırılır.
+
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 
 - Hər layihəyə counter komponent testi yazılır. Yalnız `vitest` seçiləndə framework-ün öz mount API-si işlədilir: `react-dom/client` + `act`, `preact` + `preact/test-utils`, `solid-js/web`, Svelte `mount`, `@vue/test-utils`, Nuxt `mountSuspended`, Angular `TestBed`, Astro Container API. `testing-library` seçiləndə test `render`/`screen`/`user-event`-ə keçir. Elementlər class ilə yox, teq və mətnlə tapılır, ona görə Tailwind testi pozmur.

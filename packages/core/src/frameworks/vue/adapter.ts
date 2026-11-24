@@ -11,6 +11,7 @@ import {
   aboutText,
   demoClasses,
   globalCss,
+  styleExt,
   type DemoClasses,
 } from "../shared/demo";
 import { viteEnv } from "../shared/env";
@@ -79,7 +80,6 @@ export const vueAdapter: FrameworkAdapter = {
     model.entry.imports.push(
       { from: "vue", named: ["createApp"] },
       { from: "./App.vue", default: "App" },
-      { from: "./assets/main.css" },
     );
     model.readme.stack.push(
       "Vue 3",
@@ -109,7 +109,7 @@ export const vueAdapter: FrameworkAdapter = {
       );
     }
     model.files.set(`src/main.${ctx.ext.script}`, mainEntry(model));
-    model.files.set("src/assets/main.css", globalCss(model));
+    model.files.set(`src/assets/main.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/components/CounterCard.vue",
       counterCard(model.demo.counter ?? localVueCounter, ctx, cls),
@@ -247,7 +247,10 @@ function vitestConfig(testing: TestingSpec, ctx: Ctx): string {
 function mainEntry(model: ProjectModel): string {
   const uses = model.entry.appUses;
   return file([
-    ...renderImports(model.entry.imports),
+    ...renderImports([
+      ...model.entry.imports,
+      { from: `./assets/main.${styleExt(model)}` },
+    ]),
     "",
     ...model.entry.setup,
     ...(model.entry.setup.length ? [""] : []),
