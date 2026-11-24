@@ -95,6 +95,7 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
   },
   astro: {
     astro: "^7.4.13",
+    "@astrojs/sitemap": "^3.7.6",
     "@astrojs/check": "^0.9.12",
   },
   angular: {

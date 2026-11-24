@@ -51,5 +51,8 @@
   "framework.kind.meta": "Meta-framework",
   "reason.framework-soon": "The {framework} generator lands in phase {phase}.",
   "preview.files": "{count} files",
-  "hint.svelteRouting": "Need routing? Pick SvelteKit: it has file-based routing built in."
+  "hint.svelteRouting": "Need routing? Pick SvelteKit: it has file-based routing built in.",
+  "reason.missing-one-of": "{module} needs one of these first: {options}.",
+  "category.seo": "SEO & AI visibility",
+  "category.tooling": "Tooling"
 }

@@ -58,7 +58,7 @@ export const astroAdapter: FrameworkAdapter = {
     const cls = demoClasses(model);
     model.files.set("astro.config.mjs", astroConfig(model));
     model.files.set("src/styles/global.css", globalCss(model));
-    model.files.set("src/layouts/Layout.astro", layout(ctx, cls));
+    model.files.set("src/layouts/Layout.astro", layout(model, ctx, cls));
     model.files.set("src/components/Counter.astro", counter(cls));
     model.files.set(
       "src/pages/index.astro",
@@ -125,34 +125,57 @@ function astroFile(
 }
 
 function astroConfig(model: ProjectModel): string {
-  const plugins = model.bundler.plugins;
+  const { plugins, integrations } = model.bundler;
+  const body = [
+    // `site` is required by @astrojs/sitemap and used for canonical URLs.
+    ...(model.seo
+      ? [`  site: process.env.SITE_URL ?? "${model.seo.siteUrl}",`]
+      : []),
+    ...(integrations.length
+      ? [`  integrations: [${integrations.map((i) => i.call).join(", ")}],`]
+      : []),
+    ...(plugins.length
+      ? [
+          "  vite: {",
+          `    plugins: [${plugins.map((p) => p.call).join(", ")}],`,
+          "  },",
+        ]
+      : []),
+  ];
   return file([
     "// @ts-check",
     ...renderImports([
       { from: "astro/config", named: ["defineConfig"] },
+      ...integrations.map((i) => i.import),
       ...plugins.map((p) => p.import),
     ]),
     "",
     "// https://astro.build/config",
-    ...(plugins.length
-      ? [
-          "export default defineConfig({",
-          "  vite: {",
-          `    plugins: [${plugins.map((p) => p.call).join(", ")}],`,
-          "  },",
-          "});",
-        ]
+    ...(body.length
+      ? ["export default defineConfig({", ...body, "});"]
       : ["export default defineConfig({});"]),
   ]);
 }
 
-function layout(ctx: Ctx, cls: DemoClasses): string {
+function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
+  const seo = model.seo;
   return astroFile(
     [
       'import "../styles/global.css";',
       "",
       ...(ctx.isTs ? ["interface Props {", "  title: string;", "}", ""] : []),
       "const { title } = Astro.props;",
+      ...(seo
+        ? [
+            "const canonical = new URL(Astro.url.pathname, Astro.site);",
+            "const jsonLd = JSON.stringify({",
+            '  "@context": "https://schema.org",',
+            '  "@type": "WebSite",',
+            `  name: "${ctx.selection.name}",`,
+            "  url: Astro.site?.href,",
+            "});",
+          ]
+        : []),
     ],
     printMarkup(
       el(
@@ -167,6 +190,18 @@ function layout(ctx: Ctx, cls: DemoClasses): string {
               '<meta name="viewport" content="width=device-width" />',
               '<meta name="generator" content={Astro.generator} />',
               "<title>{title}</title>",
+              ...(seo
+                ? [
+                    `<meta name="description" content="${seo.description}" />`,
+                    '<link rel="canonical" href={canonical} />',
+                    '<link rel="sitemap" href="/sitemap-index.xml" />',
+                    '<meta property="og:type" content="website" />',
+                    '<meta property="og:title" content={title} />',
+                    '<meta property="og:url" content={canonical} />',
+                    '<meta name="twitter:card" content="summary" />',
+                    '<script type="application/ld+json" set:html={jsonLd} />',
+                  ]
+                : []),
             ],
           ),
           el(

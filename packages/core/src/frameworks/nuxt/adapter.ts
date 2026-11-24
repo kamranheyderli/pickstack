@@ -1,6 +1,6 @@
 import { file, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
-import type { FrameworkAdapter, ProjectModel } from "../../types";
+import type { Ctx, FrameworkAdapter, ProjectModel, SeoSpec } from "../../types";
 import { aboutText, demoClasses, globalCss } from "../shared/demo";
 import { counterCard, localVueCounter, sfc, vueNavLinks } from "../shared/vue";
 
@@ -70,49 +70,64 @@ export const nuxtAdapter: FrameworkAdapter = {
     );
     model.files.set(
       "app/app.vue",
-      sfc(
-        ctx,
-        [],
-        [
-          "<NuxtRouteAnnouncer />",
-          `<main class="${cls.main}">`,
-          `  <nav class="${cls.nav}">`,
-          ...vueNavLinks("NuxtLink", "to", routes, cls),
-          "  </nav>",
-          "  <NuxtPage />",
-          "</main>",
-        ],
-      ),
+      sfc(ctx, model.seo ? appSeoScript(model.seo, ctx) : [], [
+        "<NuxtRouteAnnouncer />",
+        `<main class="${cls.main}">`,
+        `  <nav class="${cls.nav}">`,
+        ...vueNavLinks("NuxtLink", "to", routes, cls),
+        "  </nav>",
+        "  <NuxtPage />",
+        "</main>",
+      ]),
     );
     // Components in app/components are auto-imported.
     model.files.set(
       "app/pages/index.vue",
-      sfc(
-        ctx,
-        [],
-        [
-          `<section class="${cls.page}">`,
-          `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
-          "  <CounterCard />",
-          "</section>",
-        ],
-      ),
+      sfc(ctx, model.seo ? ['useSeoMeta({ title: "Home" });'] : [], [
+        `<section class="${cls.page}">`,
+        `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
+        "  <CounterCard />",
+        "</section>",
+      ]),
     );
     model.files.set(
       "app/pages/about.vue",
-      sfc(
-        ctx,
-        [],
-        [
-          `<section class="${cls.page}">`,
-          `  <h1 class="${cls.title}">About</h1>`,
-          `  <p class="${cls.text}">${aboutText(model)}</p>`,
-          "</section>",
-        ],
-      ),
+      sfc(ctx, model.seo ? ['useSeoMeta({ title: "About" });'] : [], [
+        `<section class="${cls.page}">`,
+        `  <h1 class="${cls.title}">About</h1>`,
+        `  <p class="${cls.text}">${aboutText(model)}</p>`,
+        "</section>",
+      ]),
     );
   },
 };
+
+/** Site-wide head: canonical + og:url follow the route; JSON-LD WebSite. */
+function appSeoScript(seo: SeoSpec, ctx: Ctx): string[] {
+  const name = ctx.selection.name;
+  return [
+    "const { siteUrl } = useRuntimeConfig().public;",
+    "const route = useRoute();",
+    "",
+    "useHead({",
+    '  link: [{ rel: "canonical", href: () => `${siteUrl}${route.path}` }],',
+    "  script: [",
+    "    {",
+    '      type: "application/ld+json",',
+    `      innerHTML: JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: "${name}", url: siteUrl }),`,
+    "    },",
+    "  ],",
+    "});",
+    "",
+    "useSeoMeta({",
+    `  description: "${seo.description}",`,
+    '  ogType: "website",',
+    `  ogSiteName: "${name}",`,
+    "  ogUrl: () => `${siteUrl}${route.path}`,",
+    '  twitterCard: "summary",',
+    "});",
+  ];
+}
 
 function nuxtConfig(model: ProjectModel): string {
   const { plugins, modules, config } = model.bundler;

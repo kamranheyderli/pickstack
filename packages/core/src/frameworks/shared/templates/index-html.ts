@@ -3,7 +3,7 @@ export default `<!doctype html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{name}}</title>
+    <title>{{name}}</title>{{head}}
   </head>
   <body>
     <div id="{{mountId}}"></div>

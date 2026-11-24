@@ -56,12 +56,14 @@ export function svelteHome(
   cls: DemoClasses,
   counterFrom: string,
   tag: "main" | "section",
+  title?: string,
 ): string {
   return svelteComponent(
     ctx,
     [{ from: counterFrom, default: "Counter" }],
     [],
     [
+      ...headTitle(title),
       `<${tag} class="${tag === "main" ? cls.main : cls.page}">`,
       `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
       "  <Counter />",
@@ -74,16 +76,24 @@ export function svelteAbout(
   model: ProjectModel,
   ctx: Ctx,
   cls: DemoClasses,
+  title?: string,
 ): string {
   return svelteComponent(
     ctx,
     [],
     [],
     [
+      ...headTitle(title),
       `<section class="${cls.page}">`,
       `  <h1 class="${cls.title}">About</h1>`,
       `  <p class="${cls.text}">${aboutText(model)}</p>`,
       "</section>",
     ],
   );
+}
+
+function headTitle(title?: string): string[] {
+  return title
+    ? ["<svelte:head>", `  <title>${title}</title>`, "</svelte:head>", ""]
+    : [];
 }

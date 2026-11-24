@@ -63,6 +63,7 @@ export const quickCombos: Combo[] = [
     language: "ts",
     modules: ["tailwind", "builtin", "axios", "prettier"],
   },
+  ...seoCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -71,4 +72,30 @@ function frameworkCombos(framework: FrameworkId, all: string[]): Combo[] {
     { framework, language, modules: [] },
     { framework, language, modules: all },
   ]);
+}
+
+/** SEO + AIO with Prettier (TS) and SEO alone (JS) for every framework. */
+function seoCombos(): Combo[] {
+  const all: FrameworkId[] = [
+    "react",
+    "vue",
+    "svelte",
+    "solid",
+    "preact",
+    "next",
+    "nuxt",
+    "sveltekit",
+    "astro",
+  ];
+  return [
+    ...all.flatMap((framework): Combo[] => [
+      { framework, language: "ts", modules: ["seo", "aio", "prettier"] },
+      { framework, language: "js", modules: ["seo"] },
+    ]),
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["seo", "aio", "prettier"],
+    },
+  ];
 }

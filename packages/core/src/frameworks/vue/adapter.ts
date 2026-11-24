@@ -13,8 +13,8 @@ import {
   type DemoClasses,
 } from "../shared/demo";
 import { viteEnv } from "../shared/env";
+import { spaIndexHtml } from "../shared/index-html";
 import { counterCard, localVueCounter, sfc } from "../shared/vue";
-import indexHtml from "../shared/templates/index-html";
 
 /**
  * Vue 3 + Vite, following the layout of the official `create-vue` scaffold:
@@ -80,14 +80,6 @@ export const vueAdapter: FrameworkAdapter = {
       { from: "./App.vue", default: "App" },
       { from: "./assets/main.css" },
     );
-    model.files.set(
-      "index.html",
-      fill(indexHtml, {
-        name: ctx.selection.name,
-        mountId: "app",
-        entry: `main.${ctx.ext.script}`,
-      }),
-    );
     model.readme.stack.push(
       "Vue 3",
       "Vite",
@@ -97,6 +89,10 @@ export const vueAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    model.files.set(
+      "index.html",
+      spaIndexHtml(model, ctx, "app", `main.${ctx.ext.script}`),
+    );
     const cls = demoClasses(model);
     model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model));
     model.files.set(`src/main.${ctx.ext.script}`, mainEntry(model));

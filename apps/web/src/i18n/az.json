@@ -51,5 +51,8 @@
   "framework.kind.meta": "Meta-framework",
   "reason.framework-soon": "{framework} generatoru Faza {phase}-də əlavə olunacaq.",
   "preview.files": "{count} fayl",
-  "hint.svelteRouting": "Routing lazımdırsa SvelteKit seç: orada fayl əsaslı routing daxilidir."
+  "hint.svelteRouting": "Routing lazımdırsa SvelteKit seç: orada fayl əsaslı routing daxilidir.",
+  "reason.missing-one-of": "{module} üçün əvvəlcə bunlardan birini seç: {options}.",
+  "category.seo": "SEO və AI görünürlüyü",
+  "category.tooling": "Alətlər"
 }

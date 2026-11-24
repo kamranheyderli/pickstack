@@ -77,7 +77,11 @@ export function validate(
     }
   }
 
-  errors.push(...conflictErrors(modules), ...singleCategoryErrors(modules));
+  errors.push(
+    ...conflictErrors(modules),
+    ...singleCategoryErrors(modules),
+    ...oneOfErrors(modules),
+  );
 
   return errors.length
     ? { ok: false, errors }
@@ -99,6 +103,19 @@ function conflictErrors(modules: Module[]): ValidationError[] {
     }
   }
   return errors;
+}
+
+function oneOfErrors(modules: Module[]): ValidationError[] {
+  const ids = new Set(modules.map((m) => m.id));
+  return modules
+    .filter(
+      (m) => m.requiresOneOf && !m.requiresOneOf.some((id) => ids.has(id)),
+    )
+    .map((m) => ({
+      code: "missing-one-of" as const,
+      moduleId: m.id,
+      message: `${m.name} needs one of: ${(m.requiresOneOf ?? []).join(", ")}.`,
+    }));
 }
 
 function singleCategoryErrors(modules: Module[]): ValidationError[] {

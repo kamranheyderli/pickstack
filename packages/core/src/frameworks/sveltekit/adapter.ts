@@ -130,14 +130,40 @@ export const sveltekitAdapter: FrameworkAdapter = {
         [
           { from: "./layout.css" },
           { from: "$app/paths", named: ["resolve"] },
+          ...(model.seo
+            ? [
+                { from: "$app/env/public", named: ["SITE_URL"] },
+                { from: "$app/state", named: ["page"] },
+              ]
+            : []),
           ...(ctx.isTs ? [{ from: "./$types", types: ["LayoutProps"] }] : []),
         ],
         [
           ctx.isTs
             ? "let { children }: LayoutProps = $props();"
             : "let { children } = $props();",
+          ...(model.seo
+            ? [
+                "",
+                `const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: "${ctx.selection.name}", url: SITE_URL });`,
+              ]
+            : []),
         ],
         [
+          ...(model.seo
+            ? [
+                "<svelte:head>",
+                `  <meta name="description" content="${model.seo.description}" />`,
+                '  <link rel="canonical" href={SITE_URL + page.url.pathname} />',
+                '  <meta property="og:type" content="website" />',
+                `  <meta property="og:site_name" content="${ctx.selection.name}" />`,
+                '  <meta property="og:url" content={SITE_URL + page.url.pathname} />',
+                '  <meta name="twitter:card" content="summary" />',
+                '  {@html `<script type="application/ld+json">${jsonLd}</script>`}',
+                "</svelte:head>",
+                "",
+              ]
+            : []),
           `<main class="${cls.main}">`,
           `  <nav class="${cls.nav}">`,
           `    <a class="${cls.link}" href={resolve("/")}>Home</a>`,
@@ -150,11 +176,22 @@ export const sveltekitAdapter: FrameworkAdapter = {
     );
     model.files.set(
       "src/routes/+page.svelte",
-      svelteHome(ctx, cls, "#lib/Counter.svelte", "section"),
+      svelteHome(
+        ctx,
+        cls,
+        "#lib/Counter.svelte",
+        "section",
+        model.seo ? `Home | ${ctx.selection.name}` : undefined,
+      ),
     );
     model.files.set(
       "src/routes/about/+page.svelte",
-      svelteAbout(model, ctx, cls),
+      svelteAbout(
+        model,
+        ctx,
+        cls,
+        model.seo ? `About | ${ctx.selection.name}` : undefined,
+      ),
     );
   },
 };

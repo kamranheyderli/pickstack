@@ -8,8 +8,8 @@ import type {
 } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";
 import { viteEnv } from "../shared/env";
+import { spaIndexHtml } from "../shared/index-html";
 import { plainViteConfig, wrapProviders, writeJsxDemo } from "../shared/jsx";
-import indexHtml from "../shared/templates/index-html";
 import { writeViteTsconfigs } from "../shared/vite-ts";
 
 const localCounter: CounterSpec = {
@@ -54,14 +54,6 @@ export const preactAdapter: FrameworkAdapter = {
       import: { from: "@preact/preset-vite", default: "preact" },
       call: "preact()",
     });
-    model.files.set(
-      "index.html",
-      fill(indexHtml, {
-        name: ctx.selection.name,
-        mountId: "app",
-        entry: `main.${ctx.ext.component}`,
-      }),
-    );
     model.readme.stack.push(
       "Preact",
       "Vite",
@@ -71,6 +63,10 @@ export const preactAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    model.files.set(
+      "index.html",
+      spaIndexHtml(model, ctx, "app", `main.${ctx.ext.component}`),
+    );
     model.files.set(`vite.config.${ctx.ext.script}`, plainViteConfig(model));
     model.files.set(`src/main.${ctx.ext.component}`, entry(model, ctx));
     model.files.set("src/index.css", globalCss(model));

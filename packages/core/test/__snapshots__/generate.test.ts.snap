@@ -35,7 +35,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Prettier.
+Stack: Angular 22, TypeScript, Tailwind CSS, Angular signals service, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -56,6 +56,10 @@ npm run dev
 ## API client
 
 Set \`apiUrl\` in \`src/environments/environment.ts\`. Import the client from \`src/app/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -177,8 +181,39 @@ git push -u origin main
   }
 }
 ",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
   "public/robots.txt": "User-agent: *
-Disallow:
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+</urlset>
 ",
   "src/app/api/client.ts": "import axios from "axios";
 import { environment } from "../../environments/environment";
@@ -213,9 +248,10 @@ export const appConfig: ApplicationConfig = {
 import { Home } from "./pages/home/home";
 
 export const routes: Routes = [
-  { path: "", component: Home },
+  { path: "", component: Home, title: "my-app" },
   {
     path: "about",
+    title: "About | my-app",
     loadComponent: () => import("./pages/about/about").then((m) => m.About),
   },
 ];
@@ -267,7 +303,7 @@ export class Counter {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Tailwind CSS, Angular signals service,
-    Axios, Prettier.
+    Axios, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -321,6 +357,22 @@ export class CounterService {
     <title>my-app</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <app-root></app-root>
@@ -795,7 +847,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, Tailwind CSS, Axios, Prettier.
+Stack: Astro, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -816,6 +868,10 @@ npm run dev
 
 Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
 
+## SEO
+
+Set \`SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -830,11 +886,14 @@ git push -u origin main
 \`\`\`
 ",
   "astro.config.mjs": "// @ts-check
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  site: process.env.SITE_URL ?? "https://example.com",
+  integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
@@ -854,6 +913,7 @@ export default defineConfig({
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.6",
     "astro": "^7.4.13",
     "axios": "^1.21.1"
   },
@@ -917,6 +977,13 @@ export const api = axios.create({
 import "../styles/global.css";
 
 const { title } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "my-app",
+  url: Astro.site?.href,
+});
 ---
 
 <html lang="en">
@@ -925,6 +992,14 @@ const { title } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={jsonLd} />
   </head>
   <body>
     <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
@@ -949,7 +1024,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Tailwind CSS, Axios, Prettier.
+      Built with Astro, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -965,6 +1040,42 @@ import Layout from "../layouts/Layout.astro";
     <Counter />
   </section>
 </Layout>
+",
+  "src/pages/llms.txt.js": "export const GET = ({ site }) => {
+  const siteUrl = (site?.href ?? "/").replace(/\\/$/, "");
+  return new Response(\`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${siteUrl}/)
+- [About](\${siteUrl}/about)
+
+## Optional
+
+- [Sitemap](\${siteUrl}/sitemap.xml)
+\`);
+};
+",
+  "src/pages/robots.txt.js": "export const GET = ({ site }) => {
+  const siteUrl = (site?.href ?? "/").replace(/\\/$/, "");
+  return new Response(\`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: \${siteUrl}/sitemap-index.xml
+\`);
+};
 ",
   "src/styles/global.css": "@import "tailwindcss";
 ",
@@ -1009,7 +1120,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Astro, TypeScript, Tailwind CSS, Axios, Prettier.
+Stack: Astro, TypeScript, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -1031,6 +1142,10 @@ npm run dev
 
 Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
 
+## SEO
+
+Set \`SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -1045,11 +1160,14 @@ git push -u origin main
 \`\`\`
 ",
   "astro.config.mjs": "// @ts-check
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  site: process.env.SITE_URL ?? "https://example.com",
+  integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
@@ -1070,6 +1188,7 @@ export default defineConfig({
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.6",
     "astro": "^7.4.13",
     "axios": "^1.21.1"
   },
@@ -1139,6 +1258,13 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "my-app",
+  url: Astro.site?.href,
+});
 ---
 
 <html lang="en">
@@ -1147,6 +1273,14 @@ const { title } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={jsonLd} />
   </head>
   <body>
     <main class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
@@ -1171,7 +1305,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Tailwind CSS, Axios, Prettier.
+      Built with Astro, TypeScript, Tailwind CSS, Axios, Prettier, SEO, llms.txt.
     </p>
   </section>
 </Layout>
@@ -1187,6 +1321,46 @@ import Layout from "../layouts/Layout.astro";
     <Counter />
   </section>
 </Layout>
+",
+  "src/pages/llms.txt.ts": "import type { APIRoute } from "astro";
+
+export const GET: APIRoute = ({ site }) => {
+  const siteUrl = (site?.href ?? "/").replace(/\\/$/, "");
+  return new Response(\`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${siteUrl}/)
+- [About](\${siteUrl}/about)
+
+## Optional
+
+- [Sitemap](\${siteUrl}/sitemap.xml)
+\`);
+};
+",
+  "src/pages/robots.txt.ts": "import type { APIRoute } from "astro";
+
+export const GET: APIRoute = ({ site }) => {
+  const siteUrl = (site?.href ?? "/").replace(/\\/$/, "");
+  return new Response(\`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: \${siteUrl}/sitemap-index.xml
+\`);
+};
 ",
   "src/styles/global.css": "@import "tailwindcss";
 ",
@@ -1726,7 +1900,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Prettier.
+Stack: Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -1745,6 +1919,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## SEO
+
+Set \`NEXT_PUBLIC_SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
 
 ## Push to GitHub
 
@@ -1777,13 +1955,19 @@ export default function StoreProvider({ children }) {
   return <Provider store={store}>{children}</Provider>;
 }
 ",
-  "app/about/page.jsx": "export default function About() {
+  "app/about/page.jsx": "export const metadata = {
+  title: "About",
+  alternates: { canonical: "/about" },
+  openGraph: { url: "/about" },
+};
+
+export default function About() {
   return (
     <section className="flex flex-col items-center gap-6">
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, Tailwind CSS, Redux Toolkit,
-        Axios, Prettier.
+        Axios, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -1791,19 +1975,37 @@ export default function StoreProvider({ children }) {
 ",
   "app/globals.css": "@import "tailwindcss";
 ",
-  "app/layout.jsx": "import Link from "next/link";
+  "app/layout.jsx": "import { siteDescription, siteName, siteUrl } from "@/lib/site";
+import Link from "next/link";
 import StoreProvider from "./StoreProvider";
 import "./globals.css";
 
 export const metadata = {
-  title: "my-app",
-  description: "Generated by StackForge",
+  metadataBase: new URL(siteUrl),
+  title: { default: siteName, template: \`%s | \${siteName}\` },
+  description: siteDescription,
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", siteName },
+  twitter: { card: "summary" },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteName,
+  url: siteUrl,
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <StoreProvider>
           <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
             <nav className="flex gap-4 text-sm font-medium">
@@ -1825,6 +2027,29 @@ export default function RootLayout({ children }) {
   );
 }
 ",
+  "app/llms.txt/route.js": "import { siteUrl } from "@/lib/site";
+
+export const dynamic = "force-static";
+
+export function GET() {
+  const body = \`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${siteUrl}/)
+- [About](\${siteUrl}/about)
+
+## Optional
+
+- [Sitemap](\${siteUrl}/sitemap.xml)
+\`;
+  return new Response(body, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+",
   "app/page.jsx": "import Counter from "@/components/Counter";
 
 export default function Home() {
@@ -1834,6 +2059,39 @@ export default function Home() {
       <Counter />
     </section>
   );
+}
+",
+  "app/robots.js": "import { siteUrl } from "@/lib/site";
+
+export default function robots() {
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        other: { "Content-Signal": "search=yes, ai-input=yes, ai-train=no" },
+      },
+      {
+        userAgent: [
+          "GPTBot",
+          "ClaudeBot",
+          "Google-Extended",
+          "Applebot-Extended",
+          "meta-externalagent",
+          "CCBot",
+          "Bytespider",
+        ],
+        disallow: "/",
+      },
+    ],
+    sitemap: \`\${siteUrl}/sitemap.xml\`,
+  };
+}
+",
+  "app/sitemap.js": "import { siteUrl } from "@/lib/site";
+
+export default function sitemap() {
+  return [{ url: \`\${siteUrl}/\` }, { url: \`\${siteUrl}/about\` }];
 }
 ",
   "components/Counter.jsx": ""use client";
@@ -1893,6 +2151,11 @@ const counterSlice = createSlice({
 
 export const { increment, decrement } = counterSlice.actions;
 export default counterSlice.reducer;
+",
+  "lib/site.js": "export const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
+export const siteName = "my-app";
+export const siteDescription = "my-app: a web app.";
 ",
   "lib/store.js": "import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from "./counterSlice";
@@ -1976,7 +2239,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Prettier.
+Stack: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Redux Toolkit, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -1996,6 +2259,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## SEO
+
+Set \`NEXT_PUBLIC_SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
 
 ## Push to GitHub
 
@@ -2028,13 +2295,21 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
   return <Provider store={store}>{children}</Provider>;
 }
 ",
-  "app/about/page.tsx": "export default function About() {
+  "app/about/page.tsx": "import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About",
+  alternates: { canonical: "/about" },
+  openGraph: { url: "/about" },
+};
+
+export default function About() {
   return (
     <section className="flex flex-col items-center gap-6">
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, TypeScript, Tailwind CSS,
-        Redux Toolkit, Axios, Prettier.
+        Redux Toolkit, Axios, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -2042,20 +2317,38 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
 ",
   "app/globals.css": "@import "tailwindcss";
 ",
-  "app/layout.tsx": "import type { Metadata } from "next";
+  "app/layout.tsx": "import { siteDescription, siteName, siteUrl } from "@/lib/site";
+import type { Metadata } from "next";
 import Link from "next/link";
 import StoreProvider from "./StoreProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "my-app",
-  description: "Generated by StackForge",
+  metadataBase: new URL(siteUrl),
+  title: { default: siteName, template: \`%s | \${siteName}\` },
+  description: siteDescription,
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", siteName },
+  twitter: { card: "summary" },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteName,
+  url: siteUrl,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <StoreProvider>
           <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900">
             <nav className="flex gap-4 text-sm font-medium">
@@ -2077,6 +2370,29 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   );
 }
 ",
+  "app/llms.txt/route.ts": "import { siteUrl } from "@/lib/site";
+
+export const dynamic = "force-static";
+
+export function GET() {
+  const body = \`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${siteUrl}/)
+- [About](\${siteUrl}/about)
+
+## Optional
+
+- [Sitemap](\${siteUrl}/sitemap.xml)
+\`;
+  return new Response(body, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+",
   "app/page.tsx": "import Counter from "@/components/Counter";
 
 export default function Home() {
@@ -2086,6 +2402,41 @@ export default function Home() {
       <Counter />
     </section>
   );
+}
+",
+  "app/robots.ts": "import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/site";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        other: { "Content-Signal": "search=yes, ai-input=yes, ai-train=no" },
+      },
+      {
+        userAgent: [
+          "GPTBot",
+          "ClaudeBot",
+          "Google-Extended",
+          "Applebot-Extended",
+          "meta-externalagent",
+          "CCBot",
+          "Bytespider",
+        ],
+        disallow: "/",
+      },
+    ],
+    sitemap: \`\${siteUrl}/sitemap.xml\`,
+  };
+}
+",
+  "app/sitemap.ts": "import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/site";
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [{ url: \`\${siteUrl}/\` }, { url: \`\${siteUrl}/about\` }];
 }
 ",
   "components/Counter.tsx": ""use client";
@@ -2147,6 +2498,11 @@ import type { AppDispatch, RootState } from "./store";
 
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
+",
+  "lib/site.ts": "export const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
+export const siteName = "my-app";
+export const siteDescription = "my-app: a web app.";
 ",
   "lib/store.ts": "import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from "./counterSlice";
@@ -2785,7 +3141,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier.
+Stack: Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -2807,6 +3163,10 @@ npm run dev
 
 Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
 
+## SEO
+
+Set \`NUXT_PUBLIC_SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -2820,7 +3180,35 @@ git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
 ",
-  "app/app.vue": "<template>
+  "app/app.vue": "<script setup>
+const { siteUrl } = useRuntimeConfig().public;
+const route = useRoute();
+
+useHead({
+  link: [{ rel: "canonical", href: () => \`\${siteUrl}\${route.path}\` }],
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "my-app",
+        url: siteUrl,
+      }),
+    },
+  ],
+});
+
+useSeoMeta({
+  description: "my-app: a web app.",
+  ogType: "website",
+  ogSiteName: "my-app",
+  ogUrl: () => \`\${siteUrl}\${route.path}\`,
+  twitterCard: "summary",
+});
+</script>
+
+<template>
   <NuxtRouteAnnouncer />
   <main
     class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
@@ -2869,16 +3257,25 @@ const counter = useCounterStore();
   </div>
 </template>
 ",
-  "app/pages/about.vue": "<template>
+  "app/pages/about.vue": "<script setup>
+useSeoMeta({ title: "About" });
+</script>
+
+<template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier.
+      Built with Nuxt 4, Vue 3, Tailwind CSS, Pinia, Axios, Prettier, SEO,
+      llms.txt.
     </p>
   </section>
 </template>
 ",
-  "app/pages/index.vue": "<template>
+  "app/pages/index.vue": "<script setup>
+useSeoMeta({ title: "Home" });
+</script>
+
+<template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <CounterCard />
@@ -2923,7 +3320,13 @@ export default defineNuxtConfig({
   modules: ["@pinia/nuxt"],
   css: ["~/assets/css/main.css"],
   vite: { plugins: [tailwindcss()] },
-  runtimeConfig: { public: { apiUrl: "http://localhost:3000" } },
+  runtimeConfig: {
+    public: { apiUrl: "http://localhost:3000", siteUrl: "https://example.com" },
+  },
+  app: { head: { htmlAttrs: { lang: "en" }, titleTemplate: "%s | my-app" } },
+  nitro: {
+    prerender: { routes: ["/robots.txt", "/sitemap.xml", "/llms.txt"] },
+  },
 });
 ",
   "package.json": "{
@@ -2959,6 +3362,59 @@ export default defineNuxtConfig({
   "public/robots.txt": "User-Agent: *
 Disallow:
 ",
+  "server/routes/llms.txt.js": "export default defineEventHandler((event) => {
+  const { siteUrl } = useRuntimeConfig(event).public;
+  setHeader(event, "Content-Type", "text/plain; charset=utf-8");
+  return \`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${siteUrl}/)
+- [About](\${siteUrl}/about)
+
+## Optional
+
+- [Sitemap](\${siteUrl}/sitemap.xml)
+\`;
+});
+",
+  "server/routes/robots.txt.js": "export default defineEventHandler((event) => {
+  const { siteUrl } = useRuntimeConfig(event).public;
+  setHeader(event, "Content-Type", "text/plain; charset=utf-8");
+  return \`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: \${siteUrl}/sitemap.xml
+\`;
+});
+",
+  "server/routes/sitemap.xml.js": "export default defineEventHandler((event) => {
+  const { siteUrl } = useRuntimeConfig(event).public;
+  setHeader(event, "Content-Type", "application/xml; charset=utf-8");
+  return \`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>\${siteUrl}/</loc>
+  </url>
+  <url>
+    <loc>\${siteUrl}/about</loc>
+  </url>
+</urlset>
+\`;
+});
+",
 }
 `;
 
@@ -2992,7 +3448,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Prettier.
+Stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3015,6 +3471,10 @@ npm run dev
 
 Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
 
+## SEO
+
+Set \`NUXT_PUBLIC_SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -3028,7 +3488,35 @@ git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
 ",
-  "app/app.vue": "<template>
+  "app/app.vue": "<script setup lang="ts">
+const { siteUrl } = useRuntimeConfig().public;
+const route = useRoute();
+
+useHead({
+  link: [{ rel: "canonical", href: () => \`\${siteUrl}\${route.path}\` }],
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "my-app",
+        url: siteUrl,
+      }),
+    },
+  ],
+});
+
+useSeoMeta({
+  description: "my-app: a web app.",
+  ogType: "website",
+  ogSiteName: "my-app",
+  ogUrl: () => \`\${siteUrl}\${route.path}\`,
+  twitterCard: "summary",
+});
+</script>
+
+<template>
   <NuxtRouteAnnouncer />
   <main
     class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
@@ -3077,17 +3565,25 @@ const counter = useCounterStore();
   </div>
 </template>
 ",
-  "app/pages/about.vue": "<template>
+  "app/pages/about.vue": "<script setup lang="ts">
+useSeoMeta({ title: "About" });
+</script>
+
+<template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Pinia, Axios,
-      Prettier.
+      Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>
 ",
-  "app/pages/index.vue": "<template>
+  "app/pages/index.vue": "<script setup lang="ts">
+useSeoMeta({ title: "Home" });
+</script>
+
+<template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <CounterCard />
@@ -3132,7 +3628,13 @@ export default defineNuxtConfig({
   modules: ["@pinia/nuxt"],
   css: ["~/assets/css/main.css"],
   vite: { plugins: [tailwindcss()] },
-  runtimeConfig: { public: { apiUrl: "http://localhost:3000" } },
+  runtimeConfig: {
+    public: { apiUrl: "http://localhost:3000", siteUrl: "https://example.com" },
+  },
+  app: { head: { htmlAttrs: { lang: "en" }, titleTemplate: "%s | my-app" } },
+  nitro: {
+    prerender: { routes: ["/robots.txt", "/sitemap.xml", "/llms.txt"] },
+  },
 });
 ",
   "package.json": "{
@@ -3170,6 +3672,59 @@ export default defineNuxtConfig({
 ",
   "public/robots.txt": "User-Agent: *
 Disallow:
+",
+  "server/routes/llms.txt.ts": "export default defineEventHandler((event) => {
+  const { siteUrl } = useRuntimeConfig(event).public;
+  setHeader(event, "Content-Type", "text/plain; charset=utf-8");
+  return \`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${siteUrl}/)
+- [About](\${siteUrl}/about)
+
+## Optional
+
+- [Sitemap](\${siteUrl}/sitemap.xml)
+\`;
+});
+",
+  "server/routes/robots.txt.ts": "export default defineEventHandler((event) => {
+  const { siteUrl } = useRuntimeConfig(event).public;
+  setHeader(event, "Content-Type", "text/plain; charset=utf-8");
+  return \`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: \${siteUrl}/sitemap.xml
+\`;
+});
+",
+  "server/routes/sitemap.xml.ts": "export default defineEventHandler((event) => {
+  const { siteUrl } = useRuntimeConfig(event).public;
+  setHeader(event, "Content-Type", "application/xml; charset=utf-8");
+  return \`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>\${siteUrl}/</loc>
+  </url>
+  <url>
+    <loc>\${siteUrl}/about</loc>
+  </url>
+</urlset>
+\`;
+});
 ",
   "tsconfig.json": "{
   "files": [],
@@ -3651,7 +4206,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier.
+Stack: Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3670,6 +4225,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -3690,6 +4249,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
@@ -3723,6 +4298,44 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.jsx": "import { Route, Router } from "preact-iso";
 import About from "./pages/About";
@@ -3799,7 +4412,8 @@ render(
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
-        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier.
+        Built with Preact, Vite, Tailwind CSS, preact-iso, Axios, Prettier, SEO,
+        llms.txt.
       </p>
     </section>
   );
@@ -3847,7 +4461,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Prettier.
+Stack: Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -3868,6 +4482,10 @@ npm run dev
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
 
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -3887,6 +4505,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
@@ -3923,6 +4557,44 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.tsx": "import { Route, Router } from "preact-iso";
 import About from "./pages/About";
@@ -4000,7 +4672,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Tailwind CSS, preact-iso, Axios,
-        Prettier.
+        Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -4609,7 +5281,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, Prettier.
+Stack: React 19, Vite, Tailwind CSS, Redux Toolkit, React Router, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -4628,6 +5300,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -4648,6 +5324,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -4683,6 +5375,44 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.jsx": "import { Link, Route, Routes } from "react-router";
 import About from "./pages/About";
@@ -4768,7 +5498,7 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Tailwind CSS, Redux Toolkit, React Router,
-        Axios, Prettier.
+        Axios, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -4845,7 +5575,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, Prettier.
+Stack: React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit, React Router, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -4866,6 +5596,10 @@ npm run dev
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
 
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -4885,6 +5619,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -4924,6 +5674,44 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.tsx": "import { Link, Route, Routes } from "react-router";
 import About from "./pages/About";
@@ -5009,7 +5797,7 @@ createRoot(document.getElementById("root")!).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Tailwind CSS, Redux Toolkit,
-        React Router, Axios, Prettier.
+        React Router, Axios, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -5562,7 +6350,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier.
+Stack: SolidJS, Vite, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -5581,6 +6369,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -5601,6 +6393,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -5633,6 +6441,44 @@ git push -u origin main
     "vite-plugin-solid": "^2.11.17"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.jsx": "import { A } from "@solidjs/router";
 
@@ -5711,7 +6557,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, Prettier.
+        Router, Axios, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -5773,7 +6619,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier.
+Stack: SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store, Solid Router, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -5794,6 +6640,10 @@ npm run dev
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
 
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -5813,6 +6663,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -5848,6 +6714,44 @@ git push -u origin main
     "vite-plugin-solid": "^2.11.17"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.tsx": "import { A } from "@solidjs/router";
 import type { RouteSectionProps } from "@solidjs/router";
@@ -5927,7 +6831,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Tailwind CSS, Solid signals store,
-        Solid Router, Axios, Prettier.
+        Solid Router, Axios, Prettier, SEO, llms.txt.
       </p>
     </section>
   );
@@ -6533,7 +7437,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Prettier.
+Stack: Svelte 5, Vite, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -6552,6 +7456,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -6572,6 +7480,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
@@ -6621,6 +7545,40 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+</urlset>
 ",
   "src/App.svelte": "<script>
   import Counter from "./lib/Counter.svelte";
@@ -6732,7 +7690,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier.
+Stack: Svelte 5, Vite, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -6753,6 +7711,10 @@ npm run dev
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
 
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
+
 ## Push to GitHub
 
 Create an empty repository on GitHub, then:
@@ -6772,6 +7734,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
@@ -6809,6 +7787,40 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+</urlset>
 ",
   "src/App.svelte": "<script lang="ts">
   import Counter from "./lib/Counter.svelte";
@@ -7445,7 +8457,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Prettier.
+Stack: SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -7465,6 +8477,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Set \`SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
 
 ## Push to GitHub
 
@@ -7539,6 +8555,17 @@ export const api = axios.create({
   </body>
 </html>
 ",
+  "src/env.js": "import { defineEnvVars } from "@sveltejs/kit/env";
+
+export const variables = defineEnvVars({
+  SITE_URL: {
+    public: true,
+    static: true,
+    description: "Public origin of the site, without trailing slash",
+    schema: (value) => value ?? "https://example.com",
+  },
+});
+",
   "src/lib/Counter.svelte": "<script>
   import { counter, decrement, increment } from "./counterStore.svelte.js";
 </script>
@@ -7580,11 +8607,30 @@ export function decrement() {
   "src/routes/+layout.js": "export const prerender = true;
 ",
   "src/routes/+layout.svelte": "<script>
+  import { SITE_URL } from "$app/env/public";
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
   import "./layout.css";
 
   let { children } = $props();
+
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "my-app",
+    url: SITE_URL,
+  });
 </script>
+
+<svelte:head>
+  <meta name="description" content="my-app: a web app." />
+  <link rel="canonical" href={SITE_URL + page.url.pathname} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="my-app" />
+  <meta property="og:url" content={SITE_URL + page.url.pathname} />
+  <meta name="twitter:card" content="summary" />
+  {@html \`<script type="application/ld+json">\${jsonLd}</script>\`}
+</svelte:head>
 
 <main
   class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
@@ -7602,24 +8648,90 @@ export function decrement() {
   import Counter from "#lib/Counter.svelte";
 </script>
 
+<svelte:head>
+  <title>Home | my-app</title>
+</svelte:head>
+
 <section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
   <Counter />
 </section>
 ",
-  "src/routes/about/+page.svelte": "<section class="flex flex-col items-center gap-6">
+  "src/routes/about/+page.svelte": "<svelte:head>
+  <title>About | my-app</title>
+</svelte:head>
+
+<section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, Tailwind CSS, Svelte runes store, Axios,
-    Prettier.
+    Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
   "src/routes/layout.css": "@import "tailwindcss";
 ",
-  "static/robots.txt": "# allow crawling everything by default
-User-agent: *
-Disallow:
+  "src/routes/llms.txt/+server.js": "import { SITE_URL } from "$app/env/public";
+
+export const prerender = true;
+
+export function GET() {
+  const body = \`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${SITE_URL}/)
+- [About](\${SITE_URL}/about)
+
+## Optional
+
+- [Sitemap](\${SITE_URL}/sitemap.xml)
+\`;
+  return new Response(body, { headers: { "Content-Type": "text/plain" } });
+}
+",
+  "src/routes/robots.txt/+server.js": "import { SITE_URL } from "$app/env/public";
+
+export const prerender = true;
+
+export function GET() {
+  const body = \`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: \${SITE_URL}/sitemap.xml
+\`;
+  return new Response(body, { headers: { "Content-Type": "text/plain" } });
+}
+",
+  "src/routes/sitemap.xml/+server.js": "import { SITE_URL } from "$app/env/public";
+
+export const prerender = true;
+
+export function GET() {
+  const body = \`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>\${SITE_URL}/</loc>
+  </url>
+  <url>
+    <loc>\${SITE_URL}/about</loc>
+  </url>
+</urlset>
+\`;
+  return new Response(body, { headers: { "Content-Type": "application/xml" } });
+}
 ",
   "vite.config.js": "import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
@@ -7677,7 +8789,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier.
+Stack: SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes store, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -7698,6 +8810,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Set \`SITE_URL\` to your public origin (defaults to \`https://example.com\`). It is used for canonical URLs, the sitemap, robots.txt and llms.txt.
 
 ## Push to GitHub
 
@@ -7780,6 +8896,17 @@ export {};
   </body>
 </html>
 ",
+  "src/env.ts": "import { defineEnvVars } from "@sveltejs/kit/env";
+
+export const variables = defineEnvVars({
+  SITE_URL: {
+    public: true,
+    static: true,
+    description: "Public origin of the site, without trailing slash",
+    schema: (value) => value ?? "https://example.com",
+  },
+});
+",
   "src/lib/Counter.svelte": "<script lang="ts">
   import { counter, decrement, increment } from "./counterStore.svelte.js";
 </script>
@@ -7819,12 +8946,31 @@ export function decrement() {
   "src/lib/index.ts": "// Place files you want to import through the \`#lib\` alias in this folder.
 ",
   "src/routes/+layout.svelte": "<script lang="ts">
+  import { SITE_URL } from "$app/env/public";
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
   import type { LayoutProps } from "./$types";
   import "./layout.css";
 
   let { children }: LayoutProps = $props();
+
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "my-app",
+    url: SITE_URL,
+  });
 </script>
+
+<svelte:head>
+  <meta name="description" content="my-app: a web app." />
+  <link rel="canonical" href={SITE_URL + page.url.pathname} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="my-app" />
+  <meta property="og:url" content={SITE_URL + page.url.pathname} />
+  <meta name="twitter:card" content="summary" />
+  {@html \`<script type="application/ld+json">\${jsonLd}</script>\`}
+</svelte:head>
 
 <main
   class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
@@ -7844,24 +8990,90 @@ export function decrement() {
   import Counter from "#lib/Counter.svelte";
 </script>
 
+<svelte:head>
+  <title>Home | my-app</title>
+</svelte:head>
+
 <section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
   <Counter />
 </section>
 ",
-  "src/routes/about/+page.svelte": "<section class="flex flex-col items-center gap-6">
+  "src/routes/about/+page.svelte": "<svelte:head>
+  <title>About | my-app</title>
+</svelte:head>
+
+<section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, TypeScript, Tailwind CSS, Svelte runes
-    store, Axios, Prettier.
+    store, Axios, Prettier, SEO, llms.txt.
   </p>
 </section>
 ",
   "src/routes/layout.css": "@import "tailwindcss";
 ",
-  "static/robots.txt": "# allow crawling everything by default
-User-agent: *
-Disallow:
+  "src/routes/llms.txt/+server.ts": "import { SITE_URL } from "$app/env/public";
+
+export const prerender = true;
+
+export function GET() {
+  const body = \`# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](\${SITE_URL}/)
+- [About](\${SITE_URL}/about)
+
+## Optional
+
+- [Sitemap](\${SITE_URL}/sitemap.xml)
+\`;
+  return new Response(body, { headers: { "Content-Type": "text/plain" } });
+}
+",
+  "src/routes/robots.txt/+server.ts": "import { SITE_URL } from "$app/env/public";
+
+export const prerender = true;
+
+export function GET() {
+  const body = \`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: \${SITE_URL}/sitemap.xml
+\`;
+  return new Response(body, { headers: { "Content-Type": "text/plain" } });
+}
+",
+  "src/routes/sitemap.xml/+server.ts": "import { SITE_URL } from "$app/env/public";
+
+export const prerender = true;
+
+export function GET() {
+  const body = \`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>\${SITE_URL}/</loc>
+  </url>
+  <url>
+    <loc>\${SITE_URL}/about</loc>
+  </url>
+</urlset>
+\`;
+  return new Response(body, { headers: { "Content-Type": "application/xml" } });
+}
 ",
   "tsconfig.json": "{
   "extends": "$app/tsconfig",
@@ -8417,7 +9629,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier.
+Stack: Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -8436,6 +9648,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -8456,6 +9672,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
@@ -8499,6 +9731,44 @@ git push -u origin main
     "vite": "^8.3.8"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.vue": "<script setup>
 import { RouterLink, RouterView } from "vue-router";
@@ -8614,7 +9884,8 @@ export const useCounterStore = defineStore("counter", () => {
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier.
+      Built with Vue 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios, Prettier,
+      SEO, llms.txt.
     </p>
   </section>
 </template>
@@ -8667,7 +9938,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Prettier.
+Stack: Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router, Axios, Prettier, SEO, llms.txt.
 
 ## Getting started
 
@@ -8687,6 +9958,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## SEO
+
+Replace \`https://example.com\` in \`index.html\` and \`public/\` with your domain. This is a client-rendered app: crawlers that do not run JavaScript (social previews, most AI crawlers) only see the static tags in \`index.html\`. For per-page SEO use a meta-framework (Next.js, Nuxt, SvelteKit, Astro).
 
 ## Push to GitHub
 
@@ -8709,6 +9984,22 @@ git push -u origin main
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>my-app</title>
+    <meta name="description" content="my-app: a web app." />
+    <link rel="canonical" href="https://example.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="my-app" />
+    <meta property="og:title" content="my-app" />
+    <meta property="og:description" content="my-app: a web app." />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "my-app",
+        "url": "https://example.com/"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
@@ -8749,6 +10040,44 @@ git push -u origin main
     "vue-tsc": "^3.3.14"
   }
 }
+",
+  "public/llms.txt": "# my-app
+
+> my-app: a web app.
+
+## Pages
+
+- [Home](https://example.com/)
+- [About](https://example.com/about)
+
+## Optional
+
+- [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/robots.txt": "User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+",
+  "public/sitemap.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+  </url>
+</urlset>
 ",
   "src/App.vue": "<script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
@@ -8865,7 +10194,7 @@ export const useCounterStore = defineStore("counter", () => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Tailwind CSS, Pinia, Vue Router,
-      Axios, Prettier.
+      Axios, Prettier, SEO, llms.txt.
     </p>
   </section>
 </template>

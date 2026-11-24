@@ -3,12 +3,12 @@ import { createModel } from "../../engine/model";
 import type { FrameworkAdapter, ProjectModel } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";
 import { viteEnv } from "../shared/env";
+import { spaIndexHtml } from "../shared/index-html";
 import {
   localSvelteCounter,
   svelteCounter,
   svelteHome,
 } from "../shared/svelte";
-import indexHtml from "../shared/templates/index-html";
 
 /**
  * Svelte 5 SPA on Vite, following create-vite's `svelte` / `svelte-ts` templates.
@@ -76,14 +76,6 @@ export const svelteAdapter: FrameworkAdapter = {
       import: { from: "@sveltejs/vite-plugin-svelte", named: ["svelte"] },
       call: "svelte()",
     });
-    model.files.set(
-      "index.html",
-      fill(indexHtml, {
-        name: ctx.selection.name,
-        mountId: "app",
-        entry: `main.${ctx.ext.script}`,
-      }),
-    );
     model.readme.stack.push(
       "Svelte 5",
       "Vite",
@@ -93,6 +85,10 @@ export const svelteAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    model.files.set(
+      "index.html",
+      spaIndexHtml(model, ctx, "app", `main.${ctx.ext.script}`),
+    );
     const cls = demoClasses(model);
     const plugins = model.bundler.plugins;
     model.files.set(

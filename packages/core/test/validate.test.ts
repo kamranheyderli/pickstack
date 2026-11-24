@@ -180,3 +180,28 @@ describe("toProjectName", () => {
     expect(toProjectName("***")).toBe("my-app");
   });
 });
+
+describe("requiresOneOf", () => {
+  const mods = [
+    fakeModule({ id: "hooks", requiresOneOf: ["lint", "fmt"] }),
+    fakeModule({ id: "lint" }),
+    fakeModule({ id: "fmt" }),
+  ];
+  const lookup = (id: string) => mods.find((m) => m.id === id);
+
+  it("fails when none of the alternatives is selected", () => {
+    const result = validate(selection({ modules: ["hooks"] }), lookup);
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors[0]).toMatchObject({
+        code: "missing-one-of",
+        moduleId: "hooks",
+      });
+  });
+
+  it("passes with any one of them", () => {
+    expect(validate(selection({ modules: ["hooks", "fmt"] }), lookup).ok).toBe(
+      true,
+    );
+  });
+});

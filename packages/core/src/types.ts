@@ -21,13 +21,17 @@ export type Category =
   | "data"
   | "forms"
   | "testing"
-  | "quality";
+  | "quality"
+  | "seo"
+  | "tooling";
 
 export interface Selection {
   name: string;
   framework: FrameworkId;
   language: Language;
   packageManager: PackageManager;
+  /** Public origin used for canonical URLs, sitemaps and llms.txt (default https://example.com). */
+  siteUrl?: string;
   /** Module ids picked by the user. Required modules are added by `resolve`. */
   modules: string[];
 }
@@ -117,6 +121,13 @@ export interface RoutingSpec {
   };
 }
 
+export interface SeoSpec {
+  siteUrl: string;
+  description: string;
+  /** AI crawler rules in robots.txt and an llms.txt file. */
+  ai: boolean;
+}
+
 export interface ProjectModel {
   files: Map<string, string>;
   pkg: {
@@ -138,6 +149,8 @@ export interface ProjectModel {
     modules: string[];
     /** Extra top-level keys for the framework config file (nuxt.config, astro.config). */
     config: Record<string, unknown>;
+    /** Integrations called in the config, e.g. Astro's `integrations: [sitemap()]`. */
+    integrations: ImportedCall[];
   };
   styles: {
     /** CSS `@import` lines placed at the top of the global stylesheet. */
@@ -149,6 +162,8 @@ export interface ProjectModel {
   routes: RouteSpec[];
   routing: RoutingSpec | null;
   demo: { counter: CounterSpec | null };
+  /** Set by the `seo` module; `ai` is turned on by `aio`. Adapters render head tags from it. */
+  seo: SeoSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];
 }
@@ -166,6 +181,8 @@ export interface Module {
   frameworks: FrameworkId[] | "all";
   languages?: Language[];
   requires?: string[];
+  /** At least one of these must be selected (not auto-added: the user picks which). */
+  requiresOneOf?: string[];
   conflicts?: string[];
   order?: number;
   apply(model: ProjectModel, ctx: Ctx): void;
@@ -196,6 +213,7 @@ export type ValidationCode =
   | "framework-mismatch"
   | "language-mismatch"
   | "conflict"
+  | "missing-one-of"
   | "single-category";
 
 export interface ValidationError {

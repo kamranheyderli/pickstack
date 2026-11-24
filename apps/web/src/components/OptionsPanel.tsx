@@ -170,12 +170,16 @@ function reasonText(
     module: name(error.moduleId),
     other: name(error.otherId),
     framework,
+    options: (getModule(error.moduleId ?? "")?.requiresOneOf ?? [])
+      .map((id) => name(id))
+      .join(", "),
   };
   switch (error.code) {
     case "conflict":
     case "framework-mismatch":
     case "language-mismatch":
     case "unknown-module":
+    case "missing-one-of":
       return t(`reason.${error.code}`, vars);
     default:
       return t("reason.other");

@@ -1,5 +1,6 @@
 import { getFramework } from "../frameworks";
 import type { Ctx, GenerateResult, Selection } from "../types";
+import { writeSeoFiles } from "../frameworks/shared/seo-files";
 import { finalize } from "./finalize";
 import { formatFiles } from "./format";
 import { validate } from "./validate";
@@ -48,6 +49,7 @@ export async function generate(
 
   const model = framework.base(ctx);
   for (const mod of validation.modules) mod.apply(model, ctx);
+  writeSeoFiles(model, ctx);
   framework.render(model, ctx);
   finalize(model, ctx);
 

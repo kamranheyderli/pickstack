@@ -8,8 +8,8 @@ import type {
 } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";
 import { viteEnv } from "../shared/env";
+import { spaIndexHtml } from "../shared/index-html";
 import { plainViteConfig, wrapProviders, writeJsxDemo } from "../shared/jsx";
-import indexHtml from "../shared/templates/index-html";
 
 const localCounter: CounterSpec = {
   imports: [{ from: "react", named: ["useState"] }],
@@ -59,14 +59,6 @@ export const reactAdapter: FrameworkAdapter = {
       { from: "./App", default: "App" },
       { from: "./index.css" },
     );
-    model.files.set(
-      "index.html",
-      fill(indexHtml, {
-        name: ctx.selection.name,
-        mountId: "root",
-        entry: `main.${ctx.ext.component}`,
-      }),
-    );
     model.readme.stack.push(
       "React 19",
       "Vite",
@@ -76,6 +68,10 @@ export const reactAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    model.files.set(
+      "index.html",
+      spaIndexHtml(model, ctx, "root", `main.${ctx.ext.component}`),
+    );
     model.files.set(`vite.config.${ctx.ext.script}`, plainViteConfig(model));
     model.files.set(`src/main.${ctx.ext.component}`, mainEntry(model, ctx));
     model.files.set("src/index.css", globalCss(model));

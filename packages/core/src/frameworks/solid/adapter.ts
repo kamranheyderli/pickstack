@@ -8,8 +8,8 @@ import type {
 } from "../../types";
 import { demoClasses, globalCss } from "../shared/demo";
 import { viteEnv } from "../shared/env";
+import { spaIndexHtml } from "../shared/index-html";
 import { plainViteConfig, wrapProviders, writeJsxDemo } from "../shared/jsx";
-import indexHtml from "../shared/templates/index-html";
 import { writeViteTsconfigs } from "../shared/vite-ts";
 
 const localCounter: CounterSpec = {
@@ -50,14 +50,6 @@ export const solidAdapter: FrameworkAdapter = {
       import: { from: "vite-plugin-solid", default: "solid" },
       call: "solid()",
     });
-    model.files.set(
-      "index.html",
-      fill(indexHtml, {
-        name: ctx.selection.name,
-        mountId: "root",
-        entry: `index.${ctx.ext.component}`,
-      }),
-    );
     model.readme.stack.push(
       "SolidJS",
       "Vite",
@@ -67,6 +59,10 @@ export const solidAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    model.files.set(
+      "index.html",
+      spaIndexHtml(model, ctx, "root", `index.${ctx.ext.component}`),
+    );
     model.files.set(`vite.config.${ctx.ext.script}`, plainViteConfig(model));
     model.files.set(`src/index.${ctx.ext.component}`, entry(model, ctx));
     model.files.set("src/index.css", globalCss(model));

@@ -1,5 +1,6 @@
 import { file, json, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
+import { staticHeadTags } from "../shared/seo";
 import type {
   CounterSpec,
   Ctx,
@@ -95,7 +96,7 @@ export const angularAdapter: FrameworkAdapter = {
 
   render(model, ctx) {
     const cls = demoClasses(model);
-    model.files.set("src/index.html", indexHtml(ctx));
+    model.files.set("src/index.html", indexHtml(model, ctx));
     model.files.set("src/styles.css", globalCss(model));
     model.files.set(
       "src/main.ts",
@@ -126,9 +127,12 @@ export const angularAdapter: FrameworkAdapter = {
         'import { Home } from "./pages/home/home";',
         "",
         "export const routes: Routes = [",
-        '  { path: "", component: Home },',
+        model.seo
+          ? `  { path: "", component: Home, title: "${ctx.selection.name}" },`
+          : '  { path: "", component: Home },',
         "  {",
         '    path: "about",',
+        ...(model.seo ? [`    title: "About | ${ctx.selection.name}",`] : []),
         '    loadComponent: () => import("./pages/about/about").then((m) => m.About),',
         "  },",
         "];",
@@ -238,7 +242,7 @@ function writeCounter(
   );
 }
 
-function indexHtml(ctx: Ctx): string {
+function indexHtml(model: ProjectModel, ctx: Ctx): string {
   return file([
     "<!doctype html>",
     '<html lang="en">',
@@ -247,6 +251,9 @@ function indexHtml(ctx: Ctx): string {
     `    <title>${ctx.selection.name}</title>`,
     '    <base href="/" />',
     '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
+    ...(model.seo
+      ? staticHeadTags(ctx.selection.name, model.seo).map((l) => `    ${l}`)
+      : []),
     "  </head>",
     "  <body>",
     "    <app-root></app-root>",

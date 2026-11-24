@@ -7,6 +7,8 @@ import { solidRouter } from "./routing/solid-router";
 import { vueRouter } from "./routing/vue-router";
 import { builtin } from "./state/builtin";
 import { pinia } from "./state/pinia";
+import { aio } from "./seo/aio";
+import { seo } from "./seo/seo";
 import { reduxToolkit } from "./state/redux-toolkit";
 import { zustand } from "./state/zustand";
 import { tailwind } from "./style/tailwind";
@@ -23,6 +25,8 @@ export const modules: readonly Module[] = [
   preactIso,
   axios,
   prettier,
+  seo,
+  aio,
 ];
 
 const byId = new Map(modules.map((m) => [m.id, m]));

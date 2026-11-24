@@ -10,11 +10,12 @@ export function createModel(): ProjectModel {
       fields: {},
     },
     entry: { imports: [], providers: [], appUses: [], setup: [] },
-    bundler: { plugins: [], modules: [], config: {} },
+    bundler: { plugins: [], modules: [], config: {}, integrations: [] },
     styles: { globalImports: [], globalCss: [], mode: "plain" },
     routes: [],
     routing: null,
     demo: { counter: null },
+    seo: null,
     readme: { stack: [], sections: [] },
     warnings: [],
   };
