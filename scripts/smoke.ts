@@ -5,6 +5,7 @@
  *   pnpm smoke                 full pairwise set
  *   pnpm smoke --filter=react  only combos whose id contains "react"
  *   pnpm smoke --presets       only the ready-made stacks (presets.ts)
+ *   pnpm smoke --shard=2/4     the 2nd of 4 equal slices (parallel CI jobs)
  *   pnpm smoke --keep          keep generated projects for inspection
  */
 import { spawn } from "node:child_process";
@@ -29,6 +30,20 @@ const args = new Set(process.argv.slice(2));
 const filter = [...args]
   .find((a) => a.startsWith("--filter="))
   ?.slice("--filter=".length);
+/** `--shard=2/4` as { index: 2, count: 4 }; exits on a malformed value. */
+function parseShard(): { index: number; count: number } | undefined {
+  const value = [...args]
+    .find((a) => a.startsWith("--shard="))
+    ?.slice("--shard=".length);
+  if (value === undefined) return undefined;
+  const [index, count] = value.split("/").map(Number);
+  if (!index || !count || index < 1 || index > count) {
+    console.error("Use --shard=<index>/<count>, e.g. --shard=1/4.");
+    process.exit(1);
+  }
+  return { index, count };
+}
+const shard = parseShard();
 const keep = args.has("--keep");
 const root = join(tmpdir(), "stackforge-smoke");
 
@@ -173,7 +188,10 @@ const source = args.has("--presets")
   : args.has("--quick")
     ? quickCombos
     : pairwiseCombos();
-const combos = source.filter((c) => !filter || comboId(c).includes(filter));
+const combos = source
+  .filter((c) => !filter || comboId(c).includes(filter))
+  // Every n-th combo, so each slice mixes frameworks and takes about as long.
+  .filter((_, i) => !shard || i % shard.count === shard.index - 1);
 console.log(`Smoke: ${combos.length} combos in ${root}\n`);
 
 const outcomes = await pool(

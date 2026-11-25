@@ -1,0 +1,30 @@
+name: Nightly smoke
+
+# The full pairwise set: every pair of options a valid project can hold, installed, built,
+# linted and tested. Too slow for every push; nightly catches breaking package releases.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: smoke (${{ matrix.shard }}/4)
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm smoke --shard=${{ matrix.shard }}/4
