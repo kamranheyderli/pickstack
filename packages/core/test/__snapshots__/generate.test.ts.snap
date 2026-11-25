@@ -46,6 +46,7 @@ if (file && root) {
       "Bash(npm run ng *)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -152,6 +153,10 @@ jobs:
   ".gitignore": "node_modules
 dist
 .angular
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -206,7 +211,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -216,6 +221,7 @@ Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular sig
 - \`npm run build\`: production build
 - \`npm run watch\`
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -293,7 +299,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -308,6 +314,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run watch\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -318,6 +325,15 @@ npm run dev
 ## API client
 
 Set \`apiUrl\` in \`src/environments/environment.ts\`. Import the client from \`src/app/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -464,6 +480,21 @@ git push -u origin main
   }
 }
 ",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.js": "// @ts-check
 import eslint from "@eslint/js";
 import { defineConfig } from "eslint/config";
@@ -543,6 +574,7 @@ export default defineConfig([
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "typecheck": "ngc -p tsconfig.app.json --noEmit",
+    "test:e2e": "playwright test",
     "test": "ng test --watch=false",
     "lint": "ng lint",
     "format": "prettier --write .",
@@ -572,11 +604,13 @@ export default defineConfig([
     "@angular/cli": "^22.3.0",
     "@angular/compiler-cli": "^22.3.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/angular": "^19.6.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/user-event": "^14.6.13",
+    "@types/node": "^24.19.2",
     "angular-eslint": "^22.8.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
@@ -592,6 +626,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:4200", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:4200",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -638,6 +691,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -869,9 +923,9 @@ export class StackList {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material,
-    Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Vitest,
-    Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
-    Actions.
+    Angular signals service, Axios, TanStack Query, TanStack Form, Zod,
+    Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
+    SEO, llms.txt, GitHub Actions.
   </p>
 </section>
 ",
@@ -1504,6 +1558,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run astro *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -1610,6 +1665,10 @@ jobs:
   ".gitignore": "node_modules
 dist
 .astro
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -1658,7 +1717,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Astro, Sass, Tailwind CSS, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -1667,6 +1726,7 @@ Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-s
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run astro\`
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -1739,7 +1799,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Astro, Sass, Tailwind CSS, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -1753,6 +1813,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run astro\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -1763,6 +1824,15 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -1835,6 +1905,26 @@ export default defineConfig({
   },
 });
 ",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
@@ -1894,6 +1984,7 @@ export default defineConfig([
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -1908,6 +1999,7 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
@@ -1923,6 +2015,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:4321", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev -- --ignore-lock",
+    url: "http://localhost:4321",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "src/api/client.js": "import axios from "axios";
 
@@ -2038,8 +2149,8 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier,
-      Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+      Built with Astro, Sass, Tailwind CSS, Axios, Playwright, Vitest, ESLint,
+      Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </Layout>
@@ -2165,6 +2276,7 @@ if (file && root) {
       "Bash(npm run build *)",
       "Bash(npm run astro *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -2272,6 +2384,10 @@ jobs:
   ".gitignore": "node_modules
 dist
 .astro
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -2320,7 +2436,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -2330,6 +2446,7 @@ Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, H
 - \`npm run preview\`: serve the production build
 - \`npm run astro\`
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -2403,7 +2520,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -2418,6 +2535,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run astro\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -2428,6 +2546,15 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -2500,6 +2627,26 @@ export default defineConfig({
   },
 });
 ",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
@@ -2562,6 +2709,7 @@ export default defineConfig([
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -2577,7 +2725,9 @@ export default defineConfig([
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^3.2.1",
@@ -2594,6 +2744,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:4321", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev -- --ignore-lock",
+    url: "http://localhost:4321",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "src/api/client.ts": "import axios from "axios";
 
@@ -2713,8 +2882,9 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint,
-      Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+      Built with Astro, TypeScript, Sass, Tailwind CSS, Axios, Playwright,
+      Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+      Actions.
     </p>
   </section>
 </Layout>
@@ -4469,6 +4639,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -4583,6 +4754,10 @@ dist
 out
 next-env.d.ts
 *.tsbuildinfo
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .claude/settings.local.json
 CLAUDE.local.md
 .env
@@ -4633,7 +4808,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -4641,6 +4816,7 @@ Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Tool
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run start\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -4725,7 +4901,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -4738,6 +4914,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run start\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -4751,6 +4928,15 @@ shadcn/ui components live in \`components/ui\`. Add more with \`npx shadcn@lates
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -4833,8 +5019,8 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, Sass, Tailwind CSS,
-        shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+        shadcn/ui, Redux Toolkit, Axios, Playwright, Vitest, Testing Library,
+        ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -5327,6 +5513,26 @@ export {
   CardTitle,
 };
 ",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.mjs": "import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import prettier from "eslint-config-prettier/flat";
@@ -5413,6 +5619,7 @@ export default nextConfig;
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -5433,6 +5640,7 @@ export default nextConfig;
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -5452,6 +5660,25 @@ export default nextConfig;
     "vitest": "^5.1.1"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:3000", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "postcss.config.mjs": "const config = {
   plugins: {
@@ -5534,6 +5761,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -5649,6 +5877,10 @@ dist
 out
 next-env.d.ts
 *.tsbuildinfo
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .claude/settings.local.json
 CLAUDE.local.md
 .env
@@ -5699,7 +5931,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -5708,6 +5940,7 @@ Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui
 - \`npm run build\`: production build
 - \`npm run start\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -5793,7 +6026,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -5807,6 +6040,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run start\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -5820,6 +6054,15 @@ shadcn/ui components live in \`components/ui\`. Add more with \`npx shadcn@lates
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the client from \`api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -5904,8 +6147,9 @@ export default function About() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, TypeScript, Sass, Tailwind
-        CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+        CSS, shadcn/ui, Redux Toolkit, Axios, Playwright, Vitest, Testing
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+        Actions.
       </p>
     </section>
   );
@@ -6410,6 +6654,26 @@ export {
   CardTitle,
 };
 ",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.mjs": "import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -6506,6 +6770,7 @@ export default nextConfig;
     "build": "next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -6526,6 +6791,7 @@ export default nextConfig;
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -6549,6 +6815,25 @@ export default nextConfig;
     "vitest": "^5.1.1"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:3000", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "postcss.config.mjs": "const config = {
   plugins: {
@@ -7187,6 +7472,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run generate *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -7298,6 +7584,10 @@ dist
 .data
 .nitro
 .cache
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .claude/settings.local.json
 CLAUDE.local.md
 .env
@@ -7339,7 +7629,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -7348,6 +7638,7 @@ Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Test
 - \`npm run dev\`: start the dev server
 - \`npm run generate\`
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -7429,7 +7720,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -7444,6 +7735,7 @@ npm run dev
 - \`npm run generate\`
 - \`npm run preview\`
 - \`npm run postinstall\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -7457,6 +7749,15 @@ shadcn-vue components live in \`app/components/ui\`. Add more with \`npx shadcn-
 ## API client
 
 Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -7964,8 +8265,8 @@ useSeoMeta({ title: "About" });
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios,
-      Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-      llms.txt, GitHub Actions.
+      Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
+      SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </template>
@@ -8031,6 +8332,26 @@ export const useCounterStore = defineStore("counter", () => {
   }
 }
 ",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.mjs": "// @ts-check
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import withNuxt from "./.nuxt/eslint.config.mjs";
@@ -8075,6 +8396,7 @@ export default defineNuxtConfig({
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -8098,6 +8420,7 @@ export default defineNuxtConfig({
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.4.0",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -8117,6 +8440,25 @@ export default defineNuxtConfig({
     "vitest": "^5.1.1"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:3000", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/robots.txt": "User-Agent: *
 Disallow:
@@ -8266,6 +8608,7 @@ if (file && root) {
       "Bash(npm run build *)",
       "Bash(npm run generate *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -8378,6 +8721,10 @@ dist
 .data
 .nitro
 .cache
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .claude/settings.local.json
 CLAUDE.local.md
 .env
@@ -8419,7 +8766,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -8429,6 +8776,7 @@ Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, 
 - \`npm run generate\`
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -8511,7 +8859,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -8527,6 +8875,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run postinstall\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -8540,6 +8889,15 @@ shadcn-vue components live in \`app/components/ui\`. Add more with \`npx shadcn-
 ## API client
 
 Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const { $api } = useNuxtApp()\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -9037,8 +9395,8 @@ useSeoMeta({ title: "About" });
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue,
-      Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
-      lint-staged, SEO, llms.txt, GitHub Actions.
+      Pinia, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier,
+      Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </template>
@@ -9104,6 +9462,26 @@ export const useCounterStore = defineStore("counter", () => {
   }
 }
 ",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
+",
   "eslint.config.mjs": "// @ts-check
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import withNuxt from "./.nuxt/eslint.config.mjs";
@@ -9149,6 +9527,7 @@ export default defineNuxtConfig({
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -9172,11 +9551,13 @@ export default defineNuxtConfig({
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.4.0",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/user-event": "^14.6.13",
     "@testing-library/vue": "^8.1.0",
+    "@types/node": "^24.19.2",
     "@vue/test-utils": "^2.6.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
@@ -9192,6 +9573,25 @@ export default defineNuxtConfig({
     "vue-tsc": "^3.3.14"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:3000", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/robots.txt": "User-Agent: *
 Disallow:
@@ -9796,6 +10196,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -9892,6 +10293,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -9911,7 +10316,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -9919,6 +10324,7 @@ Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Libr
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -9992,7 +10398,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -10005,6 +10411,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -10015,6 +10422,15 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -10084,6 +10500,21 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -10184,6 +10615,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -10199,6 +10631,7 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -10221,6 +10654,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -10370,9 +10822,9 @@ render(
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
-        Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest,
-        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
-        PWA, GitHub Actions.
+        Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios,
+        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -10506,6 +10958,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -10603,6 +11056,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -10622,7 +11079,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -10631,6 +11088,7 @@ Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, 
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -10705,7 +11163,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -10719,6 +11177,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -10729,6 +11188,15 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -10798,6 +11266,21 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -10898,6 +11381,7 @@ export default defineConfig([
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -10913,6 +11397,7 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -10938,6 +11423,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -11088,8 +11592,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso,
-        Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
-        SEO, llms.txt, PWA, GitHub Actions.
+        Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -11800,6 +12304,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -11906,6 +12411,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -11944,7 +12453,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -11952,6 +12461,7 @@ Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Route
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -12029,7 +12539,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -12042,6 +12552,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -12056,6 +12567,15 @@ shadcn/ui components live in \`src/components/ui\`. Add more with \`npx shadcn@l
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -12147,6 +12667,21 @@ git push -u origin main
     "hooks": "@/hooks"
   }
 }
+",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -12268,6 +12803,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -12282,9 +12818,11 @@ export default defineConfig([
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
+    "i18next": "^27.2.9",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-i18next": "^18.0.3",
     "react-redux": "^9.3.1",
     "react-router": "^8.5.2",
     "shadcn": "^4.23.0",
@@ -12293,6 +12831,7 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -12316,6 +12855,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -12384,6 +12942,8 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "i18next",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -12487,6 +13047,36 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/components/LanguageSwitcher.jsx": "import { useTranslation } from "react-i18next";
+
+const languages = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+];
+
+export default function LanguageSwitcher() {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <div>
+      <p className="max-w-md text-center text-slate-600">{t("greeting")}</p>
+      <div className="mt-6 flex justify-center gap-3">
+        {languages.map(({ code, label }) => (
+          <button
+            key={code}
+            type="button"
+            className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+            aria-pressed={i18n.resolvedLanguage === code}
+            onClick={() => void i18n.changeLanguage(code)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 ",
   "src/components/SignupForm.jsx": "import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
@@ -12728,6 +13318,24 @@ export {
   CardTitle,
 };
 ",
+  "src/i18n.js": "import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const resources = {
+  en: { translation: { greeting: "Hello! Pick a language." } },
+  es: { translation: { greeting: "¡Hola! Elige un idioma." } },
+};
+
+void i18n.use(initReactI18next).init({
+  resources,
+  lng: "en",
+  fallbackLng: "en",
+  // React already escapes rendered values.
+  interpolation: { escapeValue: false },
+});
+
+export default i18n;
+",
   "src/index.css": "@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -12866,6 +13474,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import App from "./App";
 import { store } from "./store";
+import "./i18n";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -12888,15 +13497,16 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
-        React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
-        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
-        GitHub Actions.
+        React Router, Axios, TanStack Query, TanStack Form, Zod, i18next,
+        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.jsx": "import Counter from "../components/Counter";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import SignupForm from "../components/SignupForm";
 import StackList from "../components/StackList";
 
@@ -12907,6 +13517,7 @@ export default function Home() {
       <Counter />
       <StackList />
       <SignupForm />
+      <LanguageSwitcher />
     </section>
   );
 }
@@ -13059,6 +13670,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -13166,6 +13778,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -13204,7 +13820,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -13213,6 +13829,7 @@ Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -13291,7 +13908,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -13305,6 +13922,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -13319,6 +13937,15 @@ shadcn/ui components live in \`src/components/ui\`. Add more with \`npx shadcn@l
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -13410,6 +14037,21 @@ git push -u origin main
     "hooks": "@/hooks"
   }
 }
+",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -13519,6 +14161,7 @@ export default defineConfig([
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -13533,9 +14176,11 @@ export default defineConfig([
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
+    "i18next": "^27.2.9",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-i18next": "^18.0.3",
     "react-redux": "^9.3.1",
     "react-router": "^8.5.2",
     "shadcn": "^4.23.0",
@@ -13544,11 +14189,13 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.13",
+    "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
@@ -13571,6 +14218,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -13640,6 +14306,8 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "i18next",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -13741,6 +14409,36 @@ export default function Counter() {
         <Button onClick={() => dispatch(increment())}>+1</Button>
       </CardFooter>
     </Card>
+  );
+}
+",
+  "src/components/LanguageSwitcher.tsx": "import { useTranslation } from "react-i18next";
+
+const languages = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+];
+
+export default function LanguageSwitcher() {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <div>
+      <p className="max-w-md text-center text-slate-600">{t("greeting")}</p>
+      <div className="mt-6 flex justify-center gap-3">
+        {languages.map(({ code, label }) => (
+          <button
+            key={code}
+            type="button"
+            className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+            aria-pressed={i18n.resolvedLanguage === code}
+            onClick={() => void i18n.changeLanguage(code)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 ",
@@ -13993,6 +14691,24 @@ export {
   CardTitle,
 };
 ",
+  "src/i18n.ts": "import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const resources = {
+  en: { translation: { greeting: "Hello! Pick a language." } },
+  es: { translation: { greeting: "¡Hola! Elige un idioma." } },
+};
+
+void i18n.use(initReactI18next).init({
+  resources,
+  lng: "en",
+  fallbackLng: "en",
+  // React already escapes rendered values.
+  interpolation: { escapeValue: false },
+});
+
+export default i18n;
+",
   "src/index.css": "@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -14131,6 +14847,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import App from "./App";
 import { store } from "./store";
+import "./i18n";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -14154,14 +14871,15 @@ createRoot(document.getElementById("root")!).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
         Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod,
-        Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-        llms.txt, PWA, GitHub Actions.
+        i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.tsx": "import Counter from "../components/Counter";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import SignupForm from "../components/SignupForm";
 import StackList from "../components/StackList";
 
@@ -14172,6 +14890,7 @@ export default function Home() {
       <Counter />
       <StackList />
       <SignupForm />
+      <LanguageSwitcher />
     </section>
   );
 }
@@ -15465,6 +16184,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -15561,6 +16281,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -15580,7 +16304,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -15588,6 +16312,7 @@ Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axi
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -15662,7 +16387,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -15675,6 +16400,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -15685,6 +16411,15 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -15754,6 +16489,21 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -15848,6 +16598,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -15865,6 +16616,7 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -15887,6 +16639,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -15954,6 +16725,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -16161,9 +16933,9 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
-        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
-        GitHub Actions.
+        Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest,
+        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
+        PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -16315,6 +17087,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -16412,6 +17185,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -16431,7 +17208,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -16440,6 +17217,7 @@ Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -16515,7 +17293,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -16529,6 +17307,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -16539,6 +17318,15 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -16608,6 +17396,21 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -16704,6 +17507,7 @@ export default defineConfig([
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -16721,6 +17525,7 @@ export default defineConfig([
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -16746,6 +17551,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -16814,6 +17638,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -17022,9 +17847,9 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
-        store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest,
-        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
-        PWA, GitHub Actions.
+        store, Solid Router, Axios, TanStack Query, TanStack Form, Zod,
+        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -17726,6 +18551,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -17832,6 +18658,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -17880,7 +18710,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -17888,6 +18718,7 @@ Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Ax
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -17962,7 +18793,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -17975,6 +18806,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -17989,6 +18821,15 @@ shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -18077,6 +18918,14 @@ git push -u origin main
   "menuColor": "default",
   "menuAccent": "subtle"
 }
+",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -18186,6 +19035,7 @@ export default defineConfig(
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -18202,6 +19052,7 @@ export default defineConfig(
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.3.0",
+    "@playwright/test": "^1.65.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -18230,6 +19081,25 @@ export default defineConfig(
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -18293,6 +19163,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -18987,6 +19858,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -19094,6 +19966,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -19142,7 +20018,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -19151,6 +20027,7 @@ Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte run
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -19226,7 +20103,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -19240,6 +20117,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -19254,6 +20132,15 @@ shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -19342,6 +20229,14 @@ git push -u origin main
   "menuColor": "default",
   "menuAccent": "subtle"
 }
+",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -19449,6 +20344,7 @@ export default defineConfig(
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -19465,6 +20361,7 @@ export default defineConfig(
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.3.0",
+    "@playwright/test": "^1.65.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -19498,6 +20395,25 @@ export default defineConfig(
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -19562,6 +20478,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -20820,6 +21737,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -20928,6 +21846,10 @@ jobs:
 dist
 .svelte-kit
 build
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -20978,7 +21900,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -20986,6 +21908,7 @@ Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes stor
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -21061,7 +21984,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -21075,6 +21998,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run prepare\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -21088,6 +22012,15 @@ shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -21166,6 +22099,26 @@ git push -u origin main
   "menuColor": "default",
   "menuAccent": "subtle"
 }
+",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import path from "node:path";
 import js from "@eslint/js";
@@ -21247,6 +22200,7 @@ export default defineConfig(
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo '' && husky",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -21259,6 +22213,7 @@ export default defineConfig(
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.3.0",
+    "@playwright/test": "^1.65.1",
     "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
@@ -21284,6 +22239,25 @@ export default defineConfig(
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "src/api/client.js": "import axios from "axios";
 
@@ -21709,8 +22683,8 @@ export function decrement() {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte
-    runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO,
-    llms.txt, GitHub Actions.
+    runes store, Axios, Playwright, Vitest, ESLint, Prettier, Husky,
+    lint-staged, SEO, llms.txt, GitHub Actions.
   </p>
 </section>
 ",
@@ -22006,6 +22980,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -22115,6 +23090,10 @@ jobs:
 dist
 .svelte-kit
 build
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -22165,7 +23144,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -22174,6 +23153,7 @@ Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelt
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -22250,7 +23230,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Playwright, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -22265,6 +23245,7 @@ npm run dev
 - \`npm run preview\`
 - \`npm run prepare\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -22278,6 +23259,15 @@ shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx 
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -22356,6 +23346,26 @@ git push -u origin main
   "menuColor": "default",
   "menuAccent": "subtle"
 }
+",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  // Clicks before hydration are lost, so retry until the count changes.
+  await expect(async () => {
+    await page.getByRole("button", { name: "+1" }).click();
+    await expect(page.getByText("1", { exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+  }).toPass();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import path from "node:path";
 import js from "@eslint/js";
@@ -22444,6 +23454,7 @@ export default defineConfig(
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo '' && husky",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -22456,10 +23467,12 @@ export default defineConfig(
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.3.0",
+    "@playwright/test": "^1.65.1",
     "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
     "cn": "^0.5.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
@@ -22484,6 +23497,25 @@ export default defineConfig(
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "src/api/client.ts": "import axios from "axios";
 
@@ -22966,8 +23998,8 @@ export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS,
-    shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky,
-    lint-staged, SEO, llms.txt, GitHub Actions.
+    shadcn-svelte, Svelte runes store, Axios, Playwright, Vitest, ESLint,
+    Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
   </p>
 </section>
 ",
@@ -25261,6 +26293,7 @@ if (file && root) {
     "allow": [
       "Bash(npm install)",
       "Bash(npm run build *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -25358,6 +26391,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -25377,7 +26414,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -25385,6 +26422,7 @@ Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Ta
 - \`npm run dev\`: start the dev server
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -25461,7 +26499,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -25474,6 +26512,7 @@ npm run dev
 
 - \`npm run build\`
 - \`npm run preview\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -25488,6 +26527,15 @@ shadcn-vue components live in \`src/components/ui\`. Add more with \`npx shadcn-
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -25578,6 +26626,21 @@ git push -u origin main
     "composables": "@/composables"
   }
 }
+",
+  "e2e/app.e2e.js": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import pluginVue from "eslint-plugin-vue";
@@ -25686,6 +26749,7 @@ export default defineConfig([
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -25705,11 +26769,13 @@ export default defineConfig([
     "shadcn-vue": "^2.9.0",
     "tw-animate-css": "^1.4.0",
     "vue": "^3.5.46",
+    "vue-i18n": "^11.4.23",
     "vue-router": "^5.5.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -25734,6 +26800,25 @@ export default defineConfig([
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.js": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -25802,6 +26887,8 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Vue I18n",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -26002,6 +27089,34 @@ const counter = useCounterStore();
       <Button @click="counter.increment()">+1</Button>
     </CardFooter>
   </Card>
+</template>
+",
+  "src/components/LanguageSwitcher.vue": "<script setup>
+import { useI18n } from "vue-i18n";
+
+const { t, locale } = useI18n();
+const languages = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+];
+</script>
+
+<template>
+  <div>
+    <p class="max-w-md text-center text-slate-600">{{ t("greeting") }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        v-for="{ code, label } in languages"
+        :key="code"
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        :aria-pressed="locale === code"
+        @click="locale = code"
+      >
+        {{ label }}
+      </button>
+    </div>
+  </div>
 </template>
 ",
   "src/components/SignupForm.vue": "<script setup>
@@ -26350,12 +27465,25 @@ export { default as CardFooter } from "./CardFooter.vue";
 export { default as CardHeader } from "./CardHeader.vue";
 export { default as CardTitle } from "./CardTitle.vue";
 ",
+  "src/i18n.js": "import { createI18n } from "vue-i18n";
+
+export default createI18n({
+  legacy: false,
+  locale: "en",
+  fallbackLocale: "en",
+  messages: {
+    en: { greeting: "Hello! Pick a language." },
+    es: { greeting: "¡Hola! Elige un idioma." },
+  },
+});
+",
   "src/lib/utils.js": "export { cn } from "cn";
 ",
   "src/main.js": "import { VueQueryPlugin } from "@tanstack/vue-query";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
+import i18n from "./i18n";
 import router from "./router";
 import "./assets/main.css";
 
@@ -26364,6 +27492,7 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(VueQueryPlugin);
+app.use(i18n);
 
 app.mount("#app");
 ",
@@ -26418,8 +27547,9 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
-      Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library,
-      ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+      Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest,
+      Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
+      GitHub Actions.
     </p>
   </section>
 </template>
@@ -26428,6 +27558,7 @@ afterEach(() => {
 import CounterCard from "../components/CounterCard.vue";
 import StackList from "../components/StackList.vue";
 import SignupForm from "../components/SignupForm.vue";
+import LanguageSwitcher from "../components/LanguageSwitcher.vue";
 </script>
 
 <template>
@@ -26436,6 +27567,7 @@ import SignupForm from "../components/SignupForm.vue";
     <CounterCard />
     <StackList />
     <SignupForm />
+    <LanguageSwitcher />
   </section>
 </template>
 ",
@@ -26565,6 +27697,7 @@ if (file && root) {
       "Bash(npm install)",
       "Bash(npm run build *)",
       "Bash(npm run typecheck *)",
+      "Bash(npm run test:e2e *)",
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
@@ -26663,6 +27796,10 @@ jobs:
 ",
   ".gitignore": "node_modules
 dist
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -26682,7 +27819,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -26691,6 +27828,7 @@ Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Route
 - \`npm run build\`: production build
 - \`npm run preview\`: serve the production build
 - \`npm run typecheck\`: type-check
+- \`npm run test:e2e\`
 - \`npm run test\`: run the tests once
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
@@ -26768,7 +27906,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -26782,6 +27920,7 @@ npm run dev
 - \`npm run build\`
 - \`npm run preview\`
 - \`npm run typecheck\`
+- \`npm run test:e2e\`
 - \`npm run test\`
 - \`npm run lint\`
 - \`npm run format\`
@@ -26796,6 +27935,15 @@ shadcn-vue components live in \`src/components/ui\`. Add more with \`npx shadcn-
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## End-to-end tests
+
+Install the browser once, then run the tests (they start the dev server themselves):
+
+\`\`\`sh
+npx playwright install chromium
+npm run test:e2e
+\`\`\`
 
 ## Git hooks
 
@@ -26886,6 +28034,21 @@ git push -u origin main
     "composables": "@/composables"
   }
 }
+",
+  "e2e/app.e2e.ts": "import { expect, test } from "@playwright/test";
+
+test("the counter goes up", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "+1" }).click();
+  await expect(page.getByText("1", { exact: true })).toBeVisible();
+});
+
+test("the about page opens from the nav", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/about/);
+  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+});
 ",
   "env.d.ts": "/// <reference types="vite/client" />
 ",
@@ -26989,6 +28152,7 @@ export default defineConfigWithVueTs(
     "build": "vue-tsc --build && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --build",
+    "test:e2e": "playwright test",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -27008,10 +28172,12 @@ export default defineConfigWithVueTs(
     "shadcn-vue": "^2.9.0",
     "tw-animate-css": "^1.4.0",
     "vue": "^3.5.46",
+    "vue-i18n": "^11.4.23",
     "vue-router": "^5.5.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -27043,6 +28209,25 @@ export default defineConfigWithVueTs(
     "wrangler": "^4.168.0"
   }
 }
+",
+  "playwright.config.ts": "import process from "node:process";
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.?(c|m)[jt]s",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: "html",
+  use: { baseURL: "http://localhost:5173", trace: "on-first-retry" },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:5173",
+    reuseExistingServer: !process.env.CI,
+  },
+});
 ",
   "public/llms.txt": "# my-app
 
@@ -27112,6 +28297,8 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Vue I18n",
+  "Playwright",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -27312,6 +28499,34 @@ const counter = useCounterStore();
       <Button @click="counter.increment()">+1</Button>
     </CardFooter>
   </Card>
+</template>
+",
+  "src/components/LanguageSwitcher.vue": "<script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
+const { t, locale } = useI18n();
+const languages = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+];
+</script>
+
+<template>
+  <div>
+    <p class="max-w-md text-center text-slate-600">{{ t("greeting") }}</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button
+        v-for="{ code, label } in languages"
+        :key="code"
+        type="button"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        :aria-pressed="locale === code"
+        @click="locale = code"
+      >
+        {{ label }}
+      </button>
+    </div>
+  </div>
 </template>
 ",
   "src/components/SignupForm.vue": "<script setup lang="ts">
@@ -27653,12 +28868,25 @@ export { default as CardFooter } from "./CardFooter.vue";
 export { default as CardHeader } from "./CardHeader.vue";
 export { default as CardTitle } from "./CardTitle.vue";
 ",
+  "src/i18n.ts": "import { createI18n } from "vue-i18n";
+
+export default createI18n({
+  legacy: false,
+  locale: "en",
+  fallbackLocale: "en",
+  messages: {
+    en: { greeting: "Hello! Pick a language." },
+    es: { greeting: "¡Hola! Elige un idioma." },
+  },
+});
+",
   "src/lib/utils.ts": "export { cn } from "cn";
 ",
   "src/main.ts": "import { VueQueryPlugin } from "@tanstack/vue-query";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
+import i18n from "./i18n";
 import router from "./router";
 import "./assets/main.css";
 
@@ -27667,6 +28895,7 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(VueQueryPlugin);
+app.use(i18n);
 
 app.mount("#app");
 ",
@@ -27721,9 +28950,9 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
-      Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
-      Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub
-      Actions.
+      Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n,
+      Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
+      SEO, llms.txt, PWA, GitHub Actions.
     </p>
   </section>
 </template>
@@ -27732,6 +28961,7 @@ afterEach(() => {
 import CounterCard from "../components/CounterCard.vue";
 import StackList from "../components/StackList.vue";
 import SignupForm from "../components/SignupForm.vue";
+import LanguageSwitcher from "../components/LanguageSwitcher.vue";
 </script>
 
 <template>
@@ -27740,6 +28970,7 @@ import SignupForm from "../components/SignupForm.vue";
     <CounterCard />
     <StackList />
     <SignupForm />
+    <LanguageSwitcher />
   </section>
 </template>
 ",

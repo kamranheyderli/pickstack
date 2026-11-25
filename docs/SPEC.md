@@ -160,6 +160,20 @@ Qeydlər (2026-11, yoxlanılıb):
   - `superforms` hələ yoxdur: SvelteKit layihələri statik (adapter-static) qurulur, Superforms isə server action-ları gözləyir.
   - Meta-framework-lər (Next, Nuxt, SvelteKit, Astro) üçün form widget-i hələ yoxdur, çünki demo widget mexanizmi SPA-lardadır.
 
+### 5.6.1 Çoxdillilik (i18n, tək seçim)
+
+| Modul | Uyğun |
+|---|---|
+| `react-i18next` | R |
+| `vue-i18n` | V |
+
+- **Demo:** sayğacın altında `LanguageSwitcher` widget-i: tərcümə olunan salam mətni və English/Español düymələri (`aria-pressed`). Brauzerdə 4 variant yoxlanılıb.
+- **react-i18next:** `src/i18n` i18next-i qurur, entry onu side-effect kimi import edir. Mesajlar JSON-da yox, kodun içindədir, çünki JSON import TS-də `resolveJsonModule` tələb edir.
+- **vue-i18n:** Composition API rejimində (`legacy: false`) plugin kimi qoşulur.
+- **Hələ yoxdur:**
+  - Meta-framework-lər: `next-intl`, `@nuxtjs/i18n`. Demo widget SPA-lardadır, routing-ə inteqrasiya isə ayrıca işdir.
+  - Svelte, Solid, Angular: Paraglide, `@solid-primitives/i18n`, Transloco.
+
 ### 5.7 Test
 
 | Modul | Uyğun |
@@ -167,6 +181,13 @@ Qeydlər (2026-11, yoxlanılıb):
 | `vitest` | hamısı (Angular: `ng test`, `@angular/build:unit-test`) |
 | `testing-library` | R, V, S, So, P, N, Nu, A (tələb: `vitest`) |
 | `playwright` | hamısı |
+
+`playwright` (bütün framework-lər, `turborepo` və `module-federation` ilə konflikt edir):
+
+- **Fayllar:** `playwright.config` dev server-i özü qaldırır (Vite 5173, Angular 4200, Next/Nuxt 3000, Astro 4321). `e2e/app.e2e.*` sayğacı klikləyir; demo-da About səhifəsi olanda ora da keçir.
+- **Fayl adı:** testlər `*.e2e.*` adlanır və `testMatch` ilə seçilir. Vitest `*.spec`/`*.test` fayllarını götürür, ona görə Vitest konfiqlərinə `exclude` yazmaq lazım olmur.
+- **Node tipləri:** TS layihələrinə `@types/node` əlavə olunur, çünki konfiq `process.env.CI` oxuyur və Astro starter-ində Node tipləri yoxdur.
+- **Yoxlama:** 10 framework real `playwright test` ilə Chromium-da yoxlanılıb.
 
 ### 5.8 Kod keyfiyyəti
 

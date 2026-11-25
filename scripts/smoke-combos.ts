@@ -85,6 +85,8 @@ export const quickCombos: Combo[] = [
   ...deployCombos(),
   ...formCombos(),
   ...pwaCombos(),
+  ...playwrightCombos(),
+  ...i18nCombos(),
   ...presetCombos,
 ];
 
@@ -783,6 +785,86 @@ function pwaCombos(): Combo[] {
       framework: "preact",
       language: "js",
       modules: ["pwa", "eslint", "prettier", "vitest"],
+    },
+  ];
+}
+
+/** Playwright's config and test next to every framework's linters, in both languages. */
+function playwrightCombos(): Combo[] {
+  const checks = ["eslint", "prettier"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["playwright", "react-router", "vitest", ...checks],
+    },
+    {
+      framework: "vue",
+      language: "js",
+      modules: ["playwright", "vue-router", "vitest", "biome"],
+    },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["playwright", "vitest", ...checks],
+    },
+    {
+      framework: "solid",
+      language: "js",
+      modules: ["playwright", "solid-router", ...checks],
+    },
+    {
+      framework: "preact",
+      language: "ts",
+      modules: ["playwright", "preact-iso", "biome"],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["playwright", "vitest", ...checks],
+    },
+    {
+      framework: "next",
+      language: "ts",
+      modules: ["playwright", "vitest", ...checks],
+    },
+    {
+      framework: "nuxt",
+      language: "ts",
+      modules: ["playwright", "vitest", ...checks],
+    },
+    {
+      framework: "sveltekit",
+      language: "js",
+      modules: ["playwright", "vitest", ...checks],
+    },
+    { framework: "astro", language: "ts", modules: ["playwright", "biome"] },
+  ];
+}
+
+/** Each i18n library in both languages, next to the linters and a UI kit. */
+function i18nCombos(): Combo[] {
+  const checks = ["eslint", "prettier", "vitest", "testing-library"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["react-i18next", "tailwind", ...checks],
+    },
+    {
+      framework: "react",
+      language: "js",
+      modules: ["react-i18next", "mui", "biome"],
+    },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["vue-i18n", "pinia", ...checks],
+    },
+    {
+      framework: "vue",
+      language: "js",
+      modules: ["vue-i18n", "vuetify", "biome"],
     },
   ];
 }

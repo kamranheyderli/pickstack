@@ -6,6 +6,7 @@ export const singleSelectCategories: ReadonlySet<Category> = new Set([
   "state",
   "routing",
   "forms",
+  "i18n",
 ]);
 
 export const categoryOrder: readonly Category[] = [
@@ -15,6 +16,7 @@ export const categoryOrder: readonly Category[] = [
   "routing",
   "data",
   "forms",
+  "i18n",
   "testing",
   "quality",
   "seo",

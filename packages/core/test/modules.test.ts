@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { generate, getFramework, getModule, knownGoodVersion } from "../src";
+import {
+  generate,
+  getFramework,
+  getModule,
+  knownGoodVersion,
+  singleSelectCategories,
+} from "../src";
 import type { FrameworkId, ProjectModel } from "../src";
 import { ctxFor } from "./helpers";
 
@@ -1307,5 +1313,78 @@ describe("pwa", () => {
     expect(pkg.devDependencies["vite-plugin-pwa"]).toBe(
       knownGoodVersion("vite-plugin-pwa", "vue"),
     );
+  });
+});
+
+describe("playwright", () => {
+  async function project(framework: FrameworkId, modules: string[]) {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      packageManager: "pnpm",
+      modules,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("starts the framework's dev server and stays out of Vitest", async () => {
+    const files = await project("angular", ["playwright", "vitest"]);
+    const config = files.get("playwright.config.ts") ?? "";
+    expect(config).toContain('command: "pnpm dev"');
+    expect(config).toContain('url: "http://localhost:4200"');
+    expect(config).toContain('testMatch: "**/*.e2e.?(c|m)[jt]s"');
+    expect(files.has("e2e/app.e2e.ts")).toBe(true);
+    expect(files.get(".gitignore")).toContain("/playwright-report/");
+    expect(
+      JSON.parse(files.get("package.json") ?? "").scripts["test:e2e"],
+    ).toBe("playwright test");
+  });
+
+  it("tests the About page only where the demo has one", async () => {
+    const plain = (await project("react", ["playwright"])).get(
+      "e2e/app.e2e.ts",
+    );
+    expect(plain).not.toContain("about");
+    const routed = (await project("react", ["playwright", "react-router"])).get(
+      "e2e/app.e2e.ts",
+    );
+    expect(routed).toContain('getByRole("link", { name: "About" })');
+  });
+});
+
+describe("i18n", () => {
+  async function project(framework: FrameworkId, modules: string[]) {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      packageManager: "npm",
+      modules,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("react-i18next sets up i18next before the app renders", async () => {
+    const files = await project("react", ["react-i18next"]);
+    expect(files.get("src/main.tsx")).toContain('import "./i18n";');
+    expect(files.get("src/i18n.ts")).toContain(
+      'es: { translation: { greeting: "¡Hola! Elige un idioma." } },',
+    );
+    expect(files.get("src/components/LanguageSwitcher.tsx")).toContain(
+      "i18n.changeLanguage(code)",
+    );
+  });
+
+  it("vue-i18n is installed as a plugin in Composition API mode", async () => {
+    const files = await project("vue", ["vue-i18n"]);
+    expect(files.get("src/main.ts")).toContain(".use(i18n)");
+    expect(files.get("src/i18n.ts")).toContain("legacy: false,");
+  });
+
+  it("is single-select", () => {
+    expect(singleSelectCategories.has("i18n")).toBe(true);
   });
 });

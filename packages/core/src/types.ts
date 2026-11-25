@@ -20,6 +20,7 @@ export type Category =
   | "routing"
   | "data"
   | "forms"
+  | "i18n"
   | "testing"
   | "quality"
   | "seo"

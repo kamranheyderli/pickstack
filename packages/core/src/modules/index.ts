@@ -38,12 +38,15 @@ import { netlify } from "./deploy/netlify";
 import { vercel } from "./deploy/vercel";
 import { reactHookForm } from "./forms/react-hook-form";
 import { tanstackForm } from "./forms/tanstack-form";
+import { reactI18next } from "./i18n/react-i18next";
+import { vueI18n } from "./i18n/vue-i18n";
 import { editorconfig } from "./tooling/editorconfig";
 import { pwa } from "./tooling/pwa";
 import { githubActionsModule } from "./tooling/github-actions";
 import { license } from "./tooling/license";
 import { turborepo } from "./tooling/turborepo";
 import { testingLibrary } from "./testing/testing-library";
+import { playwright } from "./testing/playwright";
 import { vitest } from "./testing/vitest";
 
 export const modules: readonly Module[] = [
@@ -71,6 +74,7 @@ export const modules: readonly Module[] = [
   tanstackQuery,
   vitest,
   testingLibrary,
+  playwright,
   eslint,
   prettier,
   biome,
@@ -85,6 +89,8 @@ export const modules: readonly Module[] = [
   pwa,
   tanstackForm,
   reactHookForm,
+  reactI18next,
+  vueI18n,
   vercel,
   netlify,
   cloudflare,

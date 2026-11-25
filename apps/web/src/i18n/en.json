@@ -15,6 +15,7 @@
   "category.routing": "Routing",
   "category.data": "Data fetching",
   "category.forms": "Forms",
+  "category.i18n": "Internationalization",
   "category.testing": "Testing",
   "category.quality": "Code quality",
   "badge.auto": "auto",
