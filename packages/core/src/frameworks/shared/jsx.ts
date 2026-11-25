@@ -8,6 +8,7 @@ import type {
   RouteSpec,
 } from "../../types";
 import { aboutText, type DemoClasses } from "./demo";
+import { writeFileRoutes } from "./tanstack";
 
 /** JSX demo components shared by React, Preact and Solid; they differ in the class attribute. */
 export type ClassAttr = "className" | "class";
@@ -200,7 +201,9 @@ export function writeJsxDemo(
       model.demo.view,
     ),
   );
-  if (model.routing && model.routes.length) {
+  if (model.routing?.fileRoutes) {
+    writeFileRoutes(model, ctx, cls, attr, model.routing.fileRoutes);
+  } else if (model.routing && model.routes.length) {
     for (const route of model.routes) {
       model.files.set(
         `src/pages/${route.component}.${x}`,

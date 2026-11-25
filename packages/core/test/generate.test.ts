@@ -105,6 +105,15 @@ describe("module federation snapshot", () => {
   });
 });
 
+describe("tanstack router snapshots", () => {
+  for (const framework of ["react", "solid"] as const) {
+    it(`${framework} with file routes (ts)`, async () => {
+      const result = await files("ts", ["tanstack-router"], framework);
+      expect(Object.fromEntries(result)).toMatchSnapshot();
+    });
+  }
+});
+
 describe("react extras", () => {
   it("zustand without router (ts)", async () => {
     const result = await files("ts", ["zustand"]);

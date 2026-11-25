@@ -1,5 +1,5 @@
 import { file } from "../../engine/code";
-import type { Ctx, FrameworkId, Module } from "../../types";
+import type { Ctx, FrameworkId, Module, ProjectModel } from "../../types";
 
 /** What the module writes for one framework: config file, dev dependencies and the lint script. */
 interface EslintSetup {
@@ -117,7 +117,7 @@ function uiKitBlocks(ctx: Ctx, dir: string, vite: boolean): string[] {
   ];
 }
 
-function react(ctx: Ctx): EslintSetup {
+function react(ctx: Ctx, model: ProjectModel): EslintSetup {
   return {
     path: "eslint.config.js",
     devDependencies: [
@@ -144,7 +144,19 @@ function react(ctx: Ctx): EslintSetup {
           true,
         ),
         ...uiKitBlocks(ctx, "src/components/ui", true),
+        ...(model.routing?.fileRoutes
+          ? [
+              "  {",
+              "    // The router plugin handles HMR for route files (`Route` and its component).",
+              `    files: ["src/routes/**/*.${ctx.isTs ? "{ts,tsx}" : "{js,jsx}"}"],`,
+              "    rules: {",
+              '      "react-refresh/only-export-components": "off",',
+              "    },",
+              "  },",
+            ]
+          : []),
       ],
+      ["dist", ...model.verbatim],
     ),
   };
 }
@@ -175,7 +187,7 @@ function preact(ctx: Ctx): EslintSetup {
 }
 
 /** eslint-plugin-solid's flat configs (`typescript` turns off rules TypeScript covers). */
-function solid(ctx: Ctx): EslintSetup {
+function solid(ctx: Ctx, model: ProjectModel): EslintSetup {
   const config = ctx.isTs ? "typescript" : "recommended";
   return {
     path: "eslint.config.js",
@@ -185,6 +197,7 @@ function solid(ctx: Ctx): EslintSetup {
       ctx,
       [`import solid from "eslint-plugin-solid/configs/${config}";`],
       jsxBlock(ctx, [...tsExtends(ctx), "solid"], false),
+      ["dist", ...model.verbatim],
     ),
   };
 }
@@ -493,7 +506,10 @@ function angular(ctx: Ctx): EslintSetup {
   };
 }
 
-const setups: Record<FrameworkId, (ctx: Ctx) => EslintSetup> = {
+const setups: Record<
+  FrameworkId,
+  (ctx: Ctx, model: ProjectModel) => EslintSetup
+> = {
   react,
   preact,
   solid,
@@ -517,7 +533,7 @@ export const eslint: Module = {
   frameworks: "all",
   conflicts: ["biome"],
   apply(model, ctx) {
-    const setup = setups[ctx.selection.framework](ctx);
+    const setup = setups[ctx.selection.framework](ctx, model);
     for (const dep of [...setup.devDependencies, ...prettierDeps(ctx)]) {
       model.pkg.devDependencies.add(dep);
     }

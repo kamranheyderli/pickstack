@@ -58,6 +58,7 @@ export const prettier: Module = {
       file([
         "dist",
         ...ctx.ignore,
+        ...model.verbatim,
         "pnpm-lock.yaml",
         "package-lock.json",
         "yarn.lock",

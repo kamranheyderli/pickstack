@@ -11,6 +11,7 @@ import { prettier } from "./quality/prettier";
 import { preactIso } from "./routing/preact-iso";
 import { reactRouter } from "./routing/react-router";
 import { solidRouter } from "./routing/solid-router";
+import { tanstackRouter } from "./routing/tanstack-router";
 import { vueRouter } from "./routing/vue-router";
 import { builtin } from "./state/builtin";
 import { pinia } from "./state/pinia";
@@ -53,6 +54,7 @@ export const modules: readonly Module[] = [
   reactRouter,
   vueRouter,
   solidRouter,
+  tanstackRouter,
   preactIso,
   axios,
   vitest,

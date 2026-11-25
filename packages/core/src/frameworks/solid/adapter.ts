@@ -99,13 +99,16 @@ function entry(model: ProjectModel, ctx: Ctx): string {
     "/* @refresh reload */",
     ...renderImports([
       { from: "solid-js/web", named: ["render"] },
-      { from: "./App", default: "App" },
+      // File-based routes replace App with the route files.
+      ...(model.routing?.fileRoutes ? [] : [{ from: "./App", default: "App" }]),
       { from: `./index.${styleExt(model)}` },
       ...(root?.imports ?? []),
       ...model.entry.imports,
       ...model.entry.providers.flatMap((p) => p.imports),
     ]),
     "",
+    ...model.entry.setup,
+    ...(model.entry.setup.length ? [""] : []),
     'const root = document.getElementById("root");',
     "",
     ...body,

@@ -73,6 +73,7 @@ export const quickCombos: Combo[] = [
   ...federationCombos(),
   ...uiCombos(),
   ...aiCombos(),
+  ...tanstackCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -517,6 +518,51 @@ function aiCombos(): Combo[] {
       framework: "react",
       language: "ts",
       modules: ["claude-code", "turborepo", "eslint", "prettier"],
+    },
+  ];
+}
+
+/**
+ * TanStack Router: the emitted route tree must typecheck before the first build, stay out of
+ * the linters and formatters, and be what the Vite plugin would write.
+ */
+function tanstackCombos(): Combo[] {
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: [
+        "tanstack-router",
+        "eslint",
+        "prettier",
+        "vitest",
+        "redux-toolkit",
+      ],
+    },
+    {
+      framework: "react",
+      language: "js",
+      modules: ["tanstack-router", "eslint", "prettier"],
+    },
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["tanstack-router", "biome", "tailwind", "shadcn"],
+    },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["tanstack-router", "eslint", "prettier", "builtin"],
+    },
+    {
+      framework: "solid",
+      language: "js",
+      modules: ["tanstack-router", "biome"],
+    },
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["tanstack-router", "turborepo", "eslint", "prettier"],
     },
   ];
 }

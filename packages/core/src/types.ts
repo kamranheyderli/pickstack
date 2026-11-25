@@ -158,6 +158,11 @@ export interface RoutingSpec {
     layoutParam: string;
     layoutImports: ImportSpec[];
   };
+  /**
+   * File-based routes (TanStack Router): the adapter writes `src/routes/` and the route tree
+   * from this router package instead of `App` and `pages/`.
+   */
+  fileRoutes?: "@tanstack/react-router" | "@tanstack/solid-router";
 }
 
 export interface SeoSpec {
@@ -276,6 +281,11 @@ export interface ProjectModel {
   repoFiles: Map<string, string>;
   /** Extra `.gitignore` entries, e.g. personal agent settings. */
   gitignore: string[];
+  /**
+   * Generated files written exactly as their tool writes them (e.g. TanStack Router's route
+   * tree): not formatted, and excluded from the linter and formatter.
+   */
+  verbatim: Set<string>;
   testing: TestingSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];

@@ -30,6 +30,7 @@ import {
   siSolid,
   siSvelte,
   siTailwindcss,
+  siTanstack,
   siTestinglibrary,
   siTurborepo,
   siTypescript,
@@ -82,6 +83,7 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   // Official routers without marks of their own ship under their framework's logo.
   "solid-router": siSolid,
   "preact-iso": siPreact,
+  "tanstack-router": siTanstack,
   turborepo: siTurborepo,
 };
 

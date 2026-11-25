@@ -91,6 +91,9 @@ const shared: VersionSet = {
   "@mantine/hooks": "^9.8.2",
   "postcss-preset-mantine": "^1.18.0",
   "postcss-simple-vars": "^7.0.1",
+  "@tanstack/react-router": "^1.170.46",
+  "@tanstack/solid-router": "^1.170.43",
+  "@tanstack/router-plugin": "^1.169.0",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

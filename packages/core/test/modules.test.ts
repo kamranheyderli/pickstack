@@ -967,3 +967,55 @@ describe("AI agent modules", () => {
     expect(vscode.servers["angular-cli"]?.type).toBe("stdio");
   });
 });
+
+describe("tanstack-router", () => {
+  async function project(
+    framework: FrameworkId,
+    language: "js" | "ts",
+    modules: string[] = [],
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language,
+      modules: ["tanstack-router", ...modules],
+      packageManager: "pnpm",
+    });
+    if (!result.ok) throw new Error("generation failed");
+    return result.files;
+  }
+
+  it("writes file routes and registers the router in the entry", async () => {
+    const files = await project("react", "ts");
+    expect(files.has("src/App.tsx")).toBe(false);
+    expect(files.get("src/routes/index.tsx")).toContain(
+      'export const Route = createFileRoute("/")({',
+    );
+    const main = files.get("src/main.tsx") ?? "";
+    expect(main).toContain("<RouterProvider router={router} />");
+    expect(main).toContain('declare module "@tanstack/react-router"');
+    expect(files.get("vite.config.ts")).toMatch(
+      /plugins: \[\s*tanstackRouter\(.*\),\s*react\(\)/s,
+    );
+  });
+
+  it("emits the route tree as the plugin prints it, unformatted", async () => {
+    const tree =
+      (await project("react", "ts")).get("src/routeTree.gen.ts") ?? "";
+    expect(tree).toContain(
+      "import { Route as IndexRouteImport } from './routes/index'",
+    );
+    expect(tree).toContain("._addFileTypes<FileRouteTypes>()");
+    const js = (await project("solid", "js")).get("src/routeTree.gen.js") ?? "";
+    expect(js).not.toContain("interface");
+    expect(js).not.toContain("as any");
+  });
+
+  it("keeps the route tree out of the linter and formatter", async () => {
+    const files = await project("react", "ts", ["eslint", "prettier"]);
+    expect(files.get("eslint.config.js")).toContain('"src/routeTree.gen.ts"');
+    expect(files.get(".prettierignore")).toContain("src/routeTree.gen.ts");
+    const biome = await project("solid", "ts", ["biome"]);
+    expect(biome.get("biome.json")).toContain('"!src/routeTree.gen.ts"');
+  });
+});

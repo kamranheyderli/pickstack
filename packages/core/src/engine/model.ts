@@ -43,6 +43,7 @@ export function createModel(): ProjectModel {
     federation: null,
     repoFiles: new Map(),
     gitignore: [],
+    verbatim: new Set(),
     testing: null,
     readme: { stack: [], sections: [] },
     warnings: [],

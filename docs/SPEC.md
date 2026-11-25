@@ -123,7 +123,7 @@ Kateqoriya `single` seçimlidir.
 | Modul | Uyğun |
 |---|---|
 | `react-router` | R (v8: paket `react-router`; `react-router-dom` v7-də qalıb) |
-| `tanstack-router` | R |
+| `tanstack-router` | R, So (fayl əsaslı) |
 | `vue-router` | V |
 | `solid-router` | So |
 | `preact-iso` | P |
@@ -290,6 +290,13 @@ AI agent faylları (2026-11, rəsmi sənədlərdən yoxlanılıb):
   - Vue, Solid və Preact-ın rəsmi server-i yoxdur, ona görə onlara heç nə yazılmır.
 - Cursor: `.cursor/rules/<framework>.mdc` (`globs` dırnaq içində, çünki `{` ilə başlayan glob YAML-da obyekt sayılır) və `.cursor/mcp.json`. Copilot: `.github/copilot-instructions.md` və `.vscode/mcp.json` (`servers` açarı ilə, hər server-də `type`).
 - Turborepo-da agent faylları kökdə qalır (`model.repoFiles`); Module Federation-da host layihəsinə yazılır.
+
+TanStack Router (`tanstack-router`, React və Solid, 1.170, 2026-11 yoxlanılıb):
+
+- Fayl əsaslı routing, TanStack-in tövsiyə etdiyi forma: `src/routes/__root`, `index`, `about`. Vite plugin-i (`@tanstack/router-plugin`) framework plugin-indən əvvəl gəlir. Router entry-də yaradılır və TS-də `Register` interfeysi ilə qeydə alınır, ona görə `to` tip-təhlükəsizdir.
+- `src/routeTree.gen.ts` (JS-də `.js`) generator tərəfindən plugin-in çap etdiyi formada yazılır. Onsuz TS build-i (`tsc --noEmit && vite build`) təmiz klonda düşür. TanStack sənədi faylı commit etməyi deyir. Build-dən sonra plugin-in yenidən yazdığı fayl generasiya etdiyimizlə bayt-bayt eynidir (React TS/JS, Solid TS yoxlanılıb).
+- Fayl `model.verbatim`-dədir: generator onu formatlamır, ESLint `globalIgnores`, `.prettierignore` və Biome `files.includes` (`!path`) onu istisna edir. React-də `src/routes/**` üçün `react-refresh/only-export-components` söndürülür, çünki plugin route HMR-i özü edir.
+- Code-based routing ehtiyat variant idi, amma sənəd onu "çox tətbiq üçün tövsiyə olunmur" deyə təsvir edir.
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 

@@ -51,10 +51,15 @@ function extOf(path: string): string | undefined {
 export async function formatFiles(
   files: Map<string, string>,
   overrides: ParserMap = {},
+  verbatim: ReadonlySet<string> = new Set(),
 ): Promise<Map<string, string>> {
   const parsers = { ...defaultParsers, ...overrides };
+  // Verbatim paths are app-relative; a workspace layout may have moved them into a folder.
+  const isVerbatim = (path: string) =>
+    [...verbatim].some((v) => path === v || path.endsWith(`/${v}`));
   const entries = await Promise.all(
     [...files].map(async ([path, content]) => {
+      if (isVerbatim(path)) return [path, content] as const;
       const ext = extOf(path);
       // Prettier prints package.json like JSON.stringify (arrays always broken).
       const parser = path.endsWith("package.json")

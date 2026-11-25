@@ -148,15 +148,17 @@ function tsconfig(paths: Record<string, string[]> | null) {
 }
 
 function mainEntry(model: ProjectModel, ctx: Ctx): string {
+  const root = model.routing?.root;
   const tree = [
     "<StrictMode>",
-    ...indent(wrapProviders(model, ["<App />"])),
+    ...indent(wrapProviders(model, root ? root.tree : ["<App />"])),
     "</StrictMode>",
   ];
 
   return file([
     ...renderImports([
       ...model.entry.imports,
+      ...(root?.imports ?? []),
       ...model.entry.providers.flatMap((p) => p.imports),
       { from: `./index.${styleExt(model)}` },
     ]),

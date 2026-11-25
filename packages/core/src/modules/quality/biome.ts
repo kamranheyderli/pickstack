@@ -8,7 +8,10 @@ import type { Ctx, Module } from "../../types";
  * 2.x) to be formatted and to see template usages; Angular templates are not supported, so
  * Angular keeps the HTML formatter off.
  */
-function biomeConfig(ctx: Ctx): Record<string, unknown> {
+function biomeConfig(
+  ctx: Ctx,
+  verbatim: ReadonlySet<string>,
+): Record<string, unknown> {
   const framework = ctx.selection.framework;
   const version = knownGoodVersion("@biomejs/biome", framework);
   const sfc = ["vue", "nuxt", "svelte", "sveltekit", "astro"].includes(
@@ -19,7 +22,13 @@ function biomeConfig(ctx: Ctx): Record<string, unknown> {
   return {
     $schema: `https://biomejs.dev/schemas/${version}/schema.json`,
     vcs: { enabled: true, clientKind: "git", useIgnoreFile: true },
-    files: { ignoreUnknown: false },
+    files: {
+      ignoreUnknown: false,
+      // Generated files (e.g. TanStack's route tree) stay as their tool writes them.
+      ...(verbatim.size
+        ? { includes: ["**", ...[...verbatim].map((path) => `!${path}`)] }
+        : {}),
+    },
     formatter: { enabled: true, indentStyle: "space" },
     linter: { enabled: true, rules: { preset: "recommended" } },
     javascript: { formatter: { quoteStyle: "double" } },
@@ -72,7 +81,7 @@ export const biome: Module = {
     model.pkg.scripts["format"] = "biome format --write";
     model.pkg.scripts["format:check"] = "biome format";
     model.pkg.scripts["check"] = "biome check";
-    model.files.set("biome.json", json(biomeConfig(ctx)));
+    model.files.set("biome.json", json(biomeConfig(ctx, model.verbatim)));
     model.linter = "biome";
     model.formatter = "biome";
     model.readme.stack.push("Biome");

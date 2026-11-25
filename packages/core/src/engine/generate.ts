@@ -59,7 +59,7 @@ export async function generate(
   const files =
     options.format === false
       ? sorted
-      : await formatFiles(sorted, framework.formatParsers);
+      : await formatFiles(sorted, framework.formatParsers, model.verbatim);
 
   return {
     ok: true,
