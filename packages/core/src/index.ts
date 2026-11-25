@@ -12,7 +12,7 @@ export {
 } from "./engine/validate";
 export { resolve } from "./engine/resolve";
 export { installCommand, runCommand } from "./engine/finalize";
-export { cliPackage, createCommand } from "./engine/command";
+export { cliPackage, createCommand, startCommand } from "./engine/command";
 export { formatFiles } from "./engine/format";
 export { knownGoodVersion } from "./versions/known-good";
 export { toZip } from "./output/zip";

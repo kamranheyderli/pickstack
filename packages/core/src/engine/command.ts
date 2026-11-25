@@ -10,6 +10,11 @@ const runners: Record<PackageManager, string> = {
   bun: "bun create pickstack",
 };
 
+/** The bare command that starts the interactive CLI with `pm`. */
+export function startCommand(pm: PackageManager): string {
+  return runners[pm];
+}
+
 /**
  * The one-line terminal command that creates the same project as `selection`. The package
  * manager isn't a flag: the CLI uses the one it was started with.

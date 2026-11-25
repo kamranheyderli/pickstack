@@ -17,6 +17,7 @@ import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
+import { QuickStart } from "./components/QuickStart";
 import { Sky } from "./components/Sky";
 import { TerminalDemo } from "./components/TerminalDemo";
 import {
@@ -277,6 +278,7 @@ export default function App() {
             <p className="m-0 max-w-[60ch] text-sm text-muted sm:text-base">
               {t("app.tagline")}
             </p>
+            <QuickStart initial={selection.packageManager} />
           </div>
           <TerminalDemo
             command={createCommand({ ...selection, name: projectName })}
