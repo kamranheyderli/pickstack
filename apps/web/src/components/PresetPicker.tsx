@@ -15,7 +15,7 @@ export function PresetPicker({ active, onPick }: PresetPickerProps) {
   const t = useT();
   const locale = useLocale();
   return (
-    <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+    <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
       {presets.map((preset) => {
         const logos = preset.modules.flatMap((id) => {
           const icon = moduleIcons[id];

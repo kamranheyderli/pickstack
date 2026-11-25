@@ -114,6 +114,16 @@ export const presets: readonly Preset[] = [
     modules: ["angular-material", "tanstack-query", ...tests, ...quality],
   },
   {
+    id: "angular-nestjs",
+    name: "Full-stack: Angular + NestJS",
+    description: {
+      az: "Angular Material və NestJS API: hər ikisində modul, DI və decorator-lar; web/ və server/ ayrıca.",
+      en: "Angular Material and a NestJS API: modules, DI and decorators on both sides; web/ and server/ side by side.",
+    },
+    framework: "angular",
+    modules: ["nestjs", "angular-material", ...tests, ...quality],
+  },
+  {
     id: "astro-content",
     name: "Astro content site",
     description: {
