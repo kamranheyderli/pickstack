@@ -22,6 +22,7 @@ export type Category =
   | "forms"
   | "i18n"
   | "backend"
+  | "database"
   | "testing"
   | "quality"
   | "seo"
@@ -212,15 +213,29 @@ export interface FederationSpec {
 
 /**
  * A backend next to the app: the app moves to `web/` and the server project, with its own
- * package.json, to `server/`. The app's dev server proxies `/api` to it.
+ * package.json, to `server/`. Modules add to it; `finalize` renders it after all have run.
  */
 export interface ServerSpec {
   /** Port the server listens on in development. */
   port: number;
-  /** The server project's files, relative to `server/`. */
-  files: Map<string, string>;
-  /** One line for the root README, e.g. "Express 5 API". */
+  /** One line for the root README, e.g. "Express 5 API on port 3001". */
   summary: string;
+  dependencies: Set<string>;
+  devDependencies: Set<string>;
+  /** Imports and route handlers of `src/app`. */
+  appImports: ImportSpec[];
+  routes: string[];
+  /** Imports and statements `src/index` runs before `listen` (top-level await allowed). */
+  entryImports: ImportSpec[];
+  beforeListen: string[];
+  /** `.env.example` entries. */
+  env: Record<string, string>;
+  /** Other files, relative to `server/`. */
+  files: Map<string, string>;
+  /** Files at the root, next to `web/` and `server/` (e.g. docker-compose.yml). */
+  rootFiles: Map<string, string>;
+  /** Extra steps for the root README's getting-started section. */
+  setup: string[];
 }
 
 export interface ProjectModel {

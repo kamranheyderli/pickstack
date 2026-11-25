@@ -8,6 +8,7 @@ import type {
 } from "../types";
 import { file, json, sortRecord } from "./code";
 import { APP_NAME, writeTurborepo } from "./monorepo";
+import { renderServer } from "./server";
 
 /** Built-in pnpm commands that shadow scripts with the same name. */
 const PNPM_COMMANDS = new Set(["deploy", "publish", "pack", "link", "update"]);
@@ -190,8 +191,9 @@ function writeServer(model: ProjectModel, ctx: Ctx, spec: ServerSpec): void {
   const web = [...model.files];
   model.files.clear();
   for (const [path, content] of web) model.files.set(`web/${path}`, content);
-  for (const [path, content] of spec.files)
+  for (const [path, content] of renderServer(spec, ctx))
     model.files.set(`server/${path}`, content);
+  for (const [path, content] of spec.rootFiles) model.files.set(path, content);
   const start = (dir: string) =>
     `cd ${dir} && ${installCommand(pm)} && ${runCommand(pm, "dev")}`;
   model.files.set(
@@ -219,6 +221,7 @@ function writeServer(model: ProjectModel, ctx: Ctx, spec: ServerSpec): void {
       "",
       "## Getting started",
       "",
+      ...spec.setup.flatMap((step) => [step, ""]),
       "Start the API, then the app, in two terminals:",
       "",
       "```bash",

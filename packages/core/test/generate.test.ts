@@ -41,7 +41,13 @@ function everything(framework: FrameworkId): string[] {
     .filter((m) => m.frameworks === "all" || m.frameworks.includes(framework))
     .filter(
       (m) =>
-        !["biome", "turborepo", "module-federation", "express"].includes(m.id),
+        ![
+          "biome",
+          "turborepo",
+          "module-federation",
+          "express",
+          "mongodb",
+        ].includes(m.id),
     )
     .filter((m) => {
       if (!singleSelectCategories.has(m.category)) return true;

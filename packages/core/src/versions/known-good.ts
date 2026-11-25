@@ -60,6 +60,7 @@ const shared: VersionSet = {
   zod: "^4.6.7",
   express: "^5.3.0",
   "@types/express": "^5.0.6",
+  mongoose: "^9.13.1",
   tsx: "^4.23.15",
   storybook: "^10.6.9",
   "@storybook/react-vite": "^10.6.9",
@@ -265,6 +266,7 @@ export const deploy = {
   node: "node:24-alpine",
   nginx: "nginx:1.29-alpine",
   bun: "oven/bun:1",
+  mongo: "mongo:8",
   pnpm: "10",
   /** Cloudflare's `compatibility_date`: the runtime behaviour the project was tested with. */
   cloudflareCompatibilityDate: "2026-11-25",

@@ -139,9 +139,12 @@ export const vueAdapter: FrameworkAdapter = {
         sfc(
           ctx,
           [
-            'import CounterCard from "./components/CounterCard.vue";',
-            ...model.demo.widgets.map(
-              (name) => `import ${name} from "./components/${name}.vue";`,
+            // Sorted like the formatters sort them (Biome's organizeImports checks it).
+            ...renderImports(
+              ["CounterCard", ...model.demo.widgets].map((name) => ({
+                from: `./components/${name}.vue`,
+                default: name,
+              })),
             ),
           ],
           withAppShell(model.demo.view, [
@@ -330,9 +333,12 @@ function view(
     return sfc(
       ctx,
       [
-        'import CounterCard from "../components/CounterCard.vue";',
-        ...model.demo.widgets.map(
-          (name) => `import ${name} from "../components/${name}.vue";`,
+        // Sorted like the formatters sort them (Biome's organizeImports checks it).
+        ...renderImports(
+          ["CounterCard", ...model.demo.widgets].map((name) => ({
+            from: `../components/${name}.vue`,
+            default: name,
+          })),
         ),
       ],
       [

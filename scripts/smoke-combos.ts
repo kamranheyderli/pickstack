@@ -913,5 +913,11 @@ function backendCombos(): Combo[] {
     { framework: "solid", language: "ts", modules: ["express"] },
     { framework: "preact", language: "js", modules: ["express"] },
     { framework: "angular", language: "ts", modules: ["express", "prettier"] },
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["mongodb", "eslint", "prettier"],
+    },
+    { framework: "vue", language: "js", modules: ["mongodb", "biome"] },
   ];
 }

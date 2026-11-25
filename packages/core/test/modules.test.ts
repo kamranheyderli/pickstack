@@ -1492,3 +1492,34 @@ describe("express", () => {
     );
   });
 });
+
+describe("mongodb", () => {
+  it("connects before listening and adds todo routes and docker-compose", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["mongodb"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.autoAdded).toContain("express");
+    const files = result.files;
+    const index = files.get("server/src/index.ts") ?? "";
+    expect(index).toContain(
+      'await connectDb(process.env.MONGODB_URI ?? "mongodb://localhost:27017/acme");',
+    );
+    expect(index.indexOf("connectDb(")).toBeLessThan(
+      index.indexOf("app.listen"),
+    );
+    expect(files.get("server/src/app.ts")).toContain('app.post("/api/todos"');
+    expect(files.get("server/.env.example")).toContain(
+      "MONGODB_URI=mongodb://localhost:27017/acme",
+    );
+    expect(files.get("docker-compose.yml")).toContain("image: mongo:8");
+    expect(
+      JSON.parse(files.get("server/package.json") ?? "").dependencies.mongoose,
+    ).toBe(knownGoodVersion("mongoose", "react"));
+    expect(files.get("README.md")).toContain("docker compose up -d");
+  });
+});

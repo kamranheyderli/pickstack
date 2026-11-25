@@ -174,6 +174,28 @@ Qeydlər (2026-11, yoxlanılıb):
   - Meta-framework-lər: `next-intl`, `@nuxtjs/i18n`. Demo widget SPA-lardadır, routing-ə inteqrasiya isə ayrıca işdir.
   - Svelte, Solid, Angular: Paraglide, `@solid-primitives/i18n`, Transloco.
 
+### 5.6.2 Backend və verilənlər bazası (tək seçim)
+
+| Modul | Uyğun | Tələb |
+|---|---|---|
+| `express` | R, V, S, So, P, A | |
+| `mongodb` | R, V, S, So, P, A | `express` (avtomatik əlavə olunur) |
+
+- **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
+  - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
+  - Modullar `ServerSpec`-ə əlavə edir: paketlər, `src/app` importları və route-ları, `listen`-dən əvvəlki addımlar, env və kök faylları. Fayllar `finalize` mərhələsində `engine/server.ts` ilə yazılır, ona görə modullar paylaşılan faylları mətn kimi dəyişmir.
+- **Express 5:** `src/app` route-ları `listen`-dən ayrı saxlayır, testlər onu import edə bilsin deyə. TS-də `tsx watch` və `tsc` (NodeNext, `.js` importları), JS-də `node --watch` istifadə olunur.
+- **Frontend inteqrasiyası:** `model.apiProxy` dev server-də `/api` sorğularını API-yə yönləndirir (Vite-də `server.proxy`, Angular-da `proxy.conf.json`), CORS lazım olmur. `ApiGreeting` widget-i `/api/hello` çağırır; 6 SPA-nın hamısında brauzerdə yoxlanılıb.
+- **MongoDB:**
+  - Mongoose ilə `connectDb` `listen`-dən əvvəl top-level await ilə çağırılır.
+  - `Todo` modeli və `GET`/`POST /api/todos` route-ları yazılır.
+  - `MONGODB_URI` `.env.example`-də verilir; kökdə `docker-compose.yml` (`mongo:8`) var.
+- **Məhdudiyyətlər:**
+  - Next və Nuxt üçün təklif olunmur, çünki onların öz server route-ları var.
+  - `turborepo` və `module-federation` ilə konflikt edir.
+  - GitHub Actions workflow-u hələ `web/` içində qalır, ona görə GitHub onu oxumur. Bu, sonrakı addımdır.
+- **Növbəti:** NestJS, sonra PostgreSQL ilə Prisma və ya Drizzle.
+
 ### 5.7 Test
 
 | Modul | Uyğun |

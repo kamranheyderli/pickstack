@@ -28280,9 +28280,9 @@ afterEach(() => {
 ",
   "src/views/HomeView.vue": "<script setup>
 import CounterCard from "../components/CounterCard.vue";
-import StackList from "../components/StackList.vue";
-import SignupForm from "../components/SignupForm.vue";
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+import SignupForm from "../components/SignupForm.vue";
+import StackList from "../components/StackList.vue";
 </script>
 
 <template>
@@ -29745,9 +29745,9 @@ afterEach(() => {
 ",
   "src/views/HomeView.vue": "<script setup lang="ts">
 import CounterCard from "../components/CounterCard.vue";
-import StackList from "../components/StackList.vue";
-import SignupForm from "../components/SignupForm.vue";
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+import SignupForm from "../components/SignupForm.vue";
+import StackList from "../components/StackList.vue";
 </script>
 
 <template>

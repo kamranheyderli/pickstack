@@ -92,5 +92,6 @@
   "footer.tagline": "pickstack: brauzerdən, terminaldan və ya AI agentindən test olunmuş frontend layihələri.",
   "footer.templates": "Hazır şablonlar",
   "quickstart.hint": "Terminalda işə salın: framework və alətləri soruşur, sonra layihəni yaradır.",
-  "category.backend": "Backend"
+  "category.backend": "Backend",
+  "category.database": "Verilənlər bazası"
 }
