@@ -168,7 +168,11 @@ type UiIconName =
   | "check"
   | "folder"
   | "sparkles"
-  | "file";
+  | "file"
+  | "chevron"
+  | "pencil"
+  | "eye"
+  | "undo";
 
 const uiPaths: Record<UiIconName, string[]> = {
   sun: [
@@ -206,6 +210,16 @@ const uiPaths: Record<UiIconName, string[]> = {
     "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
     "M14 2v4a2 2 0 0 0 2 2h4",
   ],
+  chevron: ["m9 18 6-6-6-6"],
+  pencil: [
+    "M21.17 6.81a1 1 0 0 0-3.98-3.98L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5Z",
+    "m15 5 4 4",
+  ],
+  eye: [
+    "M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0",
+    "M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  ],
+  undo: ["M3 7v6h6", "M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"],
 };
 
 export function UiIcon({

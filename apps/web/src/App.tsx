@@ -37,6 +37,8 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [generation, setGeneration] = useState(0);
+  // Files the user edited in the preview; they win over generated content.
+  const [edits, setEdits] = useState<Map<string, string>>(() => new Map());
   const generated = useGenerated(selection);
   const [seen, setSeen] = useState(generated.result);
 
@@ -50,7 +52,19 @@ export default function App() {
     setSeen(result);
     setGeneration((g) => g + 1);
   }
-  const files = result?.ok ? result.files : null;
+  const generatedFiles = result?.ok ? result.files : null;
+  // Edits apply only to files the current selection still generates.
+  const files = generatedFiles
+    ? new Map(
+        [...generatedFiles].map(([path, content]) => [
+          path,
+          edits.get(path) ?? content,
+        ]),
+      )
+    : null;
+  const edited = new Set(
+    [...edits.keys()].filter((path) => generatedFiles?.has(path)),
+  );
   const activePath =
     files && !files.has(current)
       ? ([...files.keys()].find((p) => /^src\/App\.\w+$/.test(p)) ??
@@ -69,6 +83,8 @@ export default function App() {
   };
 
   const onBaseChange = (next: Selection) => {
+    // Another framework generates different files; earlier edits would not apply.
+    if (next.framework !== selection.framework) setEdits(new Map());
     const pruned = pruneIncompatible(next);
     setSelection(pruned.selection);
     setNotice(
@@ -262,13 +278,33 @@ export default function App() {
                   paths={[...files.keys()]}
                   current={activePath}
                   changed={generated.changed}
+                  edited={edited}
                   generation={generation}
                   label={t("preview.tree")}
+                  editedLabel={t("preview.edited")}
                   onSelect={setCurrent}
                 />
                 <CodeView
                   path={activePath}
                   code={files.get(activePath) ?? ""}
+                  edited={edited.has(activePath)}
+                  onEdit={(code) =>
+                    setEdits((prev) => {
+                      const next = new Map(prev);
+                      // Editing back to the generated text is no edit at all.
+                      if (code === generatedFiles?.get(activePath))
+                        next.delete(activePath);
+                      else next.set(activePath, code);
+                      return next;
+                    })
+                  }
+                  onReset={() =>
+                    setEdits((prev) => {
+                      const next = new Map(prev);
+                      next.delete(activePath);
+                      return next;
+                    })
+                  }
                 />
               </div>
             ) : (

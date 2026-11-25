@@ -54,5 +54,10 @@
   "reason.missing-one-of": "{module} üçün əvvəlcə bunlardan birini seç: {options}.",
   "category.seo": "SEO və AI görünürlüyü",
   "category.tooling": "Alətlər",
-  "category.ai": "AI agentlər"
+  "category.ai": "AI agentlər",
+  "preview.edit": "Redaktə et",
+  "preview.view": "Bax",
+  "preview.reset": "Sıfırla",
+  "preview.edited": "redaktə olunub",
+  "preview.editor": "{path} faylını redaktə et"
 }
