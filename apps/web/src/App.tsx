@@ -14,6 +14,7 @@ import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
+import { Sky } from "./components/Sky";
 import { TerminalDemo } from "./components/TerminalDemo";
 import {
   LocaleProvider,
@@ -156,6 +157,7 @@ export default function App() {
 
   return (
     <LocaleProvider locale={locale}>
+      <Sky />
       <header className="sticky top-0 z-20 border-b border-line/70 bg-bg/75 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6">
           <a

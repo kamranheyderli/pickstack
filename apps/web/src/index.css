@@ -85,6 +85,101 @@ body::before {
   mask-image: radial-gradient(70rem 34rem at 50% 0%, #000 0%, transparent 75%);
 }
 
+/* Night sky behind the dark theme: fixed stars plus a few shooting stars (Sky.tsx). */
+.sky {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* Tiny stars on two offset tiles so the pattern doesn't look like a grid. */
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, rgb(255 255 255 / 0.45), transparent),
+    radial-gradient(1px 1px at 140px 90px, rgb(255 255 255 / 0.3), transparent),
+    radial-gradient(
+      1.5px 1.5px at 260px 160px,
+      rgb(255 255 255 / 0.4),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 90px 220px,
+      rgb(255 255 255 / 0.25),
+      transparent
+    ),
+    radial-gradient(1px 1px at 330px 40px, rgb(255 255 255 / 0.35), transparent);
+  background-size:
+    360px 260px,
+    360px 260px,
+    420px 300px,
+    420px 300px,
+    360px 260px;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 85%);
+}
+
+:root[data-theme="dark"] .sky {
+  display: block;
+}
+
+.shooting-star {
+  position: absolute;
+  width: 9rem;
+  height: 1px;
+  /* The bright head is on the left; the tail trails up and to the right. */
+  background: linear-gradient(
+    to right,
+    rgb(255 255 255 / 0.95),
+    color-mix(in srgb, var(--color-accent) 60%, transparent) 30%,
+    transparent
+  );
+  border-radius: 999px;
+  opacity: 0;
+  transform-origin: left center;
+  transform: rotate(-35deg);
+  animation-name: shoot;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+/* A small glow on the head. */
+.shooting-star::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--color-accent) 70%, white);
+}
+
+/* Each streak flies for the first ~12% of its cycle, then waits off-screen. */
+@keyframes shoot {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-35deg);
+  }
+  2% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 0;
+    transform: translate(-42rem, 29rem) rotate(-35deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-42rem, 29rem) rotate(-35deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shooting-star {
+    display: none;
+  }
+}
+
 /* Shiki renders its own <pre>; let the wrapper own spacing and background. */
 .code-html pre {
   margin: 0;
