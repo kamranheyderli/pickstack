@@ -1,5 +1,11 @@
 import { file, indent, renderImports } from "../../engine/code";
-import type { CounterSpec, Ctx, ImportSpec, ProjectModel } from "../../types";
+import type {
+  CounterSpec,
+  CounterView,
+  Ctx,
+  ImportSpec,
+  ProjectModel,
+} from "../../types";
 import { aboutText, type DemoClasses } from "./demo";
 
 /**
@@ -39,7 +45,16 @@ export function svelteCounter(
   spec: CounterSpec,
   ctx: Ctx,
   cls: DemoClasses,
+  view: CounterView | null = null,
 ): string {
+  if (view) {
+    return svelteComponent(
+      ctx,
+      [...view.imports, ...spec.imports],
+      spec.setup,
+      view.markup(spec),
+    );
+  }
   return svelteComponent(ctx, spec.imports, spec.setup, [
     `<div class="${cls.card}">`,
     `  <p class="${cls.count}">{${spec.value}}</p>`,

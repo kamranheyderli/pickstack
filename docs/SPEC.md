@@ -99,8 +99,8 @@ Tailwind v4 Vite layihələrində `@tailwindcss/vite` plugini ilə, Next-də Pos
 | `shadcn-vue` | V, Nu | `tailwind`, `ts` (yoxla) | digər UI kitləri |
 | `primevue` | V, Nu | | digər UI kitləri |
 | `vuetify` | V, Nu | | `tailwind` (tövsiyə olunmur, xəbərdarlıq ver) |
-| `shadcn-svelte` | S, SK | `tailwind` | digər UI kitləri |
-| `angular-material` | A | | |
+| `shadcn-svelte` | S, SK | `tailwind` (TS və JS) | digər UI kitləri |
+| `angular-material` | A | | (Tailwind ilə uyğundur) |
 
 UI kitləri qarşılıqlı ziddiyyətlidir: kateqoriya `single` seçimlidir.
 
@@ -242,6 +242,15 @@ Module Federation (`module-federation` modulu, `@module-federation/vite` 1.25, 2
 - `dts: false`. Plugin-in tip paylaşması typecheck zamanı remote-un işləməsini tələb edir və arxa planda broker prosesi qoyur. Host əvəzinə `remotes.d.ts` yazır.
 - Remote işləmirsə host səhifəsi ağ qalır: plugin remote entry-ni tətbiq başlamazdan əvvəl yükləyir. README bunu deyir.
 - Yoxlanılıb: 3 kombinasiya smoke-da keçir; smoke kökdə `package.json` olmayanda hər layihəni ayrıca install və build edir. Headless Chrome-da iki ayrı `dev` server-lə (və `preview` ilə) host-un öz counter-i (Redux) və remote counter ayrı-ayrı işləyir, Tailwind klassları remote-a da tətbiq olunur.
+
+UI kitləri (2026-11 yoxlanılıb):
+
+- Counter kartını kit çəkir (`model.demo.view`: importlar və markup). Dəyər və handler-lər isə state modulundan gəlir (`CounterSpec`), ona görə istənilən state modulu istənilən kitlə birləşir.
+- shadcn-svelte 1.8.1: `init --preset vega` və `add button card` nəticəsi vendored saxlanılır (core fayl sistemi oxumur). Komponentlər `src/lib/components/ui`-dadır, `components.json` sonrakı `add` əmrləri üçün yazılır.
+  - Alias hər iki framework-də `#lib`-dir (package.json `imports`). CLI bunu `--lib-alias '#lib'` ilə qəbul edir, ona görə plain Svelte-də sənəddəki Vite/tsconfig `$lib` alias-ı lazım olmur.
+  - `utils` artıq `cn` paketindən re-export-dur (clsx/tailwind-merge yoxdur). CLI-nin JS `utils.js`-dəki asılı qalan eslint şərhi silinib. Fayllar həm Prettier, həm Biome organizeImports formasındadır.
+  - SvelteKit + ESLint: shadcn Button-u `href` qəbul edir, ona görə `svelte/no-navigation-without-resolve` yalnız `src/lib/components/ui`-da söndürülür.
+- Angular Material 22: `ng add` kimi ayrıca `src/material-theme.scss` (`mat.theme`) yaradılır və `angular.json` `styles`-da qlobal faylın əvvəlinə qoyulur. `index.html`-ə Roboto və Material Symbols linkləri əlavə olunur. Animations provider lazım deyil. Tailwind ilə uyğundur: Tailwind v4 `@layer` içindədir, Material isə layer-sizdir.
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 

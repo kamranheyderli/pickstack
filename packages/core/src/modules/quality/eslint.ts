@@ -290,6 +290,15 @@ function svelte(ctx: Ctx, kit: boolean): EslintSetup {
             "  },",
           ]
         : []),
+      ...(kit && ctx.has("shadcn-svelte")
+        ? [
+            "  {",
+            "    // shadcn-svelte's Button renders whatever `href` it receives; callers pass resolve()d paths.",
+            '    files: ["src/lib/components/ui/**/*.svelte"],',
+            '    rules: { "svelte/no-navigation-without-resolve": "off" },',
+            "  },",
+          ]
+        : []),
       ");",
     ],
   };

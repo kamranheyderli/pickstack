@@ -114,6 +114,24 @@ export interface CounterTestHarness {
   plugins?: string[];
 }
 
+/** The counter's state expressions, as a `CounterSpec` gives them. */
+export type CounterBinding = Pick<
+  CounterSpec,
+  "value" | "increment" | "decrement"
+>;
+
+/**
+ * How the counter card is drawn with a UI kit's components. State modules still own the
+ * value and handlers (`CounterSpec`); the view only places them in the kit's markup.
+ */
+export interface CounterView {
+  /** Imports the markup needs (script imports; Angular: the TS imports). */
+  imports: ImportSpec[];
+  /** Angular standalone components to list in the component's `imports`. */
+  components?: string[];
+  markup(counter: CounterBinding): string[];
+}
+
 /** How the demo app renders navigation and the active route. Filled by routing modules. */
 export interface RoutingSpec {
   imports: ImportSpec[];
@@ -189,6 +207,8 @@ export interface ProjectModel {
     providers: ProviderSpec[];
     appUses: string[];
     setup: string[];
+    /** Extra tags for the HTML document `<head>` (fonts a UI kit needs). */
+    head: string[];
   };
   bundler: {
     plugins: ImportedCall[];
@@ -207,10 +227,16 @@ export interface ProjectModel {
     mode: "plain" | "tailwind";
     /** Set by the `sass` module: the global stylesheet is SCSS unless Tailwind owns it. */
     sass: boolean;
+    /** Stylesheets loaded before the global one, e.g. a UI kit theme (Angular `styles`). */
+    preload: string[];
   };
   routes: RouteSpec[];
   routing: RoutingSpec | null;
-  demo: { counter: CounterSpec | null };
+  demo: {
+    counter: CounterSpec | null;
+    /** Set by a UI kit module. */
+    view: CounterView | null;
+  };
   /** Set by the `seo` module; `ai` is turned on by `aio`. Adapters render head tags from it. */
   seo: SeoSpec | null;
   /**

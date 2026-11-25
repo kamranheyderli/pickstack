@@ -37,7 +37,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -115,7 +115,7 @@ git push -u origin main
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"],
+            "styles": ["src/material-theme.scss", "src/styles.css"],
             "inlineStyleLanguage": "scss"
           },
           "configurations": {
@@ -235,10 +235,12 @@ export default defineConfig([
     "prepare": "husky"
   },
   "dependencies": {
+    "@angular/cdk": "^22.3.0",
     "@angular/common": "^22.3.0",
     "@angular/compiler": "^22.3.0",
     "@angular/core": "^22.3.0",
     "@angular/forms": "^22.3.0",
+    "@angular/material": "^22.3.0",
     "@angular/platform-browser": "^22.3.0",
     "@angular/router": "^22.3.0",
     "axios": "^1.21.1",
@@ -356,27 +358,22 @@ import { RouterLink, RouterOutlet } from "@angular/router";
 })
 export class App {}
 ",
-  "src/app/components/counter/counter.html": "<div
-  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
->
-  <p class="text-5xl font-bold tabular-nums">{{ counter.count() }}</p>
-  <div class="mt-6 flex justify-center gap-3">
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      (click)="counter.decrement()"
-    >
+  "src/app/components/counter/counter.html": "<mat-card appearance="outlined" class="min-w-64 text-center">
+  <mat-card-header>
+    <mat-card-title>Counter</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="text-5xl font-bold tabular-nums">{{ counter.count() }}</p>
+  </mat-card-content>
+  <mat-card-actions class="justify-center gap-3">
+    <button matButton="outlined" type="button" (click)="counter.decrement()">
       -1
     </button>
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      (click)="counter.increment()"
-    >
+    <button matButton="filled" type="button" (click)="counter.increment()">
       +1
     </button>
-  </div>
-</div>
+  </mat-card-actions>
+</mat-card>
 ",
   "src/app/components/counter/counter.spec.ts": "import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -394,10 +391,26 @@ describe("Counter", () => {
 });
 ",
   "src/app/components/counter/counter.ts": "import { Component, inject } from "@angular/core";
+import { MatButton } from "@angular/material/button";
+import {
+  MatCard,
+  MatCardActions,
+  MatCardContent,
+  MatCardHeader,
+  MatCardTitle,
+} from "@angular/material/card";
 import { CounterService } from "../../services/counter.service";
 
 @Component({
   selector: "app-counter",
+  imports: [
+    MatButton,
+    MatCard,
+    MatCardActions,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+  ],
   templateUrl: "./counter.html",
 })
 export class Counter {
@@ -407,9 +420,9 @@ export class Counter {
   "src/app/pages/about/about.html": "<section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
-    Built with Angular 22, TypeScript, Sass, Tailwind CSS, Angular signals
-    service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
-    lint-staged, SEO, llms.txt.
+    Built with Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material,
+    Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier,
+    Husky, lint-staged, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -479,6 +492,16 @@ export class CounterService {
         "url": "https://example.com/"
       }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <app-root></app-root>
@@ -490,6 +513,45 @@ import { App } from "./app/app";
 import { appConfig } from "./app/app.config";
 
 bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+",
+  "src/material-theme.scss": "// Include theming for Angular Material with \`mat.theme()\`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use "@angular/material" as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // \`dark\` to enable the dark color theme, or to \`light dark\` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
 ",
   "src/styles.css": "@import "tailwindcss";
 ",
@@ -10440,7 +10502,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -10458,6 +10520,10 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+
+## UI components
+
+shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx shadcn-svelte@latest add <component>\` (aliases are set in \`components.json\`).
 
 ## API client
 
@@ -10483,6 +10549,27 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "components.json": "{
+  "$schema": "https://shadcn-svelte.com/schema.json",
+  "tailwind": {
+    "css": "src/app.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "#lib/components",
+    "utils": "#lib/utils",
+    "ui": "#lib/components/ui",
+    "hooks": "#lib/hooks",
+    "lib": "#lib"
+  },
+  "typescript": false,
+  "registry": "https://shadcn-svelte.com/registry",
+  "style": "vega",
+  "iconLibrary": "lucide",
+  "menuColor": "default",
+  "menuAccent": "subtle"
+}
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -10554,6 +10641,9 @@ export default defineConfig(
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,svelte}": [
       "eslint --fix",
@@ -10576,12 +10666,14 @@ export default defineConfig(
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fontsource-variable/inter": "^5.3.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/svelte": "^5.4.2",
     "@testing-library/user-event": "^14.6.13",
+    "cn": "^0.5.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
@@ -10592,8 +10684,11 @@ export default defineConfig(
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "sass": "^1.108.2",
+    "shadcn-svelte": "^1.8.1",
     "svelte": "^5.59.1",
+    "tailwind-variants": "^3.3.0",
     "tailwindcss": "^4.3.5",
+    "tw-animate-css": "^1.4.0",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
   }
@@ -10652,32 +10747,159 @@ export const api = axios.create({
 });
 ",
   "src/app.css": "@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn-svelte/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
 ",
   "src/lib/Counter.svelte": "<script>
+  import { Button } from "#lib/components/ui/button/index.js";
+  import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "#lib/components/ui/card/index.js";
   import { counter, decrement, increment } from "./counterStore.svelte.js";
 </script>
 
-<div
-  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
->
-  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
-  <div class="mt-6 flex justify-center gap-3">
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={decrement}
-    >
-      -1
-    </button>
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={increment}
-    >
-      +1
-    </button>
-  </div>
-</div>
+<Card class="w-64 text-center">
+  <CardHeader>
+    <CardTitle>Counter</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  </CardContent>
+  <CardFooter class="justify-center gap-3">
+    <Button variant="outline" onclick={decrement}>-1</Button>
+    <Button onclick={increment}>+1</Button>
+  </CardFooter>
+</Card>
 ",
   "src/lib/Counter.test.js": "import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
@@ -10695,6 +10917,277 @@ describe("Counter", () => {
   });
 });
 ",
+  "src/lib/components/ui/button/button.svelte": "<script module>
+  import { tv } from "tailwind-variants";
+  import { cn } from "#lib/utils.js";
+  export const buttonVariants = tv({
+    base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        outline:
+          "border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground shadow-xs",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+        destructive:
+          "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
+        lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "size-9",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md",
+        "icon-lg": "size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  });
+</script>
+
+<script>
+  let {
+    class: className,
+    variant = "default",
+    size = "default",
+    ref = $bindable(null),
+    href = undefined,
+    type = "button",
+    disabled,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+{#if href}
+  <a
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    href={disabled ? undefined : href}
+    aria-disabled={disabled}
+    role={disabled ? "link" : undefined}
+    tabindex={disabled ? -1 : undefined}
+    {...restProps}
+  >
+    {@render children?.()}
+  </a>
+{:else}
+  <button
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    {type}
+    {disabled}
+    {...restProps}
+  >
+    {@render children?.()}
+  </button>
+{/if}
+",
+  "src/lib/components/ui/button/index.js": "import Root, { buttonVariants } from "./button.svelte";
+
+export {
+  buttonVariants,
+  Root,
+  //
+  Root as Button,
+};
+",
+  "src/lib/components/ui/card/card-action.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-action"
+  class={cn(
+    "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-content.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-content"
+  class={cn("flex flex-col gap-3 px-(--card-spacing)", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-description.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<p
+  bind:this={ref}
+  data-slot="card-description"
+  class={cn("text-muted-foreground text-sm", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</p>
+",
+  "src/lib/components/ui/card/card-footer.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-footer"
+  class={cn(
+    "rounded-b-xl px-(--card-spacing) [.border-t]:pt-(--card-spacing) flex items-center",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-header.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-header"
+  class={cn(
+    "gap-1 rounded-t-xl px-(--card-spacing) [.border-b]:pb-(--card-spacing) group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-title.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-title"
+  class={cn(
+    "text-base leading-normal font-medium group-data-[size=sm]/card:text-sm",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    size = "default",
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card"
+  data-size={size}
+  class={cn(
+    "ring-foreground/10 bg-card text-card-foreground gap-(--card-spacing) overflow-hidden rounded-xl py-(--card-spacing) text-sm shadow-xs ring-1 [--card-spacing:--spacing(6)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl group/card flex flex-col",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/index.js": "import Root from "./card.svelte";
+import Action from "./card-action.svelte";
+import Content from "./card-content.svelte";
+import Description from "./card-description.svelte";
+import Footer from "./card-footer.svelte";
+import Header from "./card-header.svelte";
+import Title from "./card-title.svelte";
+
+export {
+  Action,
+  Action as CardAction,
+  Content,
+  Content as CardContent,
+  Description,
+  Description as CardDescription,
+  Footer,
+  Footer as CardFooter,
+  Header,
+  Header as CardHeader,
+  Root,
+  //
+  Root as Card,
+  Title,
+  Title as CardTitle,
+};
+",
   "src/lib/counterStore.svelte.js": "export const counter = $state({ count: 0 });
 
 export function increment() {
@@ -10704,6 +11197,8 @@ export function increment() {
 export function decrement() {
   counter.count -= 1;
 }
+",
+  "src/lib/utils.js": "export { cn } from "cn";
 ",
   "src/main.js": "import { mount } from "svelte";
 import App from "./App.svelte";
@@ -10768,7 +11263,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -10787,6 +11282,10 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+
+## UI components
+
+shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx shadcn-svelte@latest add <component>\` (aliases are set in \`components.json\`).
 
 ## API client
 
@@ -10812,6 +11311,27 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "components.json": "{
+  "$schema": "https://shadcn-svelte.com/schema.json",
+  "tailwind": {
+    "css": "src/app.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "#lib/components",
+    "utils": "#lib/utils",
+    "ui": "#lib/components/ui",
+    "hooks": "#lib/hooks",
+    "lib": "#lib"
+  },
+  "typescript": true,
+  "registry": "https://shadcn-svelte.com/registry",
+  "style": "vega",
+  "iconLibrary": "lucide",
+  "menuColor": "default",
+  "menuAccent": "subtle"
+}
 ",
   "eslint.config.js": "import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -10880,6 +11400,9 @@ export default defineConfig(
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,svelte}": [
       "eslint --fix",
@@ -10903,6 +11426,7 @@ export default defineConfig(
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fontsource-variable/inter": "^5.3.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -10911,6 +11435,7 @@ export default defineConfig(
     "@testing-library/user-event": "^14.6.13",
     "@tsconfig/svelte": "^5.0.9",
     "@types/node": "^24.19.2",
+    "cn": "^0.5.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
@@ -10921,9 +11446,12 @@ export default defineConfig(
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "sass": "^1.108.2",
+    "shadcn-svelte": "^1.8.1",
     "svelte": "^5.59.1",
     "svelte-check": "^4.7.8",
+    "tailwind-variants": "^3.3.0",
     "tailwindcss": "^4.3.5",
+    "tw-animate-css": "^1.4.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
@@ -10984,32 +11512,159 @@ export const api = axios.create({
 });
 ",
   "src/app.css": "@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn-svelte/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
 ",
   "src/lib/Counter.svelte": "<script lang="ts">
+  import { Button } from "#lib/components/ui/button/index.js";
+  import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "#lib/components/ui/card/index.js";
   import { counter, decrement, increment } from "./counterStore.svelte.js";
 </script>
 
-<div
-  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
->
-  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
-  <div class="mt-6 flex justify-center gap-3">
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={decrement}
-    >
-      -1
-    </button>
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={increment}
-    >
-      +1
-    </button>
-  </div>
-</div>
+<Card class="w-64 text-center">
+  <CardHeader>
+    <CardTitle>Counter</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  </CardContent>
+  <CardFooter class="justify-center gap-3">
+    <Button variant="outline" onclick={decrement}>-1</Button>
+    <Button onclick={increment}>+1</Button>
+  </CardFooter>
+</Card>
 ",
   "src/lib/Counter.test.ts": "import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
@@ -11027,6 +11682,309 @@ describe("Counter", () => {
   });
 });
 ",
+  "src/lib/components/ui/button/button.svelte": "<script lang="ts" module>
+  import type {
+    HTMLAnchorAttributes,
+    HTMLButtonAttributes,
+  } from "svelte/elements";
+  import { tv, type VariantProps } from "tailwind-variants";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  export const buttonVariants = tv({
+    base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        outline:
+          "border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground shadow-xs",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+        destructive:
+          "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
+        lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "size-9",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md",
+        "icon-lg": "size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  });
+
+  export type ButtonVariant = VariantProps<typeof buttonVariants>["variant"];
+  export type ButtonSize = VariantProps<typeof buttonVariants>["size"];
+
+  export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
+    WithElementRef<HTMLAnchorAttributes> & {
+      variant?: ButtonVariant;
+      size?: ButtonSize;
+    };
+</script>
+
+<script lang="ts">
+  let {
+    class: className,
+    variant = "default",
+    size = "default",
+    ref = $bindable(null),
+    href = undefined,
+    type = "button",
+    disabled,
+    children,
+    ...restProps
+  }: ButtonProps = $props();
+</script>
+
+{#if href}
+  <a
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    href={disabled ? undefined : href}
+    aria-disabled={disabled}
+    role={disabled ? "link" : undefined}
+    tabindex={disabled ? -1 : undefined}
+    {...restProps}
+  >
+    {@render children?.()}
+  </a>
+{:else}
+  <button
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    {type}
+    {disabled}
+    {...restProps}
+  >
+    {@render children?.()}
+  </button>
+{/if}
+",
+  "src/lib/components/ui/button/index.ts": "import Root, {
+  type ButtonProps,
+  type ButtonSize,
+  type ButtonVariant,
+  buttonVariants,
+} from "./button.svelte";
+
+export {
+  type ButtonProps as Props,
+  type ButtonProps,
+  type ButtonSize,
+  type ButtonVariant,
+  buttonVariants,
+  Root,
+  //
+  Root as Button,
+};
+",
+  "src/lib/components/ui/card/card-action.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-action"
+  class={cn(
+    "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-content.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-content"
+  class={cn("flex flex-col gap-3 px-(--card-spacing)", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-description.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLParagraphElement>> = $props();
+</script>
+
+<p
+  bind:this={ref}
+  data-slot="card-description"
+  class={cn("text-muted-foreground text-sm", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</p>
+",
+  "src/lib/components/ui/card/card-footer.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-footer"
+  class={cn(
+    "rounded-b-xl px-(--card-spacing) [.border-t]:pt-(--card-spacing) flex items-center",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-header.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-header"
+  class={cn(
+    "gap-1 rounded-t-xl px-(--card-spacing) [.border-b]:pb-(--card-spacing) group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-title.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-title"
+  class={cn(
+    "text-base leading-normal font-medium group-data-[size=sm]/card:text-sm",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    size = "default",
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> & {
+    size?: "default" | "sm";
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card"
+  data-size={size}
+  class={cn(
+    "ring-foreground/10 bg-card text-card-foreground gap-(--card-spacing) overflow-hidden rounded-xl py-(--card-spacing) text-sm shadow-xs ring-1 [--card-spacing:--spacing(6)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl group/card flex flex-col",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/index.ts": "import Root from "./card.svelte";
+import Action from "./card-action.svelte";
+import Content from "./card-content.svelte";
+import Description from "./card-description.svelte";
+import Footer from "./card-footer.svelte";
+import Header from "./card-header.svelte";
+import Title from "./card-title.svelte";
+
+export {
+  Action,
+  Action as CardAction,
+  Content,
+  Content as CardContent,
+  Description,
+  Description as CardDescription,
+  Footer,
+  Footer as CardFooter,
+  Header,
+  Header as CardHeader,
+  Root,
+  //
+  Root as Card,
+  Title,
+  Title as CardTitle,
+};
+",
   "src/lib/counterStore.svelte.ts": "export const counter = $state({ count: 0 });
 
 export function increment() {
@@ -11036,6 +11994,19 @@ export function increment() {
 export function decrement() {
   counter.count -= 1;
 }
+",
+  "src/lib/utils.ts": "export { cn } from "cn";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChild<T> = T extends { child?: any } ? Omit<T, "child"> : T;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChildren<T> = T extends { children?: any }
+  ? Omit<T, "children">
+  : T;
+export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
+export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & {
+  ref?: U | null;
+};
 ",
   "src/main.ts": "import { mount } from "svelte";
 import App from "./App.svelte";
@@ -11626,7 +12597,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -11644,6 +12615,10 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+
+## UI components
+
+shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx shadcn-svelte@latest add <component>\` (aliases are set in \`components.json\`).
 
 ## API client
 
@@ -11670,6 +12645,27 @@ git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
 ",
+  "components.json": "{
+  "$schema": "https://shadcn-svelte.com/schema.json",
+  "tailwind": {
+    "css": "src/routes/layout.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "#lib/components",
+    "utils": "#lib/utils",
+    "ui": "#lib/components/ui",
+    "hooks": "#lib/hooks",
+    "lib": "#lib"
+  },
+  "typescript": false,
+  "registry": "https://shadcn-svelte.com/registry",
+  "style": "vega",
+  "iconLibrary": "lucide",
+  "menuColor": "default",
+  "menuAccent": "subtle"
+}
+",
   "eslint.config.js": "import path from "node:path";
 import js from "@eslint/js";
 import { defineConfig, includeIgnoreFile } from "eslint/config";
@@ -11689,6 +12685,11 @@ export default defineConfig(
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
     },
+  },
+  {
+    // shadcn-svelte's Button renders whatever \`href\` it receives; callers pass resolve()d paths.
+    files: ["src/lib/components/ui/**/*.svelte"],
+    rules: { "svelte/no-navigation-without-resolve": "off" },
   },
 );
 ",
@@ -11731,10 +12732,12 @@ export default defineConfig(
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fontsource-variable/inter": "^5.3.0",
     "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "cn": "^0.5.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
@@ -11745,8 +12748,11 @@ export default defineConfig(
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "sass": "^1.108.2",
+    "shadcn-svelte": "^1.8.1",
     "svelte": "^5.59.1",
+    "tailwind-variants": "^3.3.0",
     "tailwindcss": "^4.3.5",
+    "tw-animate-css": "^1.4.0",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
   }
@@ -11783,30 +12789,29 @@ export const variables = defineEnvVars({
 });
 ",
   "src/lib/Counter.svelte": "<script>
+  import { Button } from "#lib/components/ui/button/index.js";
+  import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "#lib/components/ui/card/index.js";
   import { counter, decrement, increment } from "./counterStore.svelte.js";
 </script>
 
-<div
-  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
->
-  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
-  <div class="mt-6 flex justify-center gap-3">
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={decrement}
-    >
-      -1
-    </button>
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={increment}
-    >
-      +1
-    </button>
-  </div>
-</div>
+<Card class="w-64 text-center">
+  <CardHeader>
+    <CardTitle>Counter</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  </CardContent>
+  <CardFooter class="justify-center gap-3">
+    <Button variant="outline" onclick={decrement}>-1</Button>
+    <Button onclick={increment}>+1</Button>
+  </CardFooter>
+</Card>
 ",
   "src/lib/Counter.svelte.test.js": "import { flushSync, mount, unmount } from "svelte";
 import { describe, expect, it } from "vitest";
@@ -11828,6 +12833,277 @@ describe("Counter", () => {
   });
 });
 ",
+  "src/lib/components/ui/button/button.svelte": "<script module>
+  import { tv } from "tailwind-variants";
+  import { cn } from "#lib/utils.js";
+  export const buttonVariants = tv({
+    base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        outline:
+          "border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground shadow-xs",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+        destructive:
+          "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
+        lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "size-9",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md",
+        "icon-lg": "size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  });
+</script>
+
+<script>
+  let {
+    class: className,
+    variant = "default",
+    size = "default",
+    ref = $bindable(null),
+    href = undefined,
+    type = "button",
+    disabled,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+{#if href}
+  <a
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    href={disabled ? undefined : href}
+    aria-disabled={disabled}
+    role={disabled ? "link" : undefined}
+    tabindex={disabled ? -1 : undefined}
+    {...restProps}
+  >
+    {@render children?.()}
+  </a>
+{:else}
+  <button
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    {type}
+    {disabled}
+    {...restProps}
+  >
+    {@render children?.()}
+  </button>
+{/if}
+",
+  "src/lib/components/ui/button/index.js": "import Root, { buttonVariants } from "./button.svelte";
+
+export {
+  buttonVariants,
+  Root,
+  //
+  Root as Button,
+};
+",
+  "src/lib/components/ui/card/card-action.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-action"
+  class={cn(
+    "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-content.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-content"
+  class={cn("flex flex-col gap-3 px-(--card-spacing)", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-description.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<p
+  bind:this={ref}
+  data-slot="card-description"
+  class={cn("text-muted-foreground text-sm", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</p>
+",
+  "src/lib/components/ui/card/card-footer.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-footer"
+  class={cn(
+    "rounded-b-xl px-(--card-spacing) [.border-t]:pt-(--card-spacing) flex items-center",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-header.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-header"
+  class={cn(
+    "gap-1 rounded-t-xl px-(--card-spacing) [.border-b]:pb-(--card-spacing) group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-title.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-title"
+  class={cn(
+    "text-base leading-normal font-medium group-data-[size=sm]/card:text-sm",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card.svelte": "<script>
+  import { cn } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    size = "default",
+    ...restProps
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card"
+  data-size={size}
+  class={cn(
+    "ring-foreground/10 bg-card text-card-foreground gap-(--card-spacing) overflow-hidden rounded-xl py-(--card-spacing) text-sm shadow-xs ring-1 [--card-spacing:--spacing(6)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl group/card flex flex-col",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/index.js": "import Root from "./card.svelte";
+import Action from "./card-action.svelte";
+import Content from "./card-content.svelte";
+import Description from "./card-description.svelte";
+import Footer from "./card-footer.svelte";
+import Header from "./card-header.svelte";
+import Title from "./card-title.svelte";
+
+export {
+  Action,
+  Action as CardAction,
+  Content,
+  Content as CardContent,
+  Description,
+  Description as CardDescription,
+  Footer,
+  Footer as CardFooter,
+  Header,
+  Header as CardHeader,
+  Root,
+  //
+  Root as Card,
+  Title,
+  Title as CardTitle,
+};
+",
   "src/lib/counterStore.svelte.js": "export const counter = $state({ count: 0 });
 
 export function increment() {
@@ -11839,6 +13115,8 @@ export function decrement() {
 }
 ",
   "src/lib/index.js": "// Place files you want to import through the \`#lib\` alias in this folder.
+",
+  "src/lib/utils.js": "export { cn } from "cn";
 ",
   "src/routes/+layout.js": "export const prerender = true;
 ",
@@ -11903,12 +13181,141 @@ export function decrement() {
 <section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
-    Built with SvelteKit, Svelte 5, Sass, Tailwind CSS, Svelte runes store,
-    Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+    Built with SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte
+    runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO,
+    llms.txt.
   </p>
 </section>
 ",
   "src/routes/layout.css": "@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn-svelte/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
 ",
   "src/routes/llms.txt/+server.js": "import { SITE_URL } from "$app/env/public";
 
@@ -12053,7 +13460,7 @@ bun.lock
 ",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -12072,6 +13479,10 @@ npm run dev
 - \`npm run lint\`
 - \`npm run format\`
 - \`npm run format:check\`
+
+## UI components
+
+shadcn-svelte components live in \`src/lib/components/ui\`. Add more with \`npx shadcn-svelte@latest add <component>\` (aliases are set in \`components.json\`).
 
 ## API client
 
@@ -12097,6 +13508,27 @@ git branch -M main
 git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
+",
+  "components.json": "{
+  "$schema": "https://shadcn-svelte.com/schema.json",
+  "tailwind": {
+    "css": "src/routes/layout.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "#lib/components",
+    "utils": "#lib/utils",
+    "ui": "#lib/components/ui",
+    "hooks": "#lib/hooks",
+    "lib": "#lib"
+  },
+  "typescript": true,
+  "registry": "https://shadcn-svelte.com/registry",
+  "style": "vega",
+  "iconLibrary": "lucide",
+  "menuColor": "default",
+  "menuAccent": "subtle"
+}
 ",
   "eslint.config.js": "import path from "node:path";
 import js from "@eslint/js";
@@ -12132,6 +13564,11 @@ export default defineConfig(
       parserOptions: { projectService: true, parser: ts.parser },
     },
   },
+  {
+    // shadcn-svelte's Button renders whatever \`href\` it receives; callers pass resolve()d paths.
+    files: ["src/lib/components/ui/**/*.svelte"],
+    rules: { "svelte/no-navigation-without-resolve": "off" },
+  },
 );
 ",
   "package.json": "{
@@ -12166,10 +13603,12 @@ export default defineConfig(
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fontsource-variable/inter": "^5.3.0",
     "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
+    "cn": "^0.5.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.24.1",
@@ -12180,9 +13619,12 @@ export default defineConfig(
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "sass": "^1.108.2",
+    "shadcn-svelte": "^1.8.1",
     "svelte": "^5.59.1",
     "svelte-check": "^4.7.8",
+    "tailwind-variants": "^3.3.0",
     "tailwindcss": "^4.3.5",
+    "tw-animate-css": "^1.4.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
@@ -12234,30 +13676,29 @@ export const variables = defineEnvVars({
 });
 ",
   "src/lib/Counter.svelte": "<script lang="ts">
+  import { Button } from "#lib/components/ui/button/index.js";
+  import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "#lib/components/ui/card/index.js";
   import { counter, decrement, increment } from "./counterStore.svelte.js";
 </script>
 
-<div
-  class="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200"
->
-  <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
-  <div class="mt-6 flex justify-center gap-3">
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={decrement}
-    >
-      -1
-    </button>
-    <button
-      type="button"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-      onclick={increment}
-    >
-      +1
-    </button>
-  </div>
-</div>
+<Card class="w-64 text-center">
+  <CardHeader>
+    <CardTitle>Counter</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <p class="text-5xl font-bold tabular-nums">{counter.count}</p>
+  </CardContent>
+  <CardFooter class="justify-center gap-3">
+    <Button variant="outline" onclick={decrement}>-1</Button>
+    <Button onclick={increment}>+1</Button>
+  </CardFooter>
+</Card>
 ",
   "src/lib/Counter.svelte.test.ts": "import { flushSync, mount, unmount } from "svelte";
 import { describe, expect, it } from "vitest";
@@ -12279,6 +13720,309 @@ describe("Counter", () => {
   });
 });
 ",
+  "src/lib/components/ui/button/button.svelte": "<script lang="ts" module>
+  import type {
+    HTMLAnchorAttributes,
+    HTMLButtonAttributes,
+  } from "svelte/elements";
+  import { tv, type VariantProps } from "tailwind-variants";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  export const buttonVariants = tv({
+    base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        outline:
+          "border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground shadow-xs",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+        destructive:
+          "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
+        lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "size-9",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md",
+        "icon-lg": "size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  });
+
+  export type ButtonVariant = VariantProps<typeof buttonVariants>["variant"];
+  export type ButtonSize = VariantProps<typeof buttonVariants>["size"];
+
+  export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
+    WithElementRef<HTMLAnchorAttributes> & {
+      variant?: ButtonVariant;
+      size?: ButtonSize;
+    };
+</script>
+
+<script lang="ts">
+  let {
+    class: className,
+    variant = "default",
+    size = "default",
+    ref = $bindable(null),
+    href = undefined,
+    type = "button",
+    disabled,
+    children,
+    ...restProps
+  }: ButtonProps = $props();
+</script>
+
+{#if href}
+  <a
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    href={disabled ? undefined : href}
+    aria-disabled={disabled}
+    role={disabled ? "link" : undefined}
+    tabindex={disabled ? -1 : undefined}
+    {...restProps}
+  >
+    {@render children?.()}
+  </a>
+{:else}
+  <button
+    bind:this={ref}
+    data-slot="button"
+    class={cn(buttonVariants({ variant, size }), className)}
+    {type}
+    {disabled}
+    {...restProps}
+  >
+    {@render children?.()}
+  </button>
+{/if}
+",
+  "src/lib/components/ui/button/index.ts": "import Root, {
+  type ButtonProps,
+  type ButtonSize,
+  type ButtonVariant,
+  buttonVariants,
+} from "./button.svelte";
+
+export {
+  type ButtonProps as Props,
+  type ButtonProps,
+  type ButtonSize,
+  type ButtonVariant,
+  buttonVariants,
+  Root,
+  //
+  Root as Button,
+};
+",
+  "src/lib/components/ui/card/card-action.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-action"
+  class={cn(
+    "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-content.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-content"
+  class={cn("flex flex-col gap-3 px-(--card-spacing)", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-description.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLParagraphElement>> = $props();
+</script>
+
+<p
+  bind:this={ref}
+  data-slot="card-description"
+  class={cn("text-muted-foreground text-sm", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</p>
+",
+  "src/lib/components/ui/card/card-footer.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-footer"
+  class={cn(
+    "rounded-b-xl px-(--card-spacing) [.border-t]:pt-(--card-spacing) flex items-center",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-header.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-header"
+  class={cn(
+    "gap-1 rounded-t-xl px-(--card-spacing) [.border-b]:pb-(--card-spacing) group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card-title.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card-title"
+  class={cn(
+    "text-base leading-normal font-medium group-data-[size=sm]/card:text-sm",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/card.svelte": "<script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "#lib/utils.js";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    size = "default",
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> & {
+    size?: "default" | "sm";
+  } = $props();
+</script>
+
+<div
+  bind:this={ref}
+  data-slot="card"
+  data-size={size}
+  class={cn(
+    "ring-foreground/10 bg-card text-card-foreground gap-(--card-spacing) overflow-hidden rounded-xl py-(--card-spacing) text-sm shadow-xs ring-1 [--card-spacing:--spacing(6)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl group/card flex flex-col",
+    className,
+  )}
+  {...restProps}
+>
+  {@render children?.()}
+</div>
+",
+  "src/lib/components/ui/card/index.ts": "import Root from "./card.svelte";
+import Action from "./card-action.svelte";
+import Content from "./card-content.svelte";
+import Description from "./card-description.svelte";
+import Footer from "./card-footer.svelte";
+import Header from "./card-header.svelte";
+import Title from "./card-title.svelte";
+
+export {
+  Action,
+  Action as CardAction,
+  Content,
+  Content as CardContent,
+  Description,
+  Description as CardDescription,
+  Footer,
+  Footer as CardFooter,
+  Header,
+  Header as CardHeader,
+  Root,
+  //
+  Root as Card,
+  Title,
+  Title as CardTitle,
+};
+",
   "src/lib/counterStore.svelte.ts": "export const counter = $state({ count: 0 });
 
 export function increment() {
@@ -12290,6 +14034,19 @@ export function decrement() {
 }
 ",
   "src/lib/index.ts": "// Place files you want to import through the \`#lib\` alias in this folder.
+",
+  "src/lib/utils.ts": "export { cn } from "cn";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChild<T> = T extends { child?: any } ? Omit<T, "child"> : T;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChildren<T> = T extends { children?: any }
+  ? Omit<T, "children">
+  : T;
+export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
+export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & {
+  ref?: U | null;
+};
 ",
   "src/routes/+layout.svelte": "<script lang="ts">
   import { SITE_URL } from "$app/env/public";
@@ -12355,12 +14112,141 @@ export function decrement() {
 <section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
-    Built with SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, Svelte runes
-    store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+    Built with SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS,
+    shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky,
+    lint-staged, SEO, llms.txt.
   </p>
 </section>
 ",
   "src/routes/layout.css": "@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn-svelte/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
 ",
   "src/routes/llms.txt/+server.ts": "import { SITE_URL } from "$app/env/public";
 

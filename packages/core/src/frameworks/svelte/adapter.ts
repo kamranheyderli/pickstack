@@ -120,7 +120,12 @@ export const svelteAdapter: FrameworkAdapter = {
     model.files.set(`src/app.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/lib/Counter.svelte",
-      svelteCounter(model.demo.counter ?? localSvelteCounter, ctx, cls),
+      svelteCounter(
+        model.demo.counter ?? localSvelteCounter,
+        ctx,
+        cls,
+        model.demo.view,
+      ),
     );
     model.files.set(
       "src/App.svelte",

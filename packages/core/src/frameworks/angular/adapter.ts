@@ -223,10 +223,24 @@ function writeCounter(
   spec: CounterSpec,
   cls: DemoClasses,
 ): void {
+  const view = model.demo.view;
   model.files.set(
     "src/app/components/counter/counter.ts",
-    component("app-counter", "Counter", [], spec.imports, spec.setup),
+    component(
+      "app-counter",
+      "Counter",
+      view?.components ?? [],
+      [...(view?.imports ?? []), ...spec.imports],
+      spec.setup,
+    ),
   );
+  if (view) {
+    model.files.set(
+      "src/app/components/counter/counter.html",
+      file(view.markup(spec)),
+    );
+    return;
+  }
   model.files.set(
     "src/app/components/counter/counter.html",
     file([
@@ -253,6 +267,7 @@ function indexHtml(model: ProjectModel, ctx: Ctx): string {
     ...(model.seo
       ? staticHeadTags(ctx.selection.name, model.seo).map((l) => `    ${l}`)
       : []),
+    ...model.entry.head.map((l) => `    ${l}`),
     "  </head>",
     "  <body>",
     "    <app-root></app-root>",
@@ -346,7 +361,10 @@ function angularJson(model: ProjectModel, ctx: Ctx) {
               browser: "src/main.ts",
               tsConfig: "tsconfig.app.json",
               assets: [{ glob: "**/*", input: "public" }],
-              styles: [`src/styles.${styleExt(model)}`],
+              styles: [
+                ...model.styles.preload,
+                `src/styles.${styleExt(model)}`,
+              ],
               // As `ng new --style=scss` sets it: inline component styles are SCSS too.
               ...(model.styles.sass ? { inlineStyleLanguage: "scss" } : {}),
             },

@@ -7,6 +7,7 @@ import {
   siBun,
   siEslint,
   siJavascript,
+  siMaterialdesign,
   siNextdotjs,
   siNpm,
   siNuxt,
@@ -18,6 +19,7 @@ import {
   siReactrouter,
   siRedux,
   siSass,
+  siShadcnui,
   siSolid,
   siSvelte,
   siTailwindcss,
@@ -45,6 +47,8 @@ export const frameworkIcons: Record<FrameworkId, SimpleIcon> = {
 
 export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   tailwind: siTailwindcss,
+  "shadcn-svelte": siShadcnui,
+  "angular-material": siMaterialdesign,
   sass: siSass,
   "redux-toolkit": siRedux,
   "react-router": siReactrouter,

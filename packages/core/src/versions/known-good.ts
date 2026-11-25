@@ -56,6 +56,14 @@ const shared: VersionSet = {
   "lint-staged": "^17.6.2",
   sass: "^1.108.2",
   turbo: "^2.11.13",
+  // shadcn-svelte's registry pins tailwind-variants 3 for its components.
+  "shadcn-svelte": "^1.8.1",
+  "tailwind-variants": "^3.3.0",
+  cn: "^0.5.2",
+  "tw-animate-css": "^1.4.0",
+  "@fontsource-variable/inter": "^5.3.0",
+  "@angular/material": "^22.3.0",
+  "@angular/cdk": "^22.3.0",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

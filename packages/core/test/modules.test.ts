@@ -673,3 +673,96 @@ describe("module-federation", () => {
     expect(files.has("host/src/remotes.d.ts")).toBe(false);
   });
 });
+
+describe("shadcn-svelte", () => {
+  function rendered(
+    frameworkId: FrameworkId,
+    ids: string[],
+    language: "js" | "ts" = "ts",
+  ): ProjectModel {
+    const ctx = ctxFor(language, ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("vendors the components and draws the counter with them", () => {
+    const model = rendered("svelte", ["tailwind", "shadcn-svelte"]);
+    expect(model.files.has("src/lib/components/ui/button/button.svelte")).toBe(
+      true,
+    );
+    expect(model.files.has("src/lib/components/ui/card/index.ts")).toBe(true);
+    expect(model.files.get("src/lib/utils.ts")).toContain(
+      'export { cn } from "cn";',
+    );
+    const counter = model.files.get("src/lib/Counter.svelte") ?? "";
+    expect(counter).toContain(
+      'import { Button } from "#lib/components/ui/button/index.js";',
+    );
+    expect(counter).toContain("<Button onclick={() => count++}>+1</Button>");
+    // The SPA gets the same `#lib` alias SvelteKit uses.
+    expect(model.pkg.fields["imports"]).toEqual({ "#lib/*": "./src/lib/*" });
+    expect(model.files.get("src/app.css")).toContain(
+      '@import "shadcn-svelte/tailwind.css";',
+    );
+  });
+
+  it("writes JS components and components.json for JS projects", () => {
+    const model = rendered("sveltekit", ["tailwind", "shadcn-svelte"], "js");
+    expect(model.files.get("src/lib/utils.js")).toBe(
+      'export { cn } from "cn";\n',
+    );
+    expect(model.files.has("src/lib/components/ui/card/index.js")).toBe(true);
+    const config = JSON.parse(model.files.get("components.json") ?? "{}") as {
+      typescript: boolean;
+      tailwind: { css: string };
+    };
+    expect(config.typescript).toBe(false);
+    expect(config.tailwind.css).toBe("src/routes/layout.css");
+  });
+});
+
+describe("angular-material", () => {
+  function rendered(ids: string[]): ProjectModel {
+    const ctx = ctxFor("ts", ids, "angular");
+    const framework = getFramework("angular");
+    if (!framework) throw new Error("missing angular");
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("adds the Material theme before the global stylesheet and the fonts", () => {
+    const model = rendered(["angular-material"]);
+    expect(model.files.get("src/material-theme.scss")).toContain(
+      "@include mat.theme(",
+    );
+    const angular = JSON.parse(model.files.get("angular.json") ?? "{}") as {
+      projects: Record<
+        string,
+        { architect: { build: { options: { styles: string[] } } } }
+      >;
+    };
+    const app = Object.values(angular.projects)[0];
+    expect(app?.architect.build.options.styles).toEqual([
+      "src/material-theme.scss",
+      "src/styles.css",
+    ]);
+    expect(model.files.get("src/index.html")).toContain("family=Roboto");
+  });
+
+  it("draws the counter with MatCard and MatButton", () => {
+    const model = rendered(["angular-material", "builtin"]);
+    const html =
+      model.files.get("src/app/components/counter/counter.html") ?? "";
+    expect(html).toContain('<mat-card appearance="outlined"');
+    expect(html).toContain('matButton="filled"');
+    const ts = model.files.get("src/app/components/counter/counter.ts") ?? "";
+    expect(ts).toContain('from "@angular/material/card"');
+    expect(ts).toContain("imports: [MatButton, MatCard,");
+  });
+});

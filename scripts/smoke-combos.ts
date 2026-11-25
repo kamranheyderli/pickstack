@@ -71,6 +71,7 @@ export const quickCombos: Combo[] = [
   ...sassCombos(),
   ...turborepoCombos(),
   ...federationCombos(),
+  ...uiCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -365,5 +366,53 @@ function federationCombos(): Combo[] {
       ],
     },
     { framework: "react", language: "js", modules: ["module-federation"] },
+  ];
+}
+
+/** UI kits with the modules that change their counter (state) or lint their files. */
+function uiCombos(): Combo[] {
+  return [
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: [
+        "shadcn-svelte",
+        "tailwind",
+        "builtin",
+        "eslint",
+        "prettier",
+        "vitest",
+      ],
+    },
+    {
+      framework: "svelte",
+      language: "js",
+      modules: ["shadcn-svelte", "tailwind", "eslint", "prettier"],
+    },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: ["shadcn-svelte", "tailwind", "eslint", "prettier", "vitest"],
+    },
+    {
+      framework: "sveltekit",
+      language: "js",
+      modules: ["shadcn-svelte", "tailwind", "biome"],
+    },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["shadcn-svelte", "tailwind", "biome", "sass"],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["angular-material", "builtin", "eslint", "prettier", "vitest"],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["angular-material", "tailwind", "testing-library", "biome"],
+    },
   ];
 }

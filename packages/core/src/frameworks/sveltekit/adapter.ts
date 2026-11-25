@@ -122,7 +122,12 @@ export const sveltekitAdapter: FrameworkAdapter = {
     model.files.set(`src/routes/layout.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/lib/Counter.svelte",
-      svelteCounter(model.demo.counter ?? localSvelteCounter, ctx, cls),
+      svelteCounter(
+        model.demo.counter ?? localSvelteCounter,
+        ctx,
+        cls,
+        model.demo.view,
+      ),
     );
     if (model.testing) {
       // `.svelte.test` files run in the jsdom "client" project of vite.config.
