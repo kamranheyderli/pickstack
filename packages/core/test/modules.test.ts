@@ -1553,10 +1553,9 @@ describe("mongodb", () => {
       framework: "react",
       language: "ts",
       packageManager: "npm",
-      modules: ["mongodb"],
+      modules: ["express", "mongodb"],
     });
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
-    expect(result.autoAdded).toContain("express");
     const files = result.files;
     const index = files.get("server/src/index.ts") ?? "";
     expect(index).toContain(
@@ -1574,5 +1573,44 @@ describe("mongodb", () => {
       JSON.parse(files.get("server/package.json") ?? "").dependencies.mongoose,
     ).toBe(knownGoodVersion("mongoose", "react"));
     expect(files.get("README.md")).toContain("docker compose up -d");
+  });
+  it("needs a backend to talk to", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["mongodb"],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors.map((e) => e.code)).toContain("missing-one-of");
+  });
+
+  it("uses @nestjs/mongoose with NestJS", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["nestjs", "mongodb"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    const appModule = files.get("server/src/app.module.ts") ?? "";
+    expect(appModule).toContain("MongooseModule.forRoot(");
+    expect(appModule).toContain(
+      'process.env.MONGODB_URI ?? "mongodb://localhost:27017/acme"',
+    );
+    expect(appModule).toContain("TodosModule");
+    expect(files.get("server/src/todos/todos.controller.ts")).toContain(
+      '@Controller("todos")',
+    );
+    expect(files.has("server/src/db.ts")).toBe(false);
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.dependencies["@nestjs/mongoose"]).toBe(
+      knownGoodVersion("@nestjs/mongoose", "react"),
+    );
+    expect(files.get("docker-compose.yml")).toContain("image: mongo:8");
   });
 });

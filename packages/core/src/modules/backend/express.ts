@@ -32,6 +32,7 @@ export const express: Module = {
         ctx.isTs ? ["@types/express", "@types/node", "tsx", "typescript"] : [],
       ),
       appImports: [],
+      appModules: [],
       routes: [
         'app.get("/api/health", (_req, res) => {',
         "  res.json({ ok: true });",

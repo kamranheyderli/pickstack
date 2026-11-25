@@ -180,7 +180,7 @@ Qeydlər (2026-11, yoxlanılıb):
 |---|---|---|
 | `express` | R, V, S, So, P, A | |
 | `nestjs` | R, V, S, So, P, A (yalnız TS) | |
-| `mongodb` | R, V, S, So, P, A | `express` (avtomatik əlavə olunur) |
+| `mongodb` | R, V, S, So, P, A | `express` və ya `nestjs` |
 
 - **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
   - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
@@ -191,12 +191,13 @@ Qeydlər (2026-11, yoxlanılıb):
   - `app.setGlobalPrefix("api")` ilə Express-dəki eyni `/api/health` və `/api/hello` route-ları verilir, ona görə ApiGreeting dəyişmir.
   - Starter-dəki `@nestjs/observe` qoşulmur, çünki xarici xidmətdə qeydiyyat tələb edir.
   - Yalnız TS-də təklif olunur, çünki Nest-in decorator-ları və DI-si TypeScript üzərində qurulub. `ServerSpec.kind` hansı serverin render olunacağını seçir.
-  - MongoDB hələlik yalnız Express ilə işləyir; Nest üçün `@nestjs/mongoose` növbəti addımdır.
 - **Frontend inteqrasiyası:** `model.apiProxy` dev server-də `/api` sorğularını API-yə yönləndirir (Vite-də `server.proxy`, Angular-da `proxy.conf.json`), CORS lazım olmur. `ApiGreeting` widget-i `/api/hello` çağırır; 6 SPA-nın hamısında brauzerdə yoxlanılıb.
 - **MongoDB:**
   - Mongoose ilə `connectDb` `listen`-dən əvvəl top-level await ilə çağırılır.
   - `Todo` modeli və `GET`/`POST /api/todos` route-ları yazılır.
   - `MONGODB_URI` `.env.example`-də verilir; kökdə `docker-compose.yml` (`mongo:8`) var.
+  - NestJS ilə rəsmi MongoDB bələdçisindəki kimi `@nestjs/mongoose` istifadə olunur: `AppModule`-da `MongooseModule.forRoot`, `@Schema` sinfi, `forFeature` və `@InjectModel` ilə `TodosModule` (controller və service). Boş `title` üçün `BadRequestException` qaytarılır.
+  - Backend-i özü əlavə etmir (`requiresOneOf`), çünki hansı serverin seçiləcəyini istifadəçi bilir.
 - **Məhdudiyyətlər:**
   - Next və Nuxt üçün təklif olunmur, çünki onların öz server route-ları var.
   - `turborepo` və `module-federation` ilə konflikt edir.

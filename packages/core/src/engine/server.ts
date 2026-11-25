@@ -132,6 +132,25 @@ const nestMain = (spec: ServerSpec) =>
     "await bootstrap();",
   ]);
 
+const nestAppModule = (spec: ServerSpec) =>
+  file([
+    ...renderImports([
+      { from: "@nestjs/common", named: ["Module"] },
+      { from: "./app.controller.js", named: ["AppController"] },
+      { from: "./app.service.js", named: ["AppService"] },
+      ...spec.appImports,
+    ]),
+    "",
+    "@Module({",
+    ...(spec.appModules.length
+      ? ["  imports: [", ...spec.appModules.map((m) => `    ${m},`), "  ],"]
+      : []),
+    "  controllers: [AppController],",
+    "  providers: [AppService],",
+    "})",
+    "export class AppModule {}",
+  ]);
+
 const nestFiles = (spec: ServerSpec): [string, string][] => [
   [
     "nest-cli.json",
@@ -153,20 +172,7 @@ const nestFiles = (spec: ServerSpec): [string, string][] => [
     }),
   ],
   ["src/main.ts", nestMain(spec)],
-  [
-    "src/app.module.ts",
-    file([
-      'import { Module } from "@nestjs/common";',
-      'import { AppController } from "./app.controller.js";',
-      'import { AppService } from "./app.service.js";',
-      "",
-      "@Module({",
-      "  controllers: [AppController],",
-      "  providers: [AppService],",
-      "})",
-      "export class AppModule {}",
-    ]),
-  ],
+  ["src/app.module.ts", nestAppModule(spec)],
   [
     "src/app.controller.ts",
     file([

@@ -67,6 +67,7 @@ const shared: VersionSet = {
   "@nestjs/platform-express": "^12.6.2",
   "@nestjs/cli": "^12.0.15",
   "@nestjs/schematics": "^12.0.16",
+  "@nestjs/mongoose": "^12.0.1",
   "reflect-metadata": "^0.2.2",
   rxjs: "^7.8.2",
   tslib: "^2.9.1",

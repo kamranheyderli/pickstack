@@ -224,8 +224,11 @@ export interface ServerSpec {
   summary: string;
   dependencies: Set<string>;
   devDependencies: Set<string>;
-  /** Imports and route handlers of `src/app` (Express only). */
+  /** Imports of `src/app` (Express) or `src/app.module` (NestJS). */
   appImports: ImportSpec[];
+  /** NestJS: entries of `AppModule`'s `imports`, e.g. `MongooseModule.forRoot(...)`. */
+  appModules: string[];
+  /** Route handlers of `src/app` (Express only). */
   routes: string[];
   /** Imports and statements `src/index` runs before `listen` (Express only; top-level await allowed). */
   entryImports: ImportSpec[];

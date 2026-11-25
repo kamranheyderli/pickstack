@@ -39,6 +39,7 @@ export const nestjs: Module = {
         "typescript",
       ]),
       appImports: [],
+      appModules: [],
       routes: [],
       entryImports: [],
       beforeListen: [],
