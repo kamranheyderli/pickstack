@@ -39,7 +39,10 @@ function everything(framework: FrameworkId): string[] {
   const taken = new Set<string>();
   return modules
     .filter((m) => m.frameworks === "all" || m.frameworks.includes(framework))
-    .filter((m) => !["biome", "turborepo", "module-federation"].includes(m.id))
+    .filter(
+      (m) =>
+        !["biome", "turborepo", "module-federation", "express"].includes(m.id),
+    )
     .filter((m) => {
       if (!singleSelectCategories.has(m.category)) return true;
       if (taken.has(m.category)) return false;
@@ -68,6 +71,12 @@ for (const framework of frameworks) {
     }
   });
 }
+
+describe("express snapshot", () => {
+  it("puts the app in web/ and the API in server/ (ts)", async () => {
+    expect(await files("ts", ["express"])).toMatchSnapshot();
+  });
+});
 
 describe("biome snapshots", () => {
   // Biome replaces ESLint + Prettier, so the "everything" snapshots leave it out.

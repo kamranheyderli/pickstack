@@ -40,6 +40,7 @@ import { reactHookForm } from "./forms/react-hook-form";
 import { tanstackForm } from "./forms/tanstack-form";
 import { reactI18next } from "./i18n/react-i18next";
 import { vueI18n } from "./i18n/vue-i18n";
+import { express } from "./backend/express";
 import { editorconfig } from "./tooling/editorconfig";
 import { pwa } from "./tooling/pwa";
 import { storybook } from "./tooling/storybook";
@@ -93,6 +94,7 @@ export const modules: readonly Module[] = [
   reactHookForm,
   reactI18next,
   vueI18n,
+  express,
   vercel,
   netlify,
   cloudflare,

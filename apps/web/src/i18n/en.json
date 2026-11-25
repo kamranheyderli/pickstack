@@ -91,5 +91,6 @@
   "preview.doneHint": "Finish editing (Esc or Ctrl/⌘+Enter)",
   "footer.tagline": "pickstack: tested frontend starters, from the browser, the terminal or your AI agent.",
   "footer.templates": "Starter templates",
-  "quickstart.hint": "Runs in the terminal: asks for the framework and tools, then creates the project."
+  "quickstart.hint": "Runs in the terminal: asks for the framework and tools, then creates the project.",
+  "category.backend": "Backend"
 }

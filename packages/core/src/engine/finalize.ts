@@ -2,6 +2,7 @@ import { knownGoodVersion } from "../versions/known-good";
 import type {
   Ctx,
   FederationSpec,
+  ServerSpec,
   PackageManager,
   ProjectModel,
 } from "../types";
@@ -98,6 +99,10 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
     writeFederation(model, ctx, model.federation);
     return;
   }
+  if (model.server) {
+    writeServer(model, ctx, model.server);
+    return;
+  }
   model.files.set(
     "README.md",
     readme(model, ctx, Object.keys(model.pkg.scripts)),
@@ -168,6 +173,61 @@ function writeFederation(
       "```",
       "",
       `Open http://localhost:${spec.hostPort}. If the remote is not running, the host page stays blank.`,
+    ]),
+  );
+}
+
+/**
+ * App and API as two projects: the app goes to `web/`, the server to `server/`, and a root
+ * README explains how to run both.
+ */
+function writeServer(model: ProjectModel, ctx: Ctx, spec: ServerSpec): void {
+  const { name, packageManager: pm } = ctx.selection;
+  model.files.set(
+    "README.md",
+    readme(model, ctx, Object.keys(model.pkg.scripts)),
+  );
+  const web = [...model.files];
+  model.files.clear();
+  for (const [path, content] of web) model.files.set(`web/${path}`, content);
+  for (const [path, content] of spec.files)
+    model.files.set(`server/${path}`, content);
+  const start = (dir: string) =>
+    `cd ${dir} && ${installCommand(pm)} && ${runCommand(pm, "dev")}`;
+  model.files.set(
+    "server/README.md",
+    file([
+      `# ${name}-server`,
+      "",
+      `${spec.summary}. Copy \`.env.example\` to \`.env\` to change settings.`,
+      "",
+      "```bash",
+      installCommand(pm),
+      runCommand(pm, "dev"),
+      "```",
+    ]),
+  );
+  model.files.set(
+    "README.md",
+    file([
+      `# ${name}`,
+      "",
+      "A web app and its API, as two projects:",
+      "",
+      "- `web/`: the app. In development its dev server proxies `/api` to the API.",
+      `- \`server/\`: ${spec.summary}.`,
+      "",
+      "## Getting started",
+      "",
+      "Start the API, then the app, in two terminals:",
+      "",
+      "```bash",
+      start("server"),
+      "```",
+      "",
+      "```bash",
+      start("web"),
+      "```",
     ]),
   );
 }

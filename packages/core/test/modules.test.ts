@@ -1432,3 +1432,46 @@ describe("storybook", () => {
     expect(files.get(".gitignore")).toContain("storybook-static");
   });
 });
+
+describe("express", () => {
+  async function project(
+    language: "js" | "ts",
+    framework: FrameworkId = "react",
+  ) {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language,
+      packageManager: "pnpm",
+      modules: ["express"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("writes the app to web/ and the API to server/", async () => {
+    const files = await project("ts");
+    expect(files.has("web/package.json")).toBe(true);
+    expect(files.has("package.json")).toBe(false);
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.name).toBe("acme-server");
+    expect(pkg.scripts.dev).toBe("tsx watch src/index.ts");
+    expect(pkg.dependencies.express).toBe(knownGoodVersion("express", "react"));
+    expect(files.get("server/src/index.ts")).toContain('from "./app.js"');
+    expect(files.get("README.md")).toContain(
+      "cd server && pnpm install && pnpm dev",
+    );
+  });
+
+  it("runs plain Node with --watch in JS", async () => {
+    const files = await project("js", "vue");
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.scripts.dev).toBe("node --watch src/index.js");
+    expect(pkg.devDependencies).toBeUndefined();
+    expect(files.has("server/tsconfig.json")).toBe(false);
+  });
+
+  it("is offered for the SPAs only", () => {
+    expect(getModule("express")?.frameworks).not.toContain("next");
+  });
+});

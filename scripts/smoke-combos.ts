@@ -88,6 +88,7 @@ export const quickCombos: Combo[] = [
   ...playwrightCombos(),
   ...i18nCombos(),
   ...storybookCombos(),
+  ...backendCombos(),
   ...presetCombos,
 ];
 
@@ -896,5 +897,21 @@ function storybookCombos(): Combo[] {
       language: "ts",
       modules: ["storybook", "tailwind", ...checks],
     },
+  ];
+}
+
+/** The API next to each SPA, in both languages. */
+function backendCombos(): Combo[] {
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["express", "tailwind", "eslint", "prettier"],
+    },
+    { framework: "vue", language: "js", modules: ["express", "pinia"] },
+    { framework: "svelte", language: "ts", modules: ["express", "biome"] },
+    { framework: "solid", language: "ts", modules: ["express"] },
+    { framework: "preact", language: "js", modules: ["express"] },
+    { framework: "angular", language: "ts", modules: ["express", "prettier"] },
   ];
 }

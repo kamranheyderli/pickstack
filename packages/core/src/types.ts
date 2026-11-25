@@ -21,6 +21,7 @@ export type Category =
   | "data"
   | "forms"
   | "i18n"
+  | "backend"
   | "testing"
   | "quality"
   | "seo"
@@ -209,6 +210,19 @@ export interface FederationSpec {
   remote: Map<string, string>;
 }
 
+/**
+ * A backend next to the app: the app moves to `web/` and the server project, with its own
+ * package.json, to `server/`. The app's dev server proxies `/api` to it.
+ */
+export interface ServerSpec {
+  /** Port the server listens on in development. */
+  port: number;
+  /** The server project's files, relative to `server/`. */
+  files: Map<string, string>;
+  /** One line for the root README, e.g. "Express 5 API". */
+  summary: string;
+}
+
 export interface ProjectModel {
   files: Map<string, string>;
   pkg: {
@@ -286,6 +300,7 @@ export interface ProjectModel {
   formatter: "prettier" | "biome" | null;
   monorepo: MonorepoSpec | null;
   federation: FederationSpec | null;
+  server: ServerSpec | null;
   /**
    * Files that belong at the repository root (AI agent config): they stay at the root of a
    * Turborepo workspace instead of moving into `apps/web`.
