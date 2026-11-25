@@ -104,7 +104,12 @@ export const nuxtAdapter: FrameworkAdapter = {
         ...withAppShell(model.demo.view, [
           `<main class="${cls.main}">`,
           `  <nav class="${cls.nav}">`,
-          ...vueNavLinks("NuxtLink", "to", routes, cls),
+          ...vueNavLinks(
+            "NuxtLink",
+            "to",
+            [...routes, ...model.demo.links],
+            cls,
+          ),
           "  </nav>",
           "  <NuxtPage />",
           "</main>",

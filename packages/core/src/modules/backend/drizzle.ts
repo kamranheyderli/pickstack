@@ -1,6 +1,7 @@
 import { file } from "../../engine/code";
 import { runCommand } from "../../engine/finalize";
 import { demoClasses } from "../../frameworks/shared/demo";
+import { sfc } from "../../frameworks/shared/vue";
 import { deploy } from "../../versions/known-good";
 import type { Ctx, Module, ProjectModel } from "../../types";
 
@@ -10,7 +11,9 @@ import type { Ctx, Module, ProjectModel } from "../../types";
  * scripts. A Postgres container in `docker-compose.yml` serves local development.
  *
  * Next.js: a `/todos` page (a server component rendered per request) lists todos and adds
- * them with a server action.
+ * them with a server action. Nuxt: the schema lives in `server/db`, the client in
+ * `server/utils` (auto-imported by server routes), `/api/todos` routes serve the
+ * `/todos` page.
  */
 export const drizzle: Module = {
   id: "drizzle",
@@ -20,7 +23,7 @@ export const drizzle: Module = {
     az: "Drizzle ORM ilə PostgreSQL: sxem, migration əmrləri, /todos səhifəsi və lokal docker-compose.",
     en: "PostgreSQL with Drizzle ORM: a schema, migration commands, a /todos page and a local docker-compose.",
   },
-  frameworks: ["next"],
+  frameworks: ["next", "nuxt"],
   apply(model, ctx) {
     const { name, packageManager } = ctx.selection;
     const x = ctx.ext.script;
@@ -37,8 +40,10 @@ export const drizzle: Module = {
     });
     model.env["DATABASE_URL"] = url;
 
+    const nuxt = ctx.selection.framework === "nuxt";
+    const schema = `${nuxt ? "server/db" : "db"}/schema.${x}`;
     model.files.set(
-      `db/schema.${x}`,
+      schema,
       file([
         'import { boolean, integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";',
         "",
@@ -51,7 +56,7 @@ export const drizzle: Module = {
       ]),
     );
     model.files.set(
-      `db/index.${x}`,
+      nuxt ? `server/utils/db.${x}` : `db/index.${x}`,
       file([
         'import { drizzle } from "drizzle-orm/node-postgres";',
         'import { Pool } from "pg";',
@@ -74,7 +79,7 @@ export const drizzle: Module = {
         "",
         "export default defineConfig({",
         '  out: "./drizzle",',
-        `  schema: "./db/schema.${x}",`,
+        `  schema: "./${schema}",`,
         '  dialect: "postgresql",',
         "  dbCredentials: {",
         `    url: process.env.DATABASE_URL ?? "${url}",`,
@@ -82,10 +87,13 @@ export const drizzle: Module = {
         "});",
       ]),
     );
-    model.files.set(
-      `app/todos/page.${ctx.ext.component}`,
-      nextTodosPage(model, ctx, runCommand(packageManager, "db:push")),
-    );
+    const push = runCommand(packageManager, "db:push");
+    if (nuxt) nuxtTodos(model, ctx, push);
+    else
+      model.files.set(
+        `app/todos/page.${ctx.ext.component}`,
+        nextTodosPage(model, ctx, push),
+      );
     model.demo.links.push({ path: "/todos", label: "Todos" });
 
     model.files.set(
@@ -112,7 +120,7 @@ export const drizzle: Module = {
     model.readme.sections.push({
       title: "Database",
       body: [
-        "Start PostgreSQL (needs Docker), copy `.env.example` to `.env`, then create the tables from `db/schema`:",
+        `Start PostgreSQL (needs Docker), copy \`.env.example\` to \`.env\`, then create the tables from \`${schema}\`:`,
         "",
         "```bash",
         "docker compose up -d",
@@ -181,4 +189,77 @@ function nextTodosPage(model: ProjectModel, ctx: Ctx, push: string): string {
     "  );",
     "}",
   ]);
+}
+
+/** Nitro routes for the table and a page that fetches them on the server and posts from the client. */
+function nuxtTodos(model: ProjectModel, ctx: Ctx, push: string): void {
+  const x = ctx.ext.script;
+  const cls = demoClasses(model);
+  model.files.set(
+    `server/api/todos.get.${x}`,
+    file([
+      'import { desc } from "drizzle-orm";',
+      'import { todos } from "../db/schema";',
+      "",
+      "export default defineEventHandler(() =>",
+      "  db.select().from(todos).orderBy(desc(todos.createdAt)).limit(100),",
+      ");",
+    ]),
+  );
+  model.files.set(
+    `server/api/todos.post.${x}`,
+    file([
+      'import { todos } from "../db/schema";',
+      "",
+      "export default defineEventHandler(async (event) => {",
+      `  const body = await readBody${ctx.isTs ? "<{ title?: unknown }>" : ""}(event);`,
+      '  const title = typeof body?.title === "string" ? body.title.trim() : "";',
+      "  if (!title) {",
+      '    throw createError({ statusCode: 400, statusMessage: "title is required" });',
+      "  }",
+      "  const [todo] = await db",
+      "    .insert(todos)",
+      "    .values({ title: title.slice(0, 200) })",
+      "    .returning();",
+      "  setResponseStatus(event, 201);",
+      "  return todo;",
+      "});",
+    ]),
+  );
+  const input =
+    model.styles.mode === "tailwind"
+      ? ' class="rounded-lg border border-slate-300 px-3 py-2"'
+      : "";
+  model.files.set(
+    "app/pages/todos.vue",
+    sfc(
+      ctx,
+      [
+        ...(model.seo ? ['useSeoMeta({ title: "Todos" });', ""] : []),
+        'const { data: todos, error, refresh } = await useFetch("/api/todos");',
+        'const title = ref("");',
+        "",
+        "async function add() {",
+        '  await $fetch("/api/todos", { method: "POST", body: { title: title.value } });',
+        '  title.value = "";',
+        "  await refresh();",
+        "}",
+      ],
+      [
+        `<section class="${cls.page}">`,
+        `  <h1 class="${cls.title}">Todos</h1>`,
+        `  <form class="${cls.row}" @submit.prevent="add">`,
+        `    <input v-model="title"${input} required maxlength="200" placeholder="What needs doing?" />`,
+        `    <button class="${cls.btn}" type="submit">Add</button>`,
+        "  </form>",
+        `  <p v-if="error" class="${cls.text}">`,
+        `    The database isn't ready: run docker compose up -d, then ${push}.`,
+        "  </p>",
+        "  <ul v-else>",
+        '    <li v-for="todo in todos" :key="todo.id">{{ todo.title }}</li>',
+        "  </ul>",
+        "</section>",
+      ],
+    ),
+  );
 }

@@ -181,7 +181,7 @@ Qeydlər (2026-11, yoxlanılıb):
 | `express` | R, V, S, So, P, A | |
 | `nestjs` | R, V, S, So, P, A (yalnız TS) | |
 | `mongodb` | R, V, S, So, P, A | `express` və ya `nestjs` |
-| `drizzle` | N | |
+| `drizzle` | N, Nu | |
 
 - **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
   - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
@@ -205,7 +205,8 @@ Qeydlər (2026-11, yoxlanılıb):
   - `Pool` açıq yaradılır və ona `error` dinləyicisi qoşulur: dinləyici olmasa, Postgres yenidən başlayanda boş bağlantının xətası prosesi çökdürür (canlı yoxlanılıb).
   - Next.js: `/todos` server komponentidir, `connection()` ilə hər sorğuda render olunur (build vaxtı baza yoxdur), server action ilə sətir əlavə edir; baza hazır olmayanda səhifə nə etmək lazım olduğunu yazır. Menyuya `model.demo.links` ilə əlavə olunur.
   - `.env.example`-i `model.env` vasitəsilə yazır, ona görə axios ilə birlikdə işləyir. Kökdə `docker-compose.yml` (`postgres:18`) var.
-  - Növbəti: Nuxt və SvelteKit, sonra Express/NestJS.
+  - Nuxt: sxem `server/db`-də, klient `server/utils/db`-də (Nitro route-larına avtomatik import olunur); `server/api/todos.get`/`todos.post` (`readBody`, `createError`, `returning()`); `app/pages/todos.vue` `useFetch` ilə serverdə oxuyur, `$fetch` ilə əlavə edir.
+  - Növbəti: SvelteKit, sonra Express/NestJS.
 - **Məhdudiyyətlər:**
   - Next və Nuxt üçün təklif olunmur, çünki onların öz server route-ları var.
   - `turborepo` və `module-federation` ilə konflikt edir.

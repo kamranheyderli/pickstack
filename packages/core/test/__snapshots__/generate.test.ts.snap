@@ -4447,7 +4447,7 @@ npm run dev
 
 ## Database
 
-Start PostgreSQL (needs Docker), copy \`.env.example\` to \`.env\`, then create the tables from \`db/schema\`:
+Start PostgreSQL (needs Docker), copy \`.env.example\` to \`.env\`, then create the tables from \`db/schema.ts\`:
 
 \`\`\`bash
 docker compose up -d

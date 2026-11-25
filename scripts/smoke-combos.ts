@@ -945,5 +945,11 @@ function backendCombos(): Combo[] {
       language: "js",
       modules: ["drizzle", "axios", "biome"],
     },
+    {
+      framework: "nuxt",
+      language: "ts",
+      modules: ["drizzle", "tailwind", "eslint", "prettier", "seo"],
+    },
+    { framework: "nuxt", language: "js", modules: ["drizzle", "biome"] },
   ];
 }

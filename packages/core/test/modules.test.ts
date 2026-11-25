@@ -1577,6 +1577,27 @@ describe("drizzle", () => {
     expect(files.get("README.md")).toContain("pnpm db:push");
   });
 
+  it("puts the client in Nuxt's server/ and serves /api/todos", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "nuxt",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["drizzle"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    expect(files.get("server/utils/db.ts")).toContain("export const db");
+    expect(files.get("drizzle.config.ts")).toContain(
+      'schema: "./server/db/schema.ts"',
+    );
+    expect(files.get("server/api/todos.post.ts")).toContain(".returning()");
+    expect(files.get("app/pages/todos.vue")).toContain(
+      'useFetch("/api/todos")',
+    );
+    expect(files.get("app/app.vue")).toContain('to="/todos"');
+  });
+
   it("shares .env.example with axios", async () => {
     const files = await project("js", ["drizzle", "axios"]);
     const env = files.get(".env.example") ?? "";
