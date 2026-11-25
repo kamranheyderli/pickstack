@@ -45,6 +45,20 @@ export function CodeView({
   const [html, setHtml] = useState<{ code: string; html: string } | null>(null);
   const [editing, setEditing] = useState(false);
   const underlay = useRef<HTMLDivElement>(null);
+  const editButton = useRef<HTMLButtonElement>(null);
+  const finishing = useRef(false);
+
+  /** Leaves the editor and puts focus back on "Edit", so keyboard users aren't lost. */
+  const finish = () => {
+    finishing.current = true;
+    setEditing(false);
+  };
+  useEffect(() => {
+    if (!editing && finishing.current) {
+      finishing.current = false;
+      editButton.current?.focus();
+    }
+  }, [editing]);
 
   // Highlighting runs while editing too: the editor is a transparent textarea over it.
   useEffect(() => {
@@ -87,15 +101,27 @@ export function CodeView({
               {t("preview.reset")}
             </button>
           )}
-          <button
-            type="button"
-            aria-pressed={editing}
-            onClick={() => setEditing((on) => !on)}
-            className={toolButton}
-          >
-            <UiIcon name={editing ? "eye" : "pencil"} size={13} />
-            {editing ? t("preview.view") : t("preview.edit")}
-          </button>
+          {editing ? (
+            <button
+              type="button"
+              onClick={finish}
+              title={t("preview.doneHint")}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-accent px-2.5 py-1 font-semibold text-accent-ink transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <UiIcon name="check" size={13} />
+              {t("preview.done")}
+            </button>
+          ) : (
+            <button
+              ref={editButton}
+              type="button"
+              onClick={() => setEditing(true)}
+              className={toolButton}
+            >
+              <UiIcon name="pencil" size={13} />
+              {t("preview.edit")}
+            </button>
+          )}
         </span>
       </div>
       {editing ? (
@@ -120,7 +146,18 @@ export function CodeView({
             autoCapitalize="off"
             autoComplete="off"
             onChange={(e) => onEdit(e.target.value)}
-            onKeyDown={(e) => onEditorKeyDown(e, onEdit)}
+            onKeyDown={(e) => {
+              // Esc or Ctrl/⌘+Enter finishes editing.
+              if (
+                e.key === "Escape" ||
+                (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+              ) {
+                e.preventDefault();
+                finish();
+                return;
+              }
+              onEditorKeyDown(e, onEdit);
+            }}
             onScroll={(e) => {
               const box = underlay.current;
               if (!box) return;

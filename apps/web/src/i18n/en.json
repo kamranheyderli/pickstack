@@ -56,8 +56,9 @@
   "category.tooling": "Tooling",
   "category.ai": "AI agents",
   "preview.edit": "Edit",
-  "preview.view": "View",
   "preview.reset": "Reset",
   "preview.edited": "edited",
-  "preview.editor": "Edit {path}"
+  "preview.editor": "Edit {path}",
+  "preview.done": "Done",
+  "preview.doneHint": "Finish editing (Esc or Ctrl/⌘+Enter)"
 }
