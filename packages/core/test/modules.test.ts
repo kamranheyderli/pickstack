@@ -1216,3 +1216,69 @@ describe("deploy", () => {
     }
   });
 });
+
+describe("forms", () => {
+  async function project(
+    framework: FrameworkId,
+    modules: string[],
+    language: "js" | "ts" = "ts",
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language,
+      modules,
+      packageManager: "npm",
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("TanStack Form adds a validated signup form for every SPA", async () => {
+    const paths: Record<string, string> = {
+      react: "src/components/SignupForm.tsx",
+      solid: "src/components/SignupForm.tsx",
+      vue: "src/components/SignupForm.vue",
+      svelte: "src/lib/SignupForm.svelte",
+      angular: "src/app/components/signup-form/signup-form.ts",
+    };
+    for (const [fw, path] of Object.entries(paths)) {
+      const files = await project(fw as FrameworkId, ["tanstack-form"]);
+      expect(files.get(path)).toContain(
+        'z.email("Enter a valid email address.")',
+      );
+      const pkg = JSON.parse(files.get("package.json") ?? "");
+      expect(pkg.dependencies.zod).toBe(
+        knownGoodVersion("zod", fw as FrameworkId),
+      );
+      expect(Object.keys(pkg.dependencies)).toContain(`@tanstack/${fw}-form`);
+    }
+  });
+
+  it("React Hook Form types the form from the schema in TS only", async () => {
+    const ts = await project("react", ["react-hook-form"]);
+    expect(ts.get("src/components/SignupForm.tsx")).toContain(
+      "useForm<z.infer<typeof schema>>",
+    );
+    const js = await project("react", ["react-hook-form"], "js");
+    expect(js.get("src/components/SignupForm.jsx")).toContain("useForm({");
+  });
+
+  it("adds plain CSS for the form only without Tailwind", async () => {
+    const plain = await project("react", ["react-hook-form"]);
+    expect(plain.get("src/index.css")).toContain(".input {");
+    const tw = await project("react", ["react-hook-form", "tailwind"]);
+    expect(tw.get("src/index.css")).not.toContain(".input {");
+  });
+
+  it("allows one form library at a time", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["tanstack-form", "react-hook-form"],
+    });
+    expect(result.ok).toBe(false);
+  });
+});

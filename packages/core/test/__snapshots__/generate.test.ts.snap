@@ -206,7 +206,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -293,7 +293,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -559,10 +559,12 @@ export default defineConfig([
     "@angular/material": "^22.3.0",
     "@angular/platform-browser": "^22.3.0",
     "@angular/router": "^22.3.0",
+    "@tanstack/angular-form": "^1.33.5",
     "@tanstack/angular-query": "^5.108.4",
     "axios": "^1.21.1",
     "rxjs": "~7.8.2",
-    "tslib": "^2.9.1"
+    "tslib": "^2.9.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@angular-eslint/builder": "^22.8.0",
@@ -634,6 +636,8 @@ Sitemap: https://example.com/sitemap.xml
   "Angular signals service",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -767,6 +771,75 @@ export class Counter {
   protected readonly counter = inject(CounterService);
 }
 ",
+  "src/app/components/signup-form/signup-form.html": "@if (joined()) {
+  <p class="max-w-md text-center text-slate-600">
+    Thanks, {{ joined() }} is on the list.
+  </p>
+} @else {
+  <form
+    novalidate
+    class="flex w-full max-w-sm flex-col gap-3"
+    (submit)="submit($event)"
+  >
+    <ng-container [tanstackField]="form" name="email" #email="field">
+      <label class="flex flex-col gap-1 text-sm font-medium">
+        Email
+        <input
+          type="email"
+          class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+          [name]="email.api.name"
+          [value]="email.api.state.value"
+          (blur)="email.api.handleBlur()"
+          (input)="email.api.handleChange($any($event.target).value)"
+        />
+        @if (errors()[0]; as error) {
+          <span role="alert" class="font-normal text-red-600">{{
+            error.message
+          }}</span>
+        }
+      </label>
+    </ng-container>
+    <button
+      type="submit"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+    >
+      Sign up
+    </button>
+  </form>
+}
+",
+  "src/app/components/signup-form/signup-form.ts": "import { Component, signal } from "@angular/core";
+import { injectForm, injectStore, TanStackField } from "@tanstack/angular-form";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+@Component({
+  selector: "app-signup-form",
+  imports: [TanStackField],
+  templateUrl: "./signup-form.html",
+})
+export class SignupForm {
+  protected readonly joined = signal("");
+  protected readonly form = injectForm({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => this.joined.set(value.email),
+  });
+  // The template reads errors through a signal, so it updates without zone.js.
+  protected readonly errors = injectStore(
+    this.form,
+    (state) => state.fieldMeta.email?.errors ?? [],
+  );
+
+  protected submit(event: SubmitEvent): void {
+    event.preventDefault();
+    void this.form.handleSubmit();
+  }
+}
+",
   "src/app/components/stack-list/stack-list.html": "<p class="max-w-md text-center text-slate-600">
   @if (stack.isPending()) {
     Loading…
@@ -796,8 +869,9 @@ export class StackList {
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material,
-    Angular signals service, Axios, TanStack Query, Vitest, Testing Library,
-    ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+    Angular signals service, Axios, TanStack Query, TanStack Form, Zod, Vitest,
+    Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+    Actions.
   </p>
 </section>
 ",
@@ -813,15 +887,17 @@ export class About {}
   <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
   <app-counter />
   <app-stack-list />
+  <app-signup-form />
 </section>
 ",
   "src/app/pages/home/home.ts": "import { Component } from "@angular/core";
 import { Counter } from "../../components/counter/counter";
+import { SignupForm } from "../../components/signup-form/signup-form";
 import { StackList } from "../../components/stack-list/stack-list";
 
 @Component({
   selector: "app-home",
-  imports: [Counter, StackList],
+  imports: [Counter, StackList, SignupForm],
   templateUrl: "./home.html",
 })
 export class Home {}
@@ -11750,7 +11826,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -11835,7 +11911,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -12071,6 +12147,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
+    "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.108.4",
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
@@ -12081,7 +12158,8 @@ export default defineConfig([
     "react-redux": "^9.3.1",
     "react-router": "^8.5.2",
     "shadcn": "^4.23.0",
-    "tw-animate-css": "^1.4.0"
+    "tw-animate-css": "^1.4.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -12156,6 +12234,8 @@ Sitemap: https://example.com/sitemap.xml
   "React Router",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -12258,6 +12338,68 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/components/SignupForm.jsx": "import { useForm } from "@tanstack/react-form";
+import { useState } from "react";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+export default function SignupForm() {
+  const [joined, setJoined] = useState("");
+  const form = useForm({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => setJoined(value.email),
+  });
+
+  if (joined)
+    return (
+      <p className="max-w-md text-center text-slate-600">
+        Thanks, {joined} is on the list.
+      </p>
+    );
+
+  return (
+    <form
+      noValidate
+      className="flex w-full max-w-sm flex-col gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void form.handleSubmit();
+      }}
+    >
+      <form.Field name="email">
+        {(field) => (
+          <label className="flex flex-col gap-1 text-sm font-medium">
+            Email
+            <input
+              type="email"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+              name={field.name}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(event) => field.handleChange(event.target.value)}
+            />
+            {field.state.meta.errors[0] && (
+              <span role="alert" className="font-normal text-red-600">
+                {field.state.meta.errors[0].message}
+              </span>
+            )}
+          </label>
+        )}
+      </form.Field>
+      <button
+        type="submit"
+        className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      >
+        Sign up
+      </button>
+    </form>
+  );
+}
 ",
   "src/components/StackList.jsx": "import { useQuery } from "@tanstack/react-query";
 import { fetchStack } from "../api/stack";
@@ -12597,14 +12739,16 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
-        React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+        React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+        Actions.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.jsx": "import Counter from "../components/Counter";
+import SignupForm from "../components/SignupForm";
 import StackList from "../components/StackList";
 
 export default function Home() {
@@ -12613,6 +12757,7 @@ export default function Home() {
       <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
       <StackList />
+      <SignupForm />
     </section>
   );
 }
@@ -12881,7 +13026,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -12968,7 +13113,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -13193,6 +13338,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
+    "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.108.4",
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
@@ -13203,7 +13349,8 @@ export default defineConfig([
     "react-redux": "^9.3.1",
     "react-router": "^8.5.2",
     "shadcn": "^4.23.0",
-    "tw-animate-css": "^1.4.0"
+    "tw-animate-css": "^1.4.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -13283,6 +13430,8 @@ Sitemap: https://example.com/sitemap.xml
   "React Router",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -13383,6 +13532,68 @@ export default function Counter() {
         <Button onClick={() => dispatch(increment())}>+1</Button>
       </CardFooter>
     </Card>
+  );
+}
+",
+  "src/components/SignupForm.tsx": "import { useForm } from "@tanstack/react-form";
+import { useState } from "react";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+export default function SignupForm() {
+  const [joined, setJoined] = useState("");
+  const form = useForm({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => setJoined(value.email),
+  });
+
+  if (joined)
+    return (
+      <p className="max-w-md text-center text-slate-600">
+        Thanks, {joined} is on the list.
+      </p>
+    );
+
+  return (
+    <form
+      noValidate
+      className="flex w-full max-w-sm flex-col gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void form.handleSubmit();
+      }}
+    >
+      <form.Field name="email">
+        {(field) => (
+          <label className="flex flex-col gap-1 text-sm font-medium">
+            Email
+            <input
+              type="email"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+              name={field.name}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(event) => field.handleChange(event.target.value)}
+            />
+            {field.state.meta.errors[0] && (
+              <span role="alert" className="font-normal text-red-600">
+                {field.state.meta.errors[0].message}
+              </span>
+            )}
+          </label>
+        )}
+      </form.Field>
+      <button
+        type="submit"
+        className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+      >
+        Sign up
+      </button>
+    </form>
   );
 }
 ",
@@ -13733,15 +13944,16 @@ createRoot(document.getElementById("root")!).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
-        Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing
-        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
-        Actions.
+        Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod,
+        Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
+        llms.txt, GitHub Actions.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.tsx": "import Counter from "../components/Counter";
+import SignupForm from "../components/SignupForm";
 import StackList from "../components/StackList";
 
 export default function Home() {
@@ -13750,6 +13962,7 @@ export default function Home() {
       <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
       <StackList />
+      <SignupForm />
     </section>
   );
 }
@@ -15129,7 +15342,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -15211,7 +15424,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -15394,9 +15607,11 @@ export default defineConfig([
   },
   "dependencies": {
     "@solidjs/router": "^1.0.3",
+    "@tanstack/solid-form": "^1.33.5",
     "@tanstack/solid-query": "^5.108.4",
     "axios": "^1.21.1",
-    "solid-js": "^1.9.20"
+    "solid-js": "^1.9.20",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -15469,6 +15684,8 @@ Sitemap: https://example.com/sitemap.xml
   "Solid Router",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -15554,6 +15771,74 @@ describe("Counter", () => {
   });
 });
 ",
+  "src/components/SignupForm.jsx": "import { createForm } from "@tanstack/solid-form";
+import { createSignal, Show } from "solid-js";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+export default function SignupForm() {
+  const [joined, setJoined] = createSignal("");
+  const form = createForm(() => ({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => setJoined(value.email),
+  }));
+
+  return (
+    <Show
+      when={!joined()}
+      fallback={
+        <p class="max-w-md text-center text-slate-600">
+          Thanks, {joined()} is on the list.
+        </p>
+      }
+    >
+      <form
+        noValidate
+        class="flex w-full max-w-sm flex-col gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        <form.Field name="email">
+          {(field) => (
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              Email
+              <input
+                type="email"
+                class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+                name={field().name}
+                value={field().state.value}
+                onBlur={field().handleBlur}
+                onInput={(event) =>
+                  field().handleChange(event.currentTarget.value)
+                }
+              />
+              <Show when={field().state.meta.errors[0]}>
+                {(error) => (
+                  <span role="alert" class="font-normal text-red-600">
+                    {error().message}
+                  </span>
+                )}
+              </Show>
+            </label>
+          )}
+        </form.Field>
+        <button
+          type="submit"
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        >
+          Sign up
+        </button>
+      </form>
+    </Show>
+  );
+}
+",
   "src/components/StackList.jsx": "import { useQuery } from "@tanstack/solid-query";
 import { Match, Switch } from "solid-js";
 import { fetchStack } from "../api/stack";
@@ -15607,14 +15892,16 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+        Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+        Actions.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.jsx": "import Counter from "../components/Counter";
+import SignupForm from "../components/SignupForm";
 import StackList from "../components/StackList";
 
 export default function Home() {
@@ -15623,6 +15910,7 @@ export default function Home() {
       <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
       <StackList />
+      <SignupForm />
     </section>
   );
 }
@@ -15845,7 +16133,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -15929,7 +16217,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -16115,9 +16403,11 @@ export default defineConfig([
   },
   "dependencies": {
     "@solidjs/router": "^1.0.3",
+    "@tanstack/solid-form": "^1.33.5",
     "@tanstack/solid-query": "^5.108.4",
     "axios": "^1.21.1",
-    "solid-js": "^1.9.20"
+    "solid-js": "^1.9.20",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -16194,6 +16484,8 @@ Sitemap: https://example.com/sitemap.xml
   "Solid Router",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -16280,6 +16572,74 @@ export default function Counter() {
   );
 }
 ",
+  "src/components/SignupForm.tsx": "import { createForm } from "@tanstack/solid-form";
+import { createSignal, Show } from "solid-js";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+export default function SignupForm() {
+  const [joined, setJoined] = createSignal("");
+  const form = createForm(() => ({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => setJoined(value.email),
+  }));
+
+  return (
+    <Show
+      when={!joined()}
+      fallback={
+        <p class="max-w-md text-center text-slate-600">
+          Thanks, {joined()} is on the list.
+        </p>
+      }
+    >
+      <form
+        noValidate
+        class="flex w-full max-w-sm flex-col gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        <form.Field name="email">
+          {(field) => (
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              Email
+              <input
+                type="email"
+                class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+                name={field().name}
+                value={field().state.value}
+                onBlur={field().handleBlur}
+                onInput={(event) =>
+                  field().handleChange(event.currentTarget.value)
+                }
+              />
+              <Show when={field().state.meta.errors[0]}>
+                {(error) => (
+                  <span role="alert" class="font-normal text-red-600">
+                    {error().message}
+                  </span>
+                )}
+              </Show>
+            </label>
+          )}
+        </form.Field>
+        <button
+          type="submit"
+          class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+        >
+          Sign up
+        </button>
+      </form>
+    </Show>
+  );
+}
+",
   "src/components/StackList.tsx": "import { useQuery } from "@tanstack/solid-query";
 import { Match, Switch } from "solid-js";
 import { fetchStack } from "../api/stack";
@@ -16333,14 +16693,16 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
-        store, Solid Router, Axios, TanStack Query, Vitest, Testing Library,
-        ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+        store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest,
+        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
+        GitHub Actions.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.tsx": "import Counter from "../components/Counter";
+import SignupForm from "../components/SignupForm";
 import StackList from "../components/StackList";
 
 export default function Home() {
@@ -16349,6 +16711,7 @@ export default function Home() {
       <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
       <StackList />
+      <SignupForm />
     </section>
   );
 }
@@ -17159,7 +17522,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -17241,7 +17604,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -17461,8 +17824,10 @@ export default defineConfig(
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@tanstack/svelte-form": "^1.33.5",
     "@tanstack/svelte-query": "^6.4.7",
-    "axios": "^1.21.1"
+    "axios": "^1.21.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -17538,6 +17903,8 @@ Sitemap: https://example.com/sitemap.xml
   "Svelte runes store",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -17552,6 +17919,7 @@ Sitemap: https://example.com/sitemap.xml
   "src/App.svelte": "<script>
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import Counter from "./lib/Counter.svelte";
+  import SignupForm from "./lib/SignupForm.svelte";
   import StackList from "./lib/StackList.svelte";
 
   const queryClient = new QueryClient();
@@ -17564,6 +17932,7 @@ Sitemap: https://example.com/sitemap.xml
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <Counter />
     <StackList />
+    <SignupForm />
   </main>
 </QueryClientProvider>
 ",
@@ -17751,6 +18120,64 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/lib/SignupForm.svelte": "<script>
+  import { createForm } from "@tanstack/svelte-form";
+  import { z } from "zod";
+
+  const schema = z.object({
+    email: z.email("Enter a valid email address."),
+  });
+
+  let joined = $state("");
+  const form = createForm(() => ({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => (joined = value.email),
+  }));
+</script>
+
+{#if joined}
+  <p class="max-w-md text-center text-slate-600">
+    Thanks, {joined} is on the list.
+  </p>
+{:else}
+  <form
+    novalidate
+    class="flex w-full max-w-sm flex-col gap-3"
+    onsubmit={(event) => {
+      event.preventDefault();
+      form.handleSubmit();
+    }}
+  >
+    <form.Field name="email">
+      {#snippet children(field)}
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Email
+          <input
+            type="email"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+            name={field.name}
+            value={field.state.value}
+            onblur={field.handleBlur}
+            oninput={(event) => field.handleChange(event.currentTarget.value)}
+          />
+          {#if field.state.meta.errors[0]}
+            <span role="alert" class="font-normal text-red-600">
+              {field.state.meta.errors[0].message}
+            </span>
+          {/if}
+        </label>
+      {/snippet}
+    </form.Field>
+    <button
+      type="submit"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+    >
+      Sign up
+    </button>
+  </form>
+{/if}
 ",
   "src/lib/StackList.svelte": "<script>
   import { createQuery } from "@tanstack/svelte-query";
@@ -18296,7 +18723,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -18380,7 +18807,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -18599,8 +19026,10 @@ export default defineConfig(
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@tanstack/svelte-form": "^1.33.5",
     "@tanstack/svelte-query": "^6.4.7",
-    "axios": "^1.21.1"
+    "axios": "^1.21.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -18682,6 +19111,8 @@ Sitemap: https://example.com/sitemap.xml
   "Svelte runes store",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -18696,6 +19127,7 @@ Sitemap: https://example.com/sitemap.xml
   "src/App.svelte": "<script lang="ts">
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import Counter from "./lib/Counter.svelte";
+  import SignupForm from "./lib/SignupForm.svelte";
   import StackList from "./lib/StackList.svelte";
 
   const queryClient = new QueryClient();
@@ -18708,6 +19140,7 @@ Sitemap: https://example.com/sitemap.xml
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <Counter />
     <StackList />
+    <SignupForm />
   </main>
 </QueryClientProvider>
 ",
@@ -18895,6 +19328,64 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/lib/SignupForm.svelte": "<script lang="ts">
+  import { createForm } from "@tanstack/svelte-form";
+  import { z } from "zod";
+
+  const schema = z.object({
+    email: z.email("Enter a valid email address."),
+  });
+
+  let joined = $state("");
+  const form = createForm(() => ({
+    defaultValues: { email: "" },
+    validators: { onSubmit: schema },
+    onSubmit: ({ value }) => (joined = value.email),
+  }));
+</script>
+
+{#if joined}
+  <p class="max-w-md text-center text-slate-600">
+    Thanks, {joined} is on the list.
+  </p>
+{:else}
+  <form
+    novalidate
+    class="flex w-full max-w-sm flex-col gap-3"
+    onsubmit={(event) => {
+      event.preventDefault();
+      form.handleSubmit();
+    }}
+  >
+    <form.Field name="email">
+      {#snippet children(field)}
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Email
+          <input
+            type="email"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+            name={field.name}
+            value={field.state.value}
+            onblur={field.handleBlur}
+            oninput={(event) => field.handleChange(event.currentTarget.value)}
+          />
+          {#if field.state.meta.errors[0]}
+            <span role="alert" class="font-normal text-red-600">
+              {field.state.meta.errors[0].message}
+            </span>
+          {/if}
+        </label>
+      {/snippet}
+    </form.Field>
+    <button
+      type="submit"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+    >
+      Sign up
+    </button>
+  </form>
+{/if}
 ",
   "src/lib/StackList.svelte": "<script lang="ts">
   import { createQuery } from "@tanstack/svelte-query";
@@ -24406,7 +24897,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -24490,7 +24981,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -24711,6 +25202,7 @@ export default defineConfig([
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@tanstack/vue-form": "^1.33.5",
     "@tanstack/vue-query": "^5.108.4",
     "@vue/devtools-api": "^8.2.1",
     "axios": "^1.21.1",
@@ -24721,7 +25213,8 @@ export default defineConfig([
     "shadcn-vue": "^2.9.0",
     "tw-animate-css": "^1.4.0",
     "vue": "^3.5.46",
-    "vue-router": "^5.5.1"
+    "vue-router": "^5.5.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -24797,6 +25290,8 @@ Sitemap: https://example.com/sitemap.xml
   "Vue Router",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -24996,6 +25491,64 @@ const counter = useCounterStore();
       <Button @click="counter.increment()">+1</Button>
     </CardFooter>
   </Card>
+</template>
+",
+  "src/components/SignupForm.vue": "<script setup>
+import { useForm } from "@tanstack/vue-form";
+import { ref } from "vue";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+const joined = ref("");
+const form = useForm({
+  defaultValues: { email: "" },
+  validators: { onSubmit: schema },
+  onSubmit: ({ value }) => (joined.value = value.email),
+});
+</script>
+
+<template>
+  <p v-if="joined" class="max-w-md text-center text-slate-600">
+    Thanks, {{ joined }} is on the list.
+  </p>
+  <form
+    v-else
+    novalidate
+    class="flex w-full max-w-sm flex-col gap-3"
+    @submit.prevent="form.handleSubmit()"
+  >
+    <form.Field name="email">
+      <template #default="{ field }">
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Email
+          <input
+            type="email"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+            :name="field.name"
+            :value="field.state.value"
+            @blur="field.handleBlur"
+            @input="(event) => field.handleChange(event.target.value)"
+          />
+          <span
+            v-if="field.state.meta.errors[0]"
+            role="alert"
+            class="font-normal text-red-600"
+          >
+            {{ field.state.meta.errors[0].message }}
+          </span>
+        </label>
+      </template>
+    </form.Field>
+    <button
+      type="submit"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+    >
+      Sign up
+    </button>
+  </form>
 </template>
 ",
   "src/components/StackList.vue": "<script setup>
@@ -25354,8 +25907,8 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
-      Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky,
-      lint-staged, SEO, llms.txt, GitHub Actions.
+      Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library,
+      ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </template>
@@ -25363,6 +25916,7 @@ afterEach(() => {
   "src/views/HomeView.vue": "<script setup>
 import CounterCard from "../components/CounterCard.vue";
 import StackList from "../components/StackList.vue";
+import SignupForm from "../components/SignupForm.vue";
 </script>
 
 <template>
@@ -25370,6 +25924,7 @@ import StackList from "../components/StackList.vue";
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <CounterCard />
     <StackList />
+    <SignupForm />
   </section>
 </template>
 ",
@@ -25587,7 +26142,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -25673,7 +26228,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -25890,6 +26445,7 @@ export default defineConfigWithVueTs(
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@tanstack/vue-form": "^1.33.5",
     "@tanstack/vue-query": "^5.108.4",
     "@vue/devtools-api": "^8.2.1",
     "axios": "^1.21.1",
@@ -25900,7 +26456,8 @@ export default defineConfigWithVueTs(
     "shadcn-vue": "^2.9.0",
     "tw-animate-css": "^1.4.0",
     "vue": "^3.5.46",
-    "vue-router": "^5.5.1"
+    "vue-router": "^5.5.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
@@ -25983,6 +26540,8 @@ Sitemap: https://example.com/sitemap.xml
   "Vue Router",
   "Axios",
   "TanStack Query",
+  "TanStack Form",
+  "Zod",
   "Vitest",
   "Testing Library",
   "ESLint",
@@ -26182,6 +26741,67 @@ const counter = useCounterStore();
       <Button @click="counter.increment()">+1</Button>
     </CardFooter>
   </Card>
+</template>
+",
+  "src/components/SignupForm.vue": "<script setup lang="ts">
+import { useForm } from "@tanstack/vue-form";
+import { ref } from "vue";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+const joined = ref("");
+const form = useForm({
+  defaultValues: { email: "" },
+  validators: { onSubmit: schema },
+  onSubmit: ({ value }) => (joined.value = value.email),
+});
+</script>
+
+<template>
+  <p v-if="joined" class="max-w-md text-center text-slate-600">
+    Thanks, {{ joined }} is on the list.
+  </p>
+  <form
+    v-else
+    novalidate
+    class="flex w-full max-w-sm flex-col gap-3"
+    @submit.prevent="form.handleSubmit()"
+  >
+    <form.Field name="email">
+      <template #default="{ field }">
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Email
+          <input
+            type="email"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+            :name="field.name"
+            :value="field.state.value"
+            @blur="field.handleBlur"
+            @input="
+              (event) =>
+                field.handleChange((event.target as HTMLInputElement).value)
+            "
+          />
+          <span
+            v-if="field.state.meta.errors[0]"
+            role="alert"
+            class="font-normal text-red-600"
+          >
+            {{ field.state.meta.errors[0].message }}
+          </span>
+        </label>
+      </template>
+    </form.Field>
+    <button
+      type="submit"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+    >
+      Sign up
+    </button>
+  </form>
 </template>
 ",
   "src/components/StackList.vue": "<script setup lang="ts">
@@ -26530,8 +27150,9 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
-      Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
-      Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+      Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
+      Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+      Actions.
     </p>
   </section>
 </template>
@@ -26539,6 +27160,7 @@ afterEach(() => {
   "src/views/HomeView.vue": "<script setup lang="ts">
 import CounterCard from "../components/CounterCard.vue";
 import StackList from "../components/StackList.vue";
+import SignupForm from "../components/SignupForm.vue";
 </script>
 
 <template>
@@ -26546,6 +27168,7 @@ import StackList from "../components/StackList.vue";
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <CounterCard />
     <StackList />
+    <SignupForm />
   </section>
 </template>
 ",

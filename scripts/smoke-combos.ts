@@ -83,6 +83,7 @@ export const quickCombos: Combo[] = [
   ...tanstackCombos(),
   ...projectFileCombos(),
   ...deployCombos(),
+  ...formCombos(),
   ...presetCombos,
 ];
 
@@ -689,5 +690,59 @@ function deployCombos(): Combo[] {
       modules: [...all, "eslint", "prettier"],
     },
     { framework: "nuxt", language: "js", modules: [...all, "prettier"] },
+  ];
+}
+
+/** Each form library in both languages, with linting, formatting and the counter tests. */
+function formCombos(): Combo[] {
+  const checks = ["eslint", "prettier", "vitest", "testing-library"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["tanstack-form", ...checks],
+    },
+    {
+      framework: "react",
+      language: "js",
+      modules: ["react-hook-form", "tailwind", ...checks],
+    },
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["react-hook-form", "biome", "shadcn", "tailwind"],
+    },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["tanstack-form", "tailwind", ...checks],
+    },
+    { framework: "vue", language: "js", modules: ["tanstack-form", "biome"] },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["tanstack-form", ...checks],
+    },
+    {
+      framework: "svelte",
+      language: "js",
+      modules: ["tanstack-form", "tailwind", "biome"],
+    },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["tanstack-form", "tailwind", ...checks],
+    },
+    { framework: "solid", language: "js", modules: ["tanstack-form", "biome"] },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["tanstack-form", "tailwind", ...checks],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["tanstack-form", "angular-material", "biome"],
+    },
   ];
 }

@@ -5,6 +5,7 @@ export const singleSelectCategories: ReadonlySet<Category> = new Set([
   "ui",
   "state",
   "routing",
+  "forms",
 ]);
 
 export const categoryOrder: readonly Category[] = [

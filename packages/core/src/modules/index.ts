@@ -36,6 +36,8 @@ import { cloudflare } from "./deploy/cloudflare";
 import { docker } from "./deploy/docker";
 import { netlify } from "./deploy/netlify";
 import { vercel } from "./deploy/vercel";
+import { reactHookForm } from "./forms/react-hook-form";
+import { tanstackForm } from "./forms/tanstack-form";
 import { editorconfig } from "./tooling/editorconfig";
 import { githubActionsModule } from "./tooling/github-actions";
 import { license } from "./tooling/license";
@@ -79,6 +81,8 @@ export const modules: readonly Module[] = [
   githubActionsModule,
   editorconfig,
   license,
+  tanstackForm,
+  reactHookForm,
   vercel,
   netlify,
   cloudflare,

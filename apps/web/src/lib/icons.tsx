@@ -11,6 +11,7 @@ import {
   siCloudflare,
   siDocker,
   siNetlify,
+  siReacthookform,
   siVercel,
   siEslint,
   siEditorconfig,
@@ -100,6 +101,8 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   "preact-iso": siPreact,
   "tanstack-router": siTanstack,
   "tanstack-query": siReactquery,
+  "tanstack-form": siTanstack,
+  "react-hook-form": siReacthookform,
   turborepo: siTurborepo,
 };
 

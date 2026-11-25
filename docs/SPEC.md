@@ -143,10 +143,22 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 
 | Modul | Uyğun |
 |---|---|
-| `zod` | hamısı |
-| `react-hook-form` | R, N |
-| `vee-validate` | V, Nu |
-| `superforms` | SK (tələb: `zod`) |
+| `tanstack-form` | R, V, S, So, A |
+| `react-hook-form` | R |
+
+Qeydlər (2026-11, yoxlanılıb):
+
+- **Ümumi:**
+  - Hər iki modul Zod 4 ilə gəlir. Zod ayrıca modul deyil, çünki formsuz faydası azdır.
+  - Demo sayğacın altındakı `SignupForm` widget-idir: bir e-poçt sahəsi, submit-də validasiya və uğur halı.
+  - İki modul bir-biri ilə konflikt edir.
+  - Brauzerdə 6 variant yoxlanılıb (səhv e-poçt → xəta, düzəliş → xəta silinir, düzgün → təşəkkür).
+- **TanStack Form:** Zod 4 Standard Schema olduğu üçün adapter lazım deyil (`validators: { onSubmit: schema }`). Angular-da xətalar `injectStore` signal-ı ilə oxunur ki, zoneless rejimdə də yenilənsin.
+- **React Hook Form:** `@hookform/resolvers/zod` ilə qurulur; TS-də form tipi `z.infer<typeof schema>`-dən gəlir.
+- **Dəyişikliklər:**
+  - `vee-validate` çıxarılıb: `@vee-validate/zod` yalnız Zod 3-ü dəstəkləyir (peer `zod ^3.24`), digər modullar isə Zod 4 istifadə edir. Vue üçün TanStack Form var.
+  - `superforms` hələ yoxdur: SvelteKit layihələri statik (adapter-static) qurulur, Superforms isə server action-ları gözləyir.
+  - Meta-framework-lər (Next, Nuxt, SvelteKit, Astro) üçün form widget-i hələ yoxdur, çünki demo widget mexanizmi SPA-lardadır.
 
 ### 5.7 Test
 
