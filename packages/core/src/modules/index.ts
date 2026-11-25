@@ -1,4 +1,8 @@
 import type { Module } from "../types";
+import { agentsMdModule } from "./ai/agents-md";
+import { claudeCode } from "./ai/claude-code";
+import { copilot } from "./ai/copilot";
+import { cursor } from "./ai/cursor";
 import { axios } from "./data/axios";
 import { biome } from "./quality/biome";
 import { eslint } from "./quality/eslint";
@@ -61,6 +65,10 @@ export const modules: readonly Module[] = [
   aio,
   turborepo,
   moduleFederation,
+  agentsMdModule,
+  claudeCode,
+  cursor,
+  copilot,
 ];
 
 const byId = new Map(modules.map((m) => [m.id, m]));

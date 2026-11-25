@@ -87,7 +87,14 @@ export function writeTurborepo(
   );
   model.files.set(
     ".gitignore",
-    file(["node_modules", ".turbo", ".env", ".env.local", ".DS_Store"]),
+    file([
+      "node_modules",
+      ".turbo",
+      ".env",
+      ".env.local",
+      ".DS_Store",
+      ...model.gitignore,
+    ]),
   );
   return Object.keys(scripts);
 }

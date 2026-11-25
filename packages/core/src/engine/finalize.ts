@@ -65,6 +65,7 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
       "node_modules",
       "dist",
       ...ctx.ignore,
+      ...model.gitignore,
       ".env",
       ".env.local",
       ".DS_Store",
@@ -72,6 +73,8 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
   );
   if (model.monorepo) {
     const rootScripts = writeTurborepo(model, ctx, model.monorepo);
+    for (const [path, content] of model.repoFiles)
+      model.files.set(path, content);
     model.readme.sections.unshift({
       title: "Monorepo",
       body: `This is a Turborepo workspace: the app lives in \`apps/${APP_NAME}\` and \`packages/\` is ready for shared code. Root scripts run the app's tasks through turbo, which caches their results.`,
@@ -79,6 +82,8 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
     model.files.set("README.md", readme(model, ctx, rootScripts));
     return;
   }
+  // Without a workspace root, repository files live with the app (the host project).
+  for (const [path, content] of model.repoFiles) model.files.set(path, content);
   if (model.federation) {
     writeFederation(model, ctx, model.federation);
     return;

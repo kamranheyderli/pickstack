@@ -18,4 +18,5 @@ export const categoryOrder: readonly Category[] = [
   "quality",
   "seo",
   "tooling",
+  "ai",
 ];

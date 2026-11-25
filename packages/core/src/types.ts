@@ -23,7 +23,8 @@ export type Category =
   | "testing"
   | "quality"
   | "seo"
-  | "tooling";
+  | "tooling"
+  | "ai";
 
 export interface Selection {
   name: string;
@@ -268,6 +269,13 @@ export interface ProjectModel {
   formatter: "prettier" | "biome" | null;
   monorepo: MonorepoSpec | null;
   federation: FederationSpec | null;
+  /**
+   * Files that belong at the repository root (AI agent config): they stay at the root of a
+   * Turborepo workspace instead of moving into `apps/web`.
+   */
+  repoFiles: Map<string, string>;
+  /** Extra `.gitignore` entries, e.g. personal agent settings. */
+  gitignore: string[];
   testing: TestingSpec | null;
   readme: { stack: string[]; sections: { title: string; body: string }[] };
   warnings: string[];

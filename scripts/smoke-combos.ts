@@ -72,6 +72,7 @@ export const quickCombos: Combo[] = [
   ...turborepoCombos(),
   ...federationCombos(),
   ...uiCombos(),
+  ...aiCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -473,6 +474,49 @@ function uiCombos(): Combo[] {
       framework: "angular",
       language: "ts",
       modules: ["angular-material", "tailwind", "testing-library", "biome"],
+    },
+  ];
+}
+
+/**
+ * AI agent files must not break the project's own checks: the format hook script and the
+ * JSON configs are linted and formatted by whatever tools the project uses.
+ */
+function aiCombos(): Combo[] {
+  const all = ["claude-code", "cursor", "copilot"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: [...all, "eslint", "prettier", "shadcn"],
+    },
+    {
+      framework: "vue",
+      language: "js",
+      modules: [...all, "eslint", "prettier"],
+    },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: [...all, "eslint", "prettier"],
+    },
+    { framework: "next", language: "ts", modules: [...all, "biome", "mui"] },
+    {
+      framework: "nuxt",
+      language: "ts",
+      modules: [...all, "eslint", "prettier"],
+    },
+    { framework: "astro", language: "ts", modules: [...all, "biome"] },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: [...all, "eslint", "prettier"],
+    },
+    { framework: "solid", language: "js", modules: ["agents-md", "biome"] },
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["claude-code", "turborepo", "eslint", "prettier"],
     },
   ];
 }

@@ -891,3 +891,79 @@ describe("react UI kits", () => {
     );
   });
 });
+
+describe("AI agent modules", () => {
+  async function project(
+    modules: string[],
+    framework: FrameworkId = "react",
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      modules,
+      packageManager: "pnpm",
+    });
+    if (!result.ok) throw new Error("generation failed");
+    return result.files;
+  }
+
+  it("claude-code adds AGENTS.md and a CLAUDE.md that imports it", async () => {
+    const files = await project(["claude-code", "eslint", "vitest"]);
+    expect(files.get("AGENTS.md")).toContain("`pnpm test`: run the tests once");
+    const claude = files.get("CLAUDE.md") ?? "";
+    expect(claude.startsWith("@AGENTS.md")).toBe(true);
+    expect(claude).toContain("`pnpm lint`, `pnpm typecheck`, `pnpm test`");
+  });
+
+  it("allows the project's scripts, not its servers, and keeps .env unreadable", async () => {
+    const settings = JSON.parse(
+      (await project(["claude-code", "prettier"])).get(
+        ".claude/settings.json",
+      ) ?? "{}",
+    ) as {
+      permissions: { allow: string[]; deny: string[] };
+      hooks?: unknown;
+    };
+    expect(settings.permissions.allow).toContain("Bash(pnpm build *)");
+    expect(settings.permissions.allow).not.toContain("Bash(pnpm dev *)");
+    expect(settings.permissions.deny).toContain("Read(./.env)");
+    expect(settings.hooks).toBeDefined();
+  });
+
+  it("adds no format hook without a formatter", async () => {
+    const files = await project(["claude-code"]);
+    expect(files.has(".claude/hooks/format.mjs")).toBe(false);
+    expect(files.get(".claude/settings.json")).not.toContain("PostToolUse");
+  });
+
+  it("picks the stack's official MCP servers", async () => {
+    const next = JSON.parse(
+      (await project(["claude-code", "tailwind", "shadcn"], "next")).get(
+        ".mcp.json",
+      ) ?? "{}",
+    ) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(next.mcpServers)).toEqual(["next-devtools", "shadcn"]);
+    // React has no official MCP server.
+    expect((await project(["claude-code"])).has(".mcp.json")).toBe(false);
+  });
+
+  it("keeps agent files at the root of a Turborepo workspace", async () => {
+    const files = await project(["claude-code", "turborepo"]);
+    expect(files.has("CLAUDE.md")).toBe(true);
+    expect(files.has("apps/web/CLAUDE.md")).toBe(false);
+    expect(files.get(".gitignore")).toContain(".claude/settings.local.json");
+  });
+
+  it("writes Cursor and Copilot files that point at AGENTS.md", async () => {
+    const files = await project(["cursor", "copilot"], "angular");
+    expect(files.get(".cursor/rules/angular.mdc")).toContain(
+      'globs: "src/**/*.{ts,html}"',
+    );
+    expect(files.get(".github/copilot-instructions.md")).toContain("AGENTS.md");
+    const vscode = JSON.parse(files.get(".vscode/mcp.json") ?? "{}") as {
+      servers: Record<string, { type: string }>;
+    };
+    expect(vscode.servers["angular-cli"]?.type).toBe("stdio");
+  });
+});

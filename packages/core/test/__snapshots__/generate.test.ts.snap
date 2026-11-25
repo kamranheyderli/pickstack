@@ -2,14 +2,115 @@
 
 exports[`angular snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run ng *)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npm run ng generate *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "angular-cli": {
+      "command": "npx",
+      "args": ["-y", "@angular/cli", "mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/angular.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,html}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".gitignore": "node_modules
 dist
 .angular
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "angular-cli": {
+      "command": "npx",
+      "args": ["-y", "@angular/cli", "mcp"]
+    }
+  }
+}
 ",
   ".postcssrc.json": "{
   "plugins": {
@@ -34,6 +135,66 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "angular-cli": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@angular/cli", "mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run ng\`
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run watch\`
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/app/\` holds the app: \`app.config.ts\`, \`app.routes.ts\`, pages in \`src/app/pages/\`, components in \`src/app/components/\`.
+- Each component is a \`.ts\` class with an external \`.html\` template.
+
+## Conventions
+
+- Standalone components and signals; the app is zoneless.
+- Generate code with \`ng generate\` (component, service, …) to keep the conventions.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Build UI with Angular Material components (Material 3 theme in \`material-theme.scss\`).
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (angular-cli); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -65,6 +226,10 @@ Set \`apiUrl\` in \`src/environments/environment.ts\`. Import the client from \`
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -998,16 +1163,115 @@ body {
 
 exports[`astro snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run astro *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
+",
+  ".cursor/rules/astro.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{astro,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "PUBLIC_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
 .astro
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .astro
@@ -1027,6 +1291,59 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run astro\`
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- Pages are \`.astro\` files in \`src/pages/\`; layouts in \`src/layouts/\`, components in \`src/components/\`.
+
+## Conventions
+
+- Pages render to static HTML; interactivity goes in \`<script>\` tags or client islands.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (astro-docs); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -1057,6 +1374,10 @@ Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client 
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -1338,16 +1659,116 @@ export default getViteConfig({
 
 exports[`astro snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run astro *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
+",
+  ".cursor/rules/astro.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{astro,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "PUBLIC_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
 .astro
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .astro
@@ -1367,6 +1788,61 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run astro\`
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- Pages are \`.astro\` files in \`src/pages/\`; layouts in \`src/layouts/\`, components in \`src/components/\`.
+
+## Conventions
+
+- Pages render to static HTML; interactivity goes in \`<script>\` tags or client islands.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (astro-docs); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -1398,6 +1874,10 @@ Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client 
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -3320,7 +3800,99 @@ export default defineConfig({
 
 exports[`next snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/next.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "{app,components,lib}/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
@@ -3328,11 +3900,26 @@ dist
 out
 next-env.d.ts
 *.tsbuildinfo
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .next
@@ -3345,6 +3932,69 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "next-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run start\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- App Router: routes are folders in \`app/\` with \`page\` and \`layout\` files; components in \`components/\`.
+- \`@/\` points to the project root.
+
+## Conventions
+
+- Components are Server Components by default; add \`"use client"\` only where state, effects or event handlers are needed.
+- Set page titles through the \`metadata\` export, not \`<head>\` tags.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn/ui in \`components/ui\`; add new ones with \`npx shadcn@latest add <component>\` rather than writing them by hand.
+- Shared state lives in the Redux Toolkit store; add state as slices.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (next-devtools, shadcn); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -3378,6 +4028,10 @@ Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the cl
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -4083,7 +4737,100 @@ afterEach(() => {
 
 exports[`next snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/next.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "{app,components,lib}/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
@@ -4091,11 +4838,26 @@ dist
 out
 next-env.d.ts
 *.tsbuildinfo
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .next
@@ -4108,6 +4870,71 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "next-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run start\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- App Router: routes are folders in \`app/\` with \`page\` and \`layout\` files; components in \`components/\`.
+- \`@/\` points to the project root.
+
+## Conventions
+
+- Components are Server Components by default; add \`"use client"\` only where state, effects or event handlers are needed.
+- Set page titles through the \`metadata\` export, not \`<head>\` tags.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn/ui in \`components/ui\`; add new ones with \`npx shadcn@latest add <component>\` rather than writing them by hand.
+- Shared state lives in the Redux Toolkit store; add state as slices.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (next-devtools, shadcn); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -4142,6 +4969,10 @@ Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the cl
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -5431,7 +6262,96 @@ export default nextConfig;
 
 exports[`nuxt snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run generate *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-vue@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "nuxt": {
+      "type": "http",
+      "url": "https://nuxt.com/mcp"
+    }
+  }
+}
+",
+  ".cursor/rules/nuxt.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "app/**/*.{vue,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "NUXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
@@ -5440,11 +6360,22 @@ dist
 .data
 .nitro
 .cache
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "nuxt": {
+      "type": "http",
+      "url": "https://nuxt.com/mcp"
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .nuxt
@@ -5458,6 +6389,64 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "nuxt": {
+      "type": "http",
+      "url": "https://nuxt.com/mcp"
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run build\`: production build
+- \`npm run dev\`: start the dev server
+- \`npm run generate\`
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- Source is in \`app/\`: pages in \`app/pages/\` (file-based routes), components in \`app/components/\`.
+- \`nuxt.config\` holds modules and runtime config.
+
+## Conventions
+
+- Components, composables and Vue APIs are auto-imported; don't add imports for them.
+- Use \`<script setup>\` and \`useFetch\`/\`useAsyncData\` for data loading.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-vue in \`components/ui\`; add new ones with \`npx shadcn-vue@latest add <component>\`.
+- Shared state lives in Pinia stores (setup syntax).
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (nuxt); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -5493,6 +6482,10 @@ Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const {
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -6223,7 +7216,97 @@ export default defineConfig({
 
 exports[`nuxt snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run generate *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-vue@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "nuxt": {
+      "type": "http",
+      "url": "https://nuxt.com/mcp"
+    }
+  }
+}
+",
+  ".cursor/rules/nuxt.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "app/**/*.{vue,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "NUXT_PUBLIC_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
@@ -6232,11 +7315,22 @@ dist
 .data
 .nitro
 .cache
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "nuxt": {
+      "type": "http",
+      "url": "https://nuxt.com/mcp"
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .nuxt
@@ -6250,6 +7344,66 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "nuxt": {
+      "type": "http",
+      "url": "https://nuxt.com/mcp"
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run build\`: production build
+- \`npm run dev\`: start the dev server
+- \`npm run generate\`
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- Source is in \`app/\`: pages in \`app/pages/\` (file-based routes), components in \`app/components/\`.
+- \`nuxt.config\` holds modules and runtime config.
+
+## Conventions
+
+- Components, composables and Vue APIs are auto-imported; don't add imports for them.
+- Use \`<script setup>\` and \`useFetch\`/\`useAsyncData\` for data loading.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-vue in \`components/ui\`; add new ones with \`npx shadcn-vue@latest add <component>\`.
+- Shared state lives in Pinia stores (setup syntax).
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (nuxt); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -6286,6 +7440,10 @@ Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const {
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -7465,10 +8623,90 @@ Disallow:
 
 exports[`preact snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/rules/preact.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
@@ -7482,6 +8720,50 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.jsx\` renders the app; components live in \`src/components/\`.
+
+## Conventions
+
+- Use \`preact/hooks\`; JSX uses \`class\`, not \`className\`.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Routes are declared with preact-iso.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -7511,6 +8793,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -7807,10 +9093,91 @@ export default defineConfig({
 
 exports[`preact snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/rules/preact.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
@@ -7824,6 +9191,52 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.tsx\` renders the app; components live in \`src/components/\`.
+
+## Conventions
+
+- Use \`preact/hooks\`; JSX uses \`class\`, not \`className\`.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Routes are declared with preact-iso.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -7854,6 +9267,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -8732,15 +10149,114 @@ export default function Counter() {
 
 exports[`react snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/react.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
@@ -8749,6 +10265,64 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.jsx\` mounts the app; \`src/App.jsx\` is the root component.
+- Components live in \`src/components/\`, pages (with a router) in \`src/pages/\`.
+
+## Conventions
+
+- Function components and hooks only; no class components.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn/ui in \`components/ui\`; add new ones with \`npx shadcn@latest add <component>\` rather than writing them by hand.
+- Shared state lives in the Redux Toolkit store; add state as slices.
+- Routes are declared with React Router.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (shadcn); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -8782,6 +10356,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -9468,15 +11046,115 @@ export default defineConfig({
 
 exports[`react snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/react.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
@@ -9485,6 +11163,66 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.tsx\` mounts the app; \`src/App.tsx\` is the root component.
+- Components live in \`src/components/\`, pages (with a router) in \`src/pages/\`.
+
+## Conventions
+
+- Function components and hooks only; no class components.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn/ui in \`components/ui\`; add new ones with \`npx shadcn@latest add <component>\` rather than writing them by hand.
+- Shared state lives in the Redux Toolkit store; add state as slices.
+- Routes are declared with React Router.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (shadcn); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -9519,6 +11257,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -11348,10 +13090,90 @@ export default defineConfig({
 
 exports[`solid snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/rules/solid.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
@@ -11365,6 +13187,51 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  "AGENTS.md": "# my-app
+
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/index.jsx\` renders the app; components live in \`src/components/\`.
+
+## Conventions
+
+- Components run once: read signals by calling them (\`count()\`), don't destructure props.
+- JSX uses \`class\`, not \`className\`.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Routes are declared with Solid Router.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -11394,6 +13261,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -11699,10 +13570,91 @@ export default defineConfig({
 
 exports[`solid snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/rules/solid.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
@@ -11716,6 +13668,53 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  "AGENTS.md": "# my-app
+
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/index.tsx\` renders the app; components live in \`src/components/\`.
+
+## Conventions
+
+- Components run once: read signals by calling them (\`count()\`), don't destructure props.
+- JSX uses \`class\`, not \`className\`.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- Routes are declared with Solid Router.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -11746,6 +13745,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -12608,15 +14611,114 @@ export default defineConfig({
 
 exports[`svelte snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-svelte@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/svelte.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{svelte,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
@@ -12635,6 +14737,61 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "svelte": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.js\` mounts \`src/App.svelte\`; components live in \`src/lib/\`.
+
+## Conventions
+
+- Svelte 5 runes (\`$state\`, \`$derived\`, \`$props\`), not Svelte 4 stores or \`export let\`.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-svelte in \`src/lib/components/ui\`; add new ones with \`npx shadcn-svelte@latest add <component>\`.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -12668,6 +14825,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -13369,15 +15530,115 @@ export default defineConfig({
 
 exports[`svelte snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-svelte@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/svelte.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{svelte,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 pnpm-lock.yaml
@@ -13396,6 +15657,63 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "svelte": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.ts\` mounts \`src/App.svelte\`; components live in \`src/lib/\`.
+
+## Conventions
+
+- Svelte 5 runes (\`$state\`, \`$derived\`, \`$props\`), not Svelte 4 stores or \`export let\`.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-svelte in \`src/lib/components/ui\`; add new ones with \`npx shadcn-svelte@latest add <component>\`.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -13430,6 +15748,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -14699,17 +17021,116 @@ export default defineConfig({
 
 exports[`sveltekit snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-svelte@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/sveltekit.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{svelte,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
 .svelte-kit
 build
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .svelte-kit
@@ -14730,6 +17151,62 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "svelte": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- Routes are files in \`src/routes/\` (\`+page.svelte\`, \`+layout.svelte\`); shared code in \`src/lib/\`.
+- Import from \`src/lib\` with the \`#lib\` alias (package.json \`imports\`).
+
+## Conventions
+
+- Svelte 5 runes (\`$state\`, \`$derived\`, \`$props\`).
+- Pages are prerendered with adapter-static; keep routes static or change the adapter.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-svelte in \`src/lib/components/ui\`; add new ones with \`npx shadcn-svelte@latest add <component>\`.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -14763,6 +17240,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -15562,17 +18043,117 @@ export default defineConfig({
 
 exports[`sveltekit snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-svelte@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  ".cursor/rules/sveltekit.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{svelte,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
 .svelte-kit
 build
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
 ",
   ".husky/pre-commit": "lint-staged
+",
+  ".mcp.json": "{
+  "mcpServers": {
+    "svelte": {
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
 ",
   ".prettierignore": "dist
 .svelte-kit
@@ -15593,6 +18174,64 @@ bun.lock
     }
   ]
 }
+",
+  ".vscode/mcp.json": "{
+  "servers": {
+    "svelte": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@sveltejs/mcp"]
+    }
+  }
+}
+",
+  "AGENTS.md": "# my-app
+
+Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- Routes are files in \`src/routes/\` (\`+page.svelte\`, \`+layout.svelte\`); shared code in \`src/lib/\`.
+- Import from \`src/lib\` with the \`#lib\` alias (package.json \`imports\`).
+
+## Conventions
+
+- Svelte 5 runes (\`$state\`, \`$derived\`, \`$props\`).
+- Pages are prerendered with adapter-static; keep routes static or change the adapter.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-svelte in \`src/lib/components/ui\`; add new ones with \`npx shadcn-svelte@latest add <component>\`.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -15627,6 +18266,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -17693,10 +20336,91 @@ export default defineConfig({
 
 exports[`vue snapshots > everything (js) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-vue@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/rules/vue.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{vue,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
@@ -17710,6 +20434,53 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.js\` creates the app; \`src/App.vue\` is the root component.
+- Components live in \`src/components/\`, routed views in \`src/views/\`; \`@/\` points to \`src/\`.
+
+## Conventions
+
+- Single-file components with \`<script setup>\` and the Composition API.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-vue in \`components/ui\`; add new ones with \`npx shadcn-vue@latest add <component>\`.
+- Shared state lives in Pinia stores (setup syntax).
+- Routes are declared in the Vue Router config.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -17743,6 +20514,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 
@@ -18508,10 +21283,92 @@ export default mergeConfig(
 
 exports[`vue snapshots > everything (ts) 1`] = `
 {
+  ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import process from "node:process";
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const file = JSON.parse(input).tool_input?.file_path;
+
+// Run the formatter from the package that owns the file, where its config lives,
+// with a path relative to it (Biome rejects absolute paths through symlinked dirs).
+let root = file ? dirname(file) : undefined;
+while (root && !existsSync(join(root, "package.json"))) {
+  const parent = dirname(root);
+  root = parent === root ? undefined : parent;
+}
+
+if (file && root) {
+  spawnSync(
+    "npx",
+    [
+      "--no-install",
+      "prettier",
+      "--write",
+      "--ignore-unknown",
+      relative(root, file),
+    ],
+    {
+      cwd: root,
+      stdio: "ignore",
+      shell: process.platform === "win32",
+    },
+  );
+}
+",
+  ".claude/settings.json": "{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run format *)",
+      "Bash(npm run format:check *)",
+      "Bash(npx shadcn-vue@latest add *)"
+    ],
+    "ask": ["Bash(git push *)"],
+    "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \\"\${CLAUDE_PROJECT_DIR}/.claude/hooks/format.mjs\\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+",
+  ".cursor/rules/vue.mdc": "---
+description: Project structure, conventions and checks for source files
+globs: "src/**/*.{vue,ts,js}"
+alwaysApply: false
+---
+
+Follow the structure, conventions and checks in AGENTS.md at the repository root.
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
+",
+  ".github/copilot-instructions.md": "# my-app
+
+Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
 ",
   ".gitignore": "node_modules
 dist
+.claude/settings.local.json
+CLAUDE.local.md
 .env
 .env.local
 .DS_Store
@@ -18525,6 +21382,55 @@ yarn.lock
 bun.lock
 ",
   ".prettierrc": "{}
+",
+  "AGENTS.md": "# my-app
+
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+
+## Commands
+
+- \`npm install\`: install dependencies
+- \`npm run dev\`: start the dev server
+- \`npm run build\`: production build
+- \`npm run preview\`: serve the production build
+- \`npm run typecheck\`: type-check
+- \`npm run test\`: run the tests once
+- \`npm run lint\`: lint
+- \`npm run format\`: format all files
+- \`npm run format:check\`: check formatting
+
+## Project structure
+
+- \`src/main.ts\` creates the app; \`src/App.vue\` is the root component.
+- Components live in \`src/components/\`, routed views in \`src/views/\`; \`@/\` points to \`src/\`.
+
+## Conventions
+
+- Single-file components with \`<script setup lang="ts">\` and the Composition API.
+- Style with Tailwind CSS utility classes (v4: configuration lives in CSS, there is no tailwind.config).
+- Global styles are SCSS.
+- UI components come from shadcn-vue in \`components/ui\`; add new ones with \`npx shadcn-vue@latest add <component>\`.
+- Shared state lives in Pinia stores (setup syntax).
+- Routes are declared in the Vue Router config.
+- Call the API through the shared Axios client; its base URL comes from an environment variable (see \`.env.example\`).
+- Tests use Vitest; put \`*.test.*\` files next to the code they test.
+- Component tests use Testing Library: query by role or text and simulate users with \`user-event\`.
+- ESLint flat config in \`eslint.config.*\`; fix lint errors instead of disabling rules.
+- Prettier formats the code; don't hand-format.
+- SEO metadata, sitemap and robots.txt are generated from the site URL; keep page titles and descriptions meaningful.
+- TypeScript strict mode; avoid \`any\`.
+
+## Before finishing a change
+
+Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they report.
+",
+  "CLAUDE.md": "@AGENTS.md
+
+## Claude Code
+
+- After a change, run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` before reporting it done.
+- Edited files are formatted automatically by a hook; don't reformat by hand.
+- Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
   "README.md": "# my-app
 
@@ -18559,6 +21465,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## Claude Code
+
+\`CLAUDE.md\` (with \`AGENTS.md\`) describes the project, \`.claude/settings.json\` allows the project's scripts and formats edited files, and \`.mcp.json\` lists MCP servers for the stack (Claude Code asks before enabling them).
 
 ## SEO
 

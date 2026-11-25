@@ -172,6 +172,15 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 | `turborepo` | hamısı | `husky-lint-staged`, `module-federation` |
 | `module-federation` | R | `turborepo` |
 
+### 5.8.2 AI agentlər
+
+| Modul | Uyğun | Tələb |
+|---|---|---|
+| `agents-md` | hamısı | |
+| `claude-code` | hamısı | `agents-md` |
+| `cursor` | hamısı | `agents-md` |
+| `copilot` | hamısı | `agents-md` |
+
 ### 5.9 Ümumi seçimlər
 
 Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı, lisenziya faylı (MIT və ya yox), `.editorconfig`, GitHub Actions CI faylı (lint + build).
@@ -266,6 +275,21 @@ React UI kitləri (2026-11 yoxlanılıb):
 - Chakra UI v3: CLI-nin `provider` və `color-mode` snippet-ləri (next-themes). Next-də `<html suppressHydrationWarning>` var. Redux ilə `Provider` adı toqquşur, ona görə Chakra-nınkı alias ilə import olunur. Testlər `ChakraProvider`-i birbaşa işlədir, çünki next-themes jsdom-da olmayan matchMedia istəyir. Tailwind ilə xəbərdarlıq verilir (Chakra sənədi bu birləşməni əhatə etmir).
 - Mantine **v9** (React ^19.2 peer): `MantineProvider`, core styles, `postcss-preset-mantine`. PostCSS konfiqi modeldən render olunur (`bundler.postcss`), ona görə Tailwind ilə birləşə bilir. Next-də `mantineHtmlProps` və `ColorSchemeScript` var. Tailwind ilə `styles.layer.css` və `mantine` layer-i işlədilir. Vitest setup-a matchMedia mock-u əlavə olunur.
 - Biome ilə uyğunluq üçün `renderImports` paket yollarını seqment-seqment müqayisə edir (`@mui/material/styles` `@mui/material-nextjs`-dən əvvəl). Adlar Biome kimi sıralanır: registrsiz müqayisə, yalnız registr fərqlənəndə böyük hərf əvvəl.
+
+AI agent faylları (2026-11, rəsmi sənədlərdən yoxlanılıb):
+
+- `AGENTS.md` əsas mənbədir (agents.md). Onu Codex, Cursor, Copilot agenti, Gemini CLI və Claude Code oxuyur. Məzmun seçimdən qurulur: əmrlər `package.json`-dakı real skriptlərdən, framework strukturu və qaydaları, seçilmiş modulların qaydaları, sonda isə "dəyişiklikdən sonra işlət" yoxlamaları. 200 sətir limitinin xeyli altında qalır.
+- Claude Code:
+  - `CLAUDE.md` `@AGENTS.md`-i import edir (sənədin tövsiyə etdiyi forma, bələdçi bir dəfə oxunur) və yalnız Claude-a xas qeydləri əlavə edir.
+  - `.claude/settings.json`: `permissions.allow` layihənin skriptlərindən qurulur (dev/preview kimi server skriptləri xaric); `git push` `ask`-dır; `.env`, `.env.local` və `.env.*.local` `deny`-dır (`.env.example` oxuna bilir).
+  - Prettier və ya Biome seçiləndə `PostToolUse` `Edit|Write` hook-u əlavə olunur. Sənəddəki nümunə `jq` tələb edir, ona görə `.claude/hooks/format.mjs` Node skripti yazılır. Skript formatlayıcını faylın aid olduğu paketin kökündən, nisbi yolla işlədir: Biome alt qovluqdan və symlink-li mütləq yolla çökür.
+  - `.gitignore`-a `.claude/settings.local.json` və `CLAUDE.local.md` əlavə olunur.
+- `.mcp.json` yalnız rəsmi server-lərdən ibarətdir:
+  - framework-ə görə: Next → `next-devtools-mcp`, Nuxt → `https://nuxt.com/mcp`, Svelte/SvelteKit → `@sveltejs/mcp`, Angular → `ng mcp`, Astro → docs MCP;
+  - UI kitinə görə: shadcn, MUI, Chakra UI, Mantine.
+  - Vue, Solid və Preact-ın rəsmi server-i yoxdur, ona görə onlara heç nə yazılmır.
+- Cursor: `.cursor/rules/<framework>.mdc` (`globs` dırnaq içində, çünki `{` ilə başlayan glob YAML-da obyekt sayılır) və `.cursor/mcp.json`. Copilot: `.github/copilot-instructions.md` və `.vscode/mcp.json` (`servers` açarı ilə, hər server-də `type`).
+- Turborepo-da agent faylları kökdə qalır (`model.repoFiles`); Module Federation-da host layihəsinə yazılır.
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 
