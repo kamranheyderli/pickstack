@@ -5,6 +5,7 @@ import type {
   Ctx,
   ImportSpec,
   ProjectModel,
+  ProviderSpec,
 } from "../../types";
 import { aboutText, type DemoClasses } from "./demo";
 
@@ -66,24 +67,48 @@ export function svelteCounter(
   ]);
 }
 
+/** What an app root adds around the home markup: widgets, and (SPA) providers with setup. */
+export interface SvelteHomeExtras {
+  widgets?: string[];
+  providers?: ProviderSpec[];
+  setup?: string[];
+}
+
 export function svelteHome(
   ctx: Ctx,
   cls: DemoClasses,
   counterFrom: string,
   tag: "main" | "section",
   title?: string,
+  extras: SvelteHomeExtras = {},
 ): string {
+  const dir = counterFrom.slice(0, counterFrom.lastIndexOf("/"));
+  const widgets = extras.widgets ?? [];
+  const providers = [...(extras.providers ?? [])].sort(
+    (a, b) => a.order - b.order,
+  );
+  let markup = [
+    `<${tag} class="${tag === "main" ? cls.main : cls.page}">`,
+    `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
+    "  <Counter />",
+    ...widgets.map((name) => `  <${name} />`),
+    `</${tag}>`,
+  ];
+  for (const provider of [...providers].reverse()) {
+    markup = [provider.open, ...indent(markup), provider.close];
+  }
   return svelteComponent(
     ctx,
-    [{ from: counterFrom, default: "Counter" }],
-    [],
     [
-      ...headTitle(title),
-      `<${tag} class="${tag === "main" ? cls.main : cls.page}">`,
-      `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
-      "  <Counter />",
-      `</${tag}>`,
+      { from: counterFrom, default: "Counter" },
+      ...widgets.map((name) => ({
+        from: `${dir}/${name}.svelte`,
+        default: name,
+      })),
+      ...providers.flatMap((p) => p.imports),
     ],
+    extras.setup ?? [],
+    [...headTitle(title), ...markup],
   );
 }
 

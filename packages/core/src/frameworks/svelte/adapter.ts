@@ -129,7 +129,11 @@ export const svelteAdapter: FrameworkAdapter = {
     );
     model.files.set(
       "src/App.svelte",
-      svelteHome(ctx, cls, "./lib/Counter.svelte", "main"),
+      svelteHome(ctx, cls, "./lib/Counter.svelte", "main", undefined, {
+        widgets: model.demo.widgets,
+        providers: model.entry.providers,
+        setup: model.entry.setup,
+      }),
     );
     if (model.testing) {
       model.files.set(

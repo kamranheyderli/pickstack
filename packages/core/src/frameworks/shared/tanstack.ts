@@ -1,7 +1,8 @@
-import { file, indent } from "../../engine/code";
+import { file, indent, renderImports } from "../../engine/code";
 import type { Ctx, ProjectModel, RouteSpec } from "../../types";
 import { aboutText, type DemoClasses } from "./demo";
 import type { ClassAttr } from "./jsx";
+import { widgetElements, widgetImports } from "./widgets";
 
 /**
  * TanStack Router file-based routes: `src/routes/` plus the route tree its Vite plugin
@@ -159,7 +160,12 @@ export function writeFileRoutes(
       `src/routes/${fileName(route)}.${x}`,
       file([
         `import { createFileRoute } from "${pkg}";`,
-        ...(home ? ['import Counter from "../components/Counter";'] : []),
+        ...(home
+          ? renderImports([
+              { from: "../components/Counter", default: "Counter" },
+              ...widgetImports(model, "../components"),
+            ])
+          : []),
         "",
         `export const Route = createFileRoute("${route.path}")({`,
         `  component: ${route.component},`,
@@ -172,6 +178,7 @@ export function writeFileRoutes(
           ? [
               `      <h1 ${attr}="${cls.title}">${ctx.selection.name}</h1>`,
               "      <Counter />",
+              ...widgetElements(model, 3),
             ]
           : [
               `      <h1 ${attr}="${cls.title}">${route.label}</h1>`,

@@ -94,6 +94,13 @@ const shared: VersionSet = {
   "@tanstack/react-router": "^1.170.46",
   "@tanstack/solid-router": "^1.170.43",
   "@tanstack/router-plugin": "^1.169.0",
+  "@tanstack/react-query": "^5.108.4",
+  "@tanstack/solid-query": "^5.108.4",
+  "@tanstack/vue-query": "^5.108.4",
+  // v6 is the Svelte 5 (runes) version.
+  "@tanstack/svelte-query": "^6.4.7",
+  // Replaces the deprecated @tanstack/angular-query-experimental.
+  "@tanstack/angular-query": "^5.108.4",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

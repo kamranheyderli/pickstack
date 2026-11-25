@@ -4,6 +4,7 @@ import { claudeCode } from "./ai/claude-code";
 import { copilot } from "./ai/copilot";
 import { cursor } from "./ai/cursor";
 import { axios } from "./data/axios";
+import { tanstackQuery } from "./data/tanstack-query";
 import { biome } from "./quality/biome";
 import { eslint } from "./quality/eslint";
 import { huskyLintStaged } from "./quality/husky-lint-staged";
@@ -57,6 +58,7 @@ export const modules: readonly Module[] = [
   tanstackRouter,
   preactIso,
   axios,
+  tanstackQuery,
   vitest,
   testingLibrary,
   eslint,

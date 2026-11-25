@@ -259,6 +259,14 @@ export interface ProjectModel {
     counter: CounterSpec | null;
     /** Set by a UI kit module. */
     view: CounterView | null;
+    /**
+     * Components shown under the counter on the home page. Each lives where the framework keeps
+     * components: `components/<Name>` (JSX, Vue), `lib/<Name>.svelte`, Angular
+     * `app/components/<kebab-name>/`.
+     */
+    widgets: string[];
+    /** Where `finalize` serves the stack list as JSON (a data-fetching demo reads it). */
+    stackJson: string | null;
   };
   /** Set by the `seo` module; `ai` is turned on by `aio`. Adapters render head tags from it. */
   seo: SeoSpec | null;

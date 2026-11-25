@@ -8,6 +8,7 @@ import type {
   RouteSpec,
 } from "../../types";
 import { aboutText, type DemoClasses } from "./demo";
+import { widgetElements, widgetImports } from "./widgets";
 import { writeFileRoutes } from "./tanstack";
 
 /** JSX demo components shared by React, Preact and Solid; they differ in the class attribute. */
@@ -89,6 +90,7 @@ export function jsxSingleApp(
     ...renderImports([
       ...remote.imports,
       { from: "./components/Counter", default: "Counter" },
+      ...widgetImports(model, "./components"),
     ]),
     "",
     ...remote.setup,
@@ -97,6 +99,7 @@ export function jsxSingleApp(
     `    <main ${attr}="${cls.main}">`,
     `      <h1 ${attr}="${cls.title}">${ctx.selection.name}</h1>`,
     "      <Counter />",
+    ...widgetElements(model, 3),
     ...indent(remote.element, 3),
     "    </main>",
     "  );",
@@ -157,6 +160,7 @@ export function jsxPage(
       ...renderImports([
         ...remote.imports,
         { from: "../components/Counter", default: "Counter" },
+        ...widgetImports(model, "../components"),
       ]),
       "",
       ...remote.setup,
@@ -165,6 +169,7 @@ export function jsxPage(
       `    <section ${attr}="${cls.page}">`,
       `      <h1 ${attr}="${cls.title}">${ctx.selection.name}</h1>`,
       "      <Counter />",
+      ...widgetElements(model, 3),
       ...indent(remote.element, 3),
       "    </section>",
       "  );",

@@ -148,7 +148,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -198,7 +198,7 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 ",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -408,6 +408,7 @@ export default defineConfig([
     "@angular/material": "^22.3.0",
     "@angular/platform-browser": "^22.3.0",
     "@angular/router": "^22.3.0",
+    "@tanstack/angular-query": "^5.108.4",
     "axios": "^1.21.1",
     "rxjs": "~7.8.2",
     "tslib": "^2.9.1"
@@ -472,6 +473,25 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "Angular 22",
+  "TypeScript",
+  "Sass",
+  "Tailwind CSS",
+  "Angular Material",
+  "Angular signals service",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/app/api/client.ts": "import axios from "axios";
 import { environment } from "../../environments/environment";
 
@@ -480,15 +500,27 @@ export const api = axios.create({
   timeout: 10_000,
 });
 ",
+  "src/app/api/stack.ts": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack(): Promise<string[]> {
+  const response = await fetch("stack.json");
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
+",
   "src/app/app.config.ts": "import {
   type ApplicationConfig,
   provideBrowserGlobalErrorListeners,
 } from "@angular/core";
 import { provideRouter } from "@angular/router";
+import { provideTanStackQuery, QueryClient } from "@tanstack/angular-query";
 import { routes } from "./app.routes";
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes),
+    provideTanStackQuery(() => new QueryClient()),
+  ],
 };
 ",
   "src/app/app.html": "<main
@@ -582,12 +614,37 @@ export class Counter {
   protected readonly counter = inject(CounterService);
 }
 ",
+  "src/app/components/stack-list/stack-list.html": "<p class="max-w-md text-center text-slate-600">
+  @if (stack.isPending()) {
+    Loading…
+  } @else if (stack.isError()) {
+    Could not load the stack.
+  } @else if (stack.data(); as data) {
+    Built with {{ data.join(", ") }}.
+  }
+</p>
+",
+  "src/app/components/stack-list/stack-list.ts": "import { Component } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query";
+import { fetchStack } from "../../api/stack";
+
+@Component({
+  selector: "app-stack-list",
+  templateUrl: "./stack-list.html",
+})
+export class StackList {
+  protected readonly stack = injectQuery(() => ({
+    queryKey: ["stack"],
+    queryFn: fetchStack,
+  }));
+}
+",
   "src/app/pages/about/about.html": "<section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">About</h1>
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material,
-    Angular signals service, Axios, Vitest, Testing Library, ESLint, Prettier,
-    Husky, lint-staged, SEO, llms.txt.
+    Angular signals service, Axios, TanStack Query, Vitest, Testing Library,
+    ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
   </p>
 </section>
 ",
@@ -602,14 +659,16 @@ export class About {}
   "src/app/pages/home/home.html": "<section class="flex flex-col items-center gap-6">
   <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
   <app-counter />
+  <app-stack-list />
 </section>
 ",
   "src/app/pages/home/home.ts": "import { Component } from "@angular/core";
 import { Counter } from "../../components/counter/counter";
+import { StackList } from "../../components/stack-list/stack-list";
 
 @Component({
   selector: "app-home",
-  imports: [Counter],
+  imports: [Counter, StackList],
   templateUrl: "./home.html",
 })
 export class Home {}
@@ -10278,7 +10337,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -10326,7 +10385,7 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -10498,6 +10557,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
+    "@tanstack/react-query": "^5.108.4",
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
@@ -10571,6 +10631,26 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "React 19",
+  "Vite",
+  "Sass",
+  "Tailwind CSS",
+  "shadcn/ui",
+  "Redux Toolkit",
+  "React Router",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.jsx": "import { Link, Route, Routes } from "react-router";
 import About from "./pages/About";
 import Home from "./pages/Home";
@@ -10600,6 +10680,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.js": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack() {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/components/Counter.jsx": "import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
@@ -10655,6 +10742,23 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/components/StackList.jsx": "import { useQuery } from "@tanstack/react-query";
+import { fetchStack } from "../api/stack";
+
+export default function StackList() {
+  const stack = useQuery({ queryKey: ["stack"], queryFn: fetchStack });
+
+  return (
+    <p className="max-w-md text-center text-slate-600">
+      {stack.isPending
+        ? "Loading…"
+        : stack.isError
+          ? "Could not load the stack."
+          : \`Built with \${stack.data.join(", ")}.\`}
+    </p>
+  );
+}
 ",
   "src/components/ui/button.jsx": "import { cva } from "class-variance-authority";
 import { cn } from "cn";
@@ -10948,7 +11052,8 @@ export {
 ",
   "src/lib/utils.js": "export { cn } from "cn";
 ",
-  "src/main.jsx": "import { StrictMode } from "react";
+  "src/main.jsx": "import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
@@ -10956,13 +11061,17 @@ import App from "./App";
 import { store } from "./store";
 import "./index.css";
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </QueryClientProvider>
   </StrictMode>,
 );
 ",
@@ -10972,20 +11081,22 @@ createRoot(document.getElementById("root")).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
-        React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt.
+        React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
+        Prettier, Husky, lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.jsx": "import Counter from "../components/Counter";
+import StackList from "../components/StackList";
 
 export default function Home() {
   return (
     <section className="flex flex-col items-center gap-6">
       <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
+      <StackList />
     </section>
   );
 }
@@ -11176,7 +11287,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -11226,7 +11337,7 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -11387,6 +11498,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
+    "@tanstack/react-query": "^5.108.4",
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
@@ -11464,6 +11576,27 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "React 19",
+  "Vite",
+  "TypeScript",
+  "Sass",
+  "Tailwind CSS",
+  "shadcn/ui",
+  "Redux Toolkit",
+  "React Router",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.tsx": "import { Link, Route, Routes } from "react-router";
 import About from "./pages/About";
 import Home from "./pages/Home";
@@ -11493,6 +11626,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.ts": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack(): Promise<string[]> {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/components/Counter.test.tsx": "import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -11546,6 +11686,23 @@ export default function Counter() {
         <Button onClick={() => dispatch(increment())}>+1</Button>
       </CardFooter>
     </Card>
+  );
+}
+",
+  "src/components/StackList.tsx": "import { useQuery } from "@tanstack/react-query";
+import { fetchStack } from "../api/stack";
+
+export default function StackList() {
+  const stack = useQuery({ queryKey: ["stack"], queryFn: fetchStack });
+
+  return (
+    <p className="max-w-md text-center text-slate-600">
+      {stack.isPending
+        ? "Loading…"
+        : stack.isError
+          ? "Could not load the stack."
+          : \`Built with \${stack.data.join(", ")}.\`}
+    </p>
   );
 }
 ",
@@ -11850,7 +12007,8 @@ export {
 ",
   "src/lib/utils.ts": "export { cn } from "cn";
 ",
-  "src/main.tsx": "import { StrictMode } from "react";
+  "src/main.tsx": "import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
@@ -11858,13 +12016,17 @@ import App from "./App";
 import { store } from "./store";
 import "./index.css";
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </QueryClientProvider>
   </StrictMode>,
 );
 ",
@@ -11874,20 +12036,22 @@ createRoot(document.getElementById("root")!).render(
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
-        Redux Toolkit, React Router, Axios, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt.
+        Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.tsx": "import Counter from "../components/Counter";
+import StackList from "../components/StackList";
 
 export default function Home() {
   return (
     <section className="flex flex-col items-center gap-6">
       <h1 className="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
+      <StackList />
     </section>
   );
 }
@@ -13190,7 +13354,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -13235,7 +13399,7 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -13354,6 +13518,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@solidjs/router": "^1.0.3",
+    "@tanstack/solid-query": "^5.108.4",
     "axios": "^1.21.1",
     "solid-js": "^1.9.20"
   },
@@ -13418,6 +13583,25 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "SolidJS",
+  "Vite",
+  "Sass",
+  "Tailwind CSS",
+  "Solid signals store",
+  "Solid Router",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.jsx": "import { A } from "@solidjs/router";
 
 export default function App(props) {
@@ -13442,6 +13626,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.js": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack() {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/components/Counter.jsx": "import { count, decrement, increment } from "../stores/counter";
 
@@ -13485,24 +13676,49 @@ describe("Counter", () => {
   });
 });
 ",
+  "src/components/StackList.jsx": "import { useQuery } from "@tanstack/solid-query";
+import { Match, Switch } from "solid-js";
+import { fetchStack } from "../api/stack";
+
+export default function StackList() {
+  const stack = useQuery(() => ({ queryKey: ["stack"], queryFn: fetchStack }));
+
+  return (
+    <p class="max-w-md text-center text-slate-600">
+      <Switch>
+        <Match when={stack.isPending}>Loading…</Match>
+        <Match when={stack.isError}>Could not load the stack.</Match>
+        <Match when={stack.data}>
+          {(data) => \`Built with \${data().join(", ")}.\`}
+        </Match>
+      </Switch>
+    </p>
+  );
+}
+",
   "src/index.css": "@import "tailwindcss";
 ",
   "src/index.jsx": "/* @refresh reload */
 import { Route, Router } from "@solidjs/router";
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { render } from "solid-js/web";
 import App from "./App";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import "./index.css";
 
+const queryClient = new QueryClient();
+
 const root = document.getElementById("root");
 
 render(
   () => (
-    <Router root={App}>
-      <Route path="/" component={Home} />
-      <Route path="/about" component={About} />
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router root={App}>
+        <Route path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Router>
+    </QueryClientProvider>
   ),
   root,
 );
@@ -13513,20 +13729,22 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt.
+        Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
+        Prettier, Husky, lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.jsx": "import Counter from "../components/Counter";
+import StackList from "../components/StackList";
 
 export default function Home() {
   return (
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
+      <StackList />
     </section>
   );
 }
@@ -13671,7 +13889,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -13718,7 +13936,7 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -13840,6 +14058,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@solidjs/router": "^1.0.3",
+    "@tanstack/solid-query": "^5.108.4",
     "axios": "^1.21.1",
     "solid-js": "^1.9.20"
   },
@@ -13907,6 +14126,26 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "SolidJS",
+  "Vite",
+  "TypeScript",
+  "Sass",
+  "Tailwind CSS",
+  "Solid signals store",
+  "Solid Router",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.tsx": "import type { RouteSectionProps } from "@solidjs/router";
 import { A } from "@solidjs/router";
 
@@ -13932,6 +14171,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.ts": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack(): Promise<string[]> {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/components/Counter.test.tsx": "import { render, screen } from "@solidjs/testing-library";
 import userEvent from "@testing-library/user-event";
@@ -13975,24 +14221,49 @@ export default function Counter() {
   );
 }
 ",
+  "src/components/StackList.tsx": "import { useQuery } from "@tanstack/solid-query";
+import { Match, Switch } from "solid-js";
+import { fetchStack } from "../api/stack";
+
+export default function StackList() {
+  const stack = useQuery(() => ({ queryKey: ["stack"], queryFn: fetchStack }));
+
+  return (
+    <p class="max-w-md text-center text-slate-600">
+      <Switch>
+        <Match when={stack.isPending}>Loading…</Match>
+        <Match when={stack.isError}>Could not load the stack.</Match>
+        <Match when={stack.data}>
+          {(data) => \`Built with \${data().join(", ")}.\`}
+        </Match>
+      </Switch>
+    </p>
+  );
+}
+",
   "src/index.css": "@import "tailwindcss";
 ",
   "src/index.tsx": "/* @refresh reload */
 import { Route, Router } from "@solidjs/router";
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { render } from "solid-js/web";
 import App from "./App";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import "./index.css";
 
+const queryClient = new QueryClient();
+
 const root = document.getElementById("root");
 
 render(
   () => (
-    <Router root={App}>
-      <Route path="/" component={Home} />
-      <Route path="/about" component={About} />
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router root={App}>
+        <Route path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Router>
+    </QueryClientProvider>
   ),
   root!,
 );
@@ -14003,20 +14274,22 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
-        store, Solid Router, Axios, Vitest, Testing Library, ESLint, Prettier,
-        Husky, lint-staged, SEO, llms.txt.
+        store, Solid Router, Axios, TanStack Query, Vitest, Testing Library,
+        ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
       </p>
     </section>
   );
 }
 ",
   "src/pages/Home.tsx": "import Counter from "../components/Counter";
+import StackList from "../components/StackList";
 
 export default function Home() {
   return (
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
       <Counter />
+      <StackList />
     </section>
   );
 }
@@ -14750,7 +15023,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -14795,7 +15068,7 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -14959,6 +15232,7 @@ export default defineConfig(
     "prepare": "husky"
   },
   "dependencies": {
+    "@tanstack/svelte-query": "^6.4.7",
     "axios": "^1.21.1"
   },
   "devDependencies": {
@@ -15025,16 +15299,42 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "Svelte 5",
+  "Vite",
+  "Sass",
+  "Tailwind CSS",
+  "shadcn-svelte",
+  "Svelte runes store",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.svelte": "<script>
+  import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import Counter from "./lib/Counter.svelte";
+  import StackList from "./lib/StackList.svelte";
+
+  const queryClient = new QueryClient();
 </script>
 
-<main
-  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
->
-  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
-  <Counter />
-</main>
+<QueryClientProvider client={queryClient}>
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <Counter />
+    <StackList />
+  </main>
+</QueryClientProvider>
 ",
   "src/api/client.js": "import axios from "axios";
 
@@ -15042,6 +15342,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.js": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack() {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/app.css": "@import "tailwindcss";
 @import "tw-animate-css";
@@ -15213,6 +15520,26 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/lib/StackList.svelte": "<script>
+  import { createQuery } from "@tanstack/svelte-query";
+  import { fetchStack } from "../api/stack";
+
+  const stack = createQuery(() => ({
+    queryKey: ["stack"],
+    queryFn: fetchStack,
+  }));
+</script>
+
+<p class="max-w-md text-center text-slate-600">
+  {#if stack.isPending}
+    Loading…
+  {:else if stack.isError}
+    Could not load the stack.
+  {:else}
+    Built with {stack.data.join(", ")}.
+  {/if}
+</p>
 ",
   "src/lib/components/ui/button/button.svelte": "<script module>
   import { tv } from "tailwind-variants";
@@ -15670,7 +15997,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -15717,7 +16044,7 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -15880,6 +16207,7 @@ export default defineConfig(
     "prepare": "husky"
   },
   "dependencies": {
+    "@tanstack/svelte-query": "^6.4.7",
     "axios": "^1.21.1"
   },
   "devDependencies": {
@@ -15951,16 +16279,43 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "Svelte 5",
+  "Vite",
+  "TypeScript",
+  "Sass",
+  "Tailwind CSS",
+  "shadcn-svelte",
+  "Svelte runes store",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.svelte": "<script lang="ts">
+  import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import Counter from "./lib/Counter.svelte";
+  import StackList from "./lib/StackList.svelte";
+
+  const queryClient = new QueryClient();
 </script>
 
-<main
-  class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
->
-  <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
-  <Counter />
-</main>
+<QueryClientProvider client={queryClient}>
+  <main
+    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-8 text-slate-900"
+  >
+    <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
+    <Counter />
+    <StackList />
+  </main>
+</QueryClientProvider>
 ",
   "src/api/client.ts": "import axios from "axios";
 
@@ -15968,6 +16323,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.ts": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack(): Promise<string[]> {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/app.css": "@import "tailwindcss";
 @import "tw-animate-css";
@@ -16139,6 +16501,26 @@ describe("Counter", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 });
+",
+  "src/lib/StackList.svelte": "<script lang="ts">
+  import { createQuery } from "@tanstack/svelte-query";
+  import { fetchStack } from "../api/stack";
+
+  const stack = createQuery(() => ({
+    queryKey: ["stack"],
+    queryFn: fetchStack,
+  }));
+</script>
+
+<p class="max-w-md text-center text-slate-600">
+  {#if stack.isPending}
+    Loading…
+  {:else if stack.isError}
+    Could not load the stack.
+  {:else}
+    Built with {stack.data.join(", ")}.
+  {/if}
+</p>
 ",
   "src/lib/components/ui/button/button.svelte": "<script lang="ts" module>
   import type {
@@ -21236,7 +21618,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -21283,7 +21665,7 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -21440,6 +21822,7 @@ export default defineConfig([
     "prepare": "husky"
   },
   "dependencies": {
+    "@tanstack/vue-query": "^5.108.4",
     "@vue/devtools-api": "^8.2.1",
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
@@ -21514,6 +21897,26 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "Vue 3",
+  "Vite",
+  "Sass",
+  "Tailwind CSS",
+  "shadcn-vue",
+  "Pinia",
+  "Vue Router",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.vue": "<script setup>
 import { RouterLink, RouterView } from "vue-router";
 </script>
@@ -21540,6 +21943,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.js": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack() {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/assets/main.css": "@import "tailwindcss";
 @import "tw-animate-css";
@@ -21695,6 +22105,26 @@ const counter = useCounterStore();
       <Button @click="counter.increment()">+1</Button>
     </CardFooter>
   </Card>
+</template>
+",
+  "src/components/StackList.vue": "<script setup>
+import { useQuery } from "@tanstack/vue-query";
+import { fetchStack } from "../api/stack";
+
+const { isPending, isError, data } = useQuery({
+  queryKey: ["stack"],
+  queryFn: fetchStack,
+});
+</script>
+
+<template>
+  <p v-if="isPending" class="max-w-md text-center text-slate-600">Loading…</p>
+  <p v-else-if="isError" class="max-w-md text-center text-slate-600">
+    Could not load the stack.
+  </p>
+  <p v-else class="max-w-md text-center text-slate-600">
+    Built with {{ data?.join(", ") }}.
+  </p>
 </template>
 ",
   "src/components/__tests__/CounterCard.spec.js": "import userEvent from "@testing-library/user-event";
@@ -21967,7 +22397,8 @@ export { default as CardTitle } from "./CardTitle.vue";
 ",
   "src/lib/utils.js": "export { cn } from "cn";
 ",
-  "src/main.js": "import { createPinia } from "pinia";
+  "src/main.js": "import { VueQueryPlugin } from "@tanstack/vue-query";
+import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -21977,6 +22408,7 @@ const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
+app.use(VueQueryPlugin);
 
 app.mount("#app");
 ",
@@ -22031,20 +22463,22 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
-      Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-      llms.txt.
+      Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky,
+      lint-staged, SEO, llms.txt.
     </p>
   </section>
 </template>
 ",
   "src/views/HomeView.vue": "<script setup>
 import CounterCard from "../components/CounterCard.vue";
+import StackList from "../components/StackList.vue";
 </script>
 
 <template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <CounterCard />
+    <StackList />
   </section>
 </template>
 ",
@@ -22184,7 +22618,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Commands
 
@@ -22233,7 +22667,7 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
 
 ## Getting started
 
@@ -22386,6 +22820,7 @@ export default defineConfigWithVueTs(
     "prepare": "husky"
   },
   "dependencies": {
+    "@tanstack/vue-query": "^5.108.4",
     "@vue/devtools-api": "^8.2.1",
     "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
@@ -22466,6 +22901,27 @@ Sitemap: https://example.com/sitemap.xml
   </url>
 </urlset>
 ",
+  "public/stack.json": "[
+  "Vue 3",
+  "Vite",
+  "TypeScript",
+  "Sass",
+  "Tailwind CSS",
+  "shadcn-vue",
+  "Pinia",
+  "Vue Router",
+  "Axios",
+  "TanStack Query",
+  "Vitest",
+  "Testing Library",
+  "ESLint",
+  "Prettier",
+  "Husky",
+  "lint-staged",
+  "SEO",
+  "llms.txt"
+]
+",
   "src/App.vue": "<script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 </script>
@@ -22492,6 +22948,13 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   timeout: 10_000,
 });
+",
+  "src/api/stack.ts": "/** Loads the stack list served from \`public/stack.json\`. */
+export async function fetchStack(): Promise<string[]> {
+  const response = await fetch(\`\${import.meta.env.BASE_URL}stack.json\`);
+  if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+  return response.json();
+}
 ",
   "src/assets/main.css": "@import "tailwindcss";
 @import "tw-animate-css";
@@ -22647,6 +23110,26 @@ const counter = useCounterStore();
       <Button @click="counter.increment()">+1</Button>
     </CardFooter>
   </Card>
+</template>
+",
+  "src/components/StackList.vue": "<script setup lang="ts">
+import { useQuery } from "@tanstack/vue-query";
+import { fetchStack } from "../api/stack";
+
+const { isPending, isError, data } = useQuery({
+  queryKey: ["stack"],
+  queryFn: fetchStack,
+});
+</script>
+
+<template>
+  <p v-if="isPending" class="max-w-md text-center text-slate-600">Loading…</p>
+  <p v-else-if="isError" class="max-w-md text-center text-slate-600">
+    Could not load the stack.
+  </p>
+  <p v-else class="max-w-md text-center text-slate-600">
+    Built with {{ data?.join(", ") }}.
+  </p>
 </template>
 ",
   "src/components/__tests__/CounterCard.spec.ts": "import userEvent from "@testing-library/user-event";
@@ -22909,7 +23392,8 @@ export { default as CardTitle } from "./CardTitle.vue";
 ",
   "src/lib/utils.ts": "export { cn } from "cn";
 ",
-  "src/main.ts": "import { createPinia } from "pinia";
+  "src/main.ts": "import { VueQueryPlugin } from "@tanstack/vue-query";
+import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -22919,6 +23403,7 @@ const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
+app.use(VueQueryPlugin);
 
 app.mount("#app");
 ",
@@ -22973,20 +23458,22 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
-      Vue Router, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
-      lint-staged, SEO, llms.txt.
+      Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
+      Prettier, Husky, lint-staged, SEO, llms.txt.
     </p>
   </section>
 </template>
 ",
   "src/views/HomeView.vue": "<script setup lang="ts">
 import CounterCard from "../components/CounterCard.vue";
+import StackList from "../components/StackList.vue";
 </script>
 
 <template>
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">my-app</h1>
     <CounterCard />
+    <StackList />
   </section>
 </template>
 ",

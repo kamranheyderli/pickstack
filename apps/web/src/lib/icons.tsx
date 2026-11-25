@@ -23,6 +23,7 @@ import {
   siPrimevue,
   siPrettier,
   siReact,
+  siReactquery,
   siReactrouter,
   siRedux,
   siSass,
@@ -84,6 +85,7 @@ export const moduleIcons: Partial<Record<string, SimpleIcon>> = {
   "solid-router": siSolid,
   "preact-iso": siPreact,
   "tanstack-router": siTanstack,
+  "tanstack-query": siReactquery,
   turborepo: siTurborepo,
 };
 

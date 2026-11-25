@@ -165,3 +165,8 @@ export function jsLiteral(value: unknown): string {
   }
   return JSON.stringify(value);
 }
+
+/** `StackList` → `stack-list`, Angular's file and selector naming. */
+export function kebab(name: string): string {
+  return name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+}

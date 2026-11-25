@@ -59,6 +59,9 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
     }),
   );
 
+  if (model.demo.stackJson) {
+    model.files.set(model.demo.stackJson, json(model.readme.stack));
+  }
   model.files.set(
     ".gitignore",
     file([

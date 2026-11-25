@@ -564,5 +564,60 @@ function tanstackCombos(): Combo[] {
       language: "ts",
       modules: ["tanstack-router", "turborepo", "eslint", "prettier"],
     },
+    {
+      framework: "react",
+      language: "ts",
+      modules: [
+        "tanstack-query",
+        "tanstack-router",
+        "eslint",
+        "prettier",
+        "vitest",
+      ],
+    },
+    {
+      framework: "react",
+      language: "js",
+      modules: ["tanstack-query", "react-router", "biome"],
+    },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["tanstack-query", "solid-router", "eslint", "prettier"],
+    },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: [
+        "tanstack-query",
+        "vue-router",
+        "pinia",
+        "eslint",
+        "prettier",
+        "vitest",
+      ],
+    },
+    { framework: "vue", language: "js", modules: ["tanstack-query", "biome"] },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: [
+        "tanstack-query",
+        "eslint",
+        "prettier",
+        "tailwind",
+        "shadcn-svelte",
+      ],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["tanstack-query", "eslint", "prettier", "angular-material"],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["tanstack-query", "biome", "vitest"],
+    },
   ];
 }

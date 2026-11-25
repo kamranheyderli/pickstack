@@ -298,6 +298,13 @@ TanStack Router (`tanstack-router`, React və Solid, 1.170, 2026-11 yoxlanılıb
 - Fayl `model.verbatim`-dədir: generator onu formatlamır, ESLint `globalIgnores`, `.prettierignore` və Biome `files.includes` (`!path`) onu istisna edir. React-də `src/routes/**` üçün `react-refresh/only-export-components` söndürülür, çünki plugin route HMR-i özü edir.
 - Code-based routing ehtiyat variant idi, amma sənəd onu "çox tətbiq üçün tövsiyə olunmur" deyə təsvir edir.
 
+TanStack Query (`tanstack-query`, React, Solid, Vue, Svelte və Angular, 2026-11 yoxlanılıb):
+
+- QueryClient hər framework-ün öz yolu ilə qoşulur: React və Solid-də `QueryClientProvider`, Vue-da `VueQueryPlugin`, Svelte-də `App.svelte` içində provider, Angular-da `provideTanStackQuery(() => new QueryClient())`.
+- Demo: ana səhifədə Counter-in altına `StackList` widget-i (`model.demo.widgets`) gəlir. O, `public/stack.json`-u sorğulayır və loading, error və data hallarını göstərir. JSON-u `finalize` layihənin stack siyahısından yazır, ona görə nə backend, nə xarici şəbəkə lazımdır. Axios client-i işlədilmir, çünki onun baseURL-i default olaraq mövcud olmayan API-yə baxır.
+- Paketlər: Svelte üçün `@tanstack/svelte-query` v6 (Svelte 5 runes). Angular üçün `@tanstack/angular-query`; köhnə `angular-query-experimental` npm-də deprecated-dir.
+- Brauzerdə yoxlanılıb (React + TanStack Router, Angular + Material): widget siyahını göstərir, konsolda xəta yoxdur.
+
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 
 - Hər layihəyə counter komponent testi yazılır. Yalnız `vitest` seçiləndə framework-ün öz mount API-si işlədilir: `react-dom/client` + `act`, `preact` + `preact/test-utils`, `solid-js/web`, Svelte `mount`, `@vue/test-utils`, Nuxt `mountSuspended`, Angular `TestBed`, Astro Container API. `testing-library` seçiləndə test `render`/`screen`/`user-event`-ə keçir. Elementlər class ilə yox, teq və mətnlə tapılır, ona görə Tailwind testi pozmur.

@@ -137,11 +137,17 @@ export const vueAdapter: FrameworkAdapter = {
         "src/App.vue",
         sfc(
           ctx,
-          ['import CounterCard from "./components/CounterCard.vue";'],
+          [
+            'import CounterCard from "./components/CounterCard.vue";',
+            ...model.demo.widgets.map(
+              (name) => `import ${name} from "./components/${name}.vue";`,
+            ),
+          ],
           withAppShell(model.demo.view, [
             `<main class="${cls.main}">`,
             `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
             "  <CounterCard />",
+            ...model.demo.widgets.map((name) => `  <${name} />`),
             "</main>",
           ]),
         ),
@@ -321,11 +327,17 @@ function view(
   if (route.page === "home") {
     return sfc(
       ctx,
-      ['import CounterCard from "../components/CounterCard.vue";'],
+      [
+        'import CounterCard from "../components/CounterCard.vue";',
+        ...model.demo.widgets.map(
+          (name) => `import ${name} from "../components/${name}.vue";`,
+        ),
+      ],
       [
         `<section class="${cls.page}">`,
         `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
         "  <CounterCard />",
+        ...model.demo.widgets.map((name) => `  <${name} />`),
         "</section>",
       ],
     );

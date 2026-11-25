@@ -1019,3 +1019,50 @@ describe("tanstack-router", () => {
     expect(biome.get("biome.json")).toContain('"!src/routeTree.gen.ts"');
   });
 });
+
+describe("tanstack-query", () => {
+  async function project(
+    framework: FrameworkId,
+    modules: string[] = [],
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      modules: ["tanstack-query", ...modules],
+      packageManager: "pnpm",
+    });
+    if (!result.ok) throw new Error("generation failed");
+    return result.files;
+  }
+
+  it("serves the stack as JSON and shows it under the counter", async () => {
+    const files = await project("react");
+    expect(JSON.parse(files.get("public/stack.json") ?? "[]")).toContain(
+      "TanStack Query",
+    );
+    expect(files.get("src/App.tsx")).toContain("<StackList />");
+    expect(files.get("src/main.tsx")).toContain(
+      "<QueryClientProvider client={queryClient}>",
+    );
+    expect(files.get("src/components/StackList.tsx")).toContain(
+      'useQuery({ queryKey: ["stack"], queryFn: fetchStack })',
+    );
+  });
+
+  it("wires the client the way each framework expects", async () => {
+    expect((await project("vue")).get("src/main.ts")).toContain(
+      "app.use(VueQueryPlugin);",
+    );
+    expect((await project("svelte")).get("src/App.svelte")).toContain(
+      "<QueryClientProvider client={queryClient}>",
+    );
+    const angular = await project("angular");
+    expect(angular.get("src/app/app.config.ts")).toContain(
+      "provideTanStackQuery(() => new QueryClient())",
+    );
+    expect(angular.get("src/app/pages/home/home.html")).toContain(
+      "<app-stack-list />",
+    );
+  });
+});

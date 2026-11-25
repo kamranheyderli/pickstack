@@ -1,4 +1,4 @@
-import { file, json, renderImports } from "../../engine/code";
+import { file, json, kebab, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import { staticHeadTags } from "../shared/seo";
 import type {
@@ -103,13 +103,18 @@ export const angularAdapter: FrameworkAdapter = {
     );
     model.files.set(
       "src/app/app.config.ts",
+      // Modules add providers through `entry.imports` and `entry.appUses`.
       file([
+        // `@angular/core` sorts first; its inline `type` import is kept as `ng new` writes it.
         'import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from "@angular/core";',
-        'import { provideRouter } from "@angular/router";',
-        'import { routes } from "./app.routes";',
+        ...renderImports([
+          { from: "@angular/router", named: ["provideRouter"] },
+          ...model.entry.imports,
+          { from: "./app.routes", named: ["routes"] },
+        ]),
         "",
         "export const appConfig: ApplicationConfig = {",
-        "  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],",
+        `  providers: [${["provideBrowserGlobalErrorListeners()", "provideRouter(routes)", ...model.entry.appUses].join(", ")}],`,
         "};",
       ]),
     );
@@ -164,8 +169,14 @@ export const angularAdapter: FrameworkAdapter = {
       component(
         "app-home",
         "Home",
-        ["Counter"],
-        [{ from: "../../components/counter/counter", named: ["Counter"] }],
+        ["Counter", ...model.demo.widgets],
+        [
+          { from: "../../components/counter/counter", named: ["Counter"] },
+          ...model.demo.widgets.map((name) => ({
+            from: `../../components/${kebab(name)}/${kebab(name)}`,
+            named: [name],
+          })),
+        ],
       ),
     );
     model.files.set(
@@ -174,6 +185,7 @@ export const angularAdapter: FrameworkAdapter = {
         `<section class="${cls.page}">`,
         `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
         "  <app-counter />",
+        ...model.demo.widgets.map((name) => `  <app-${kebab(name)} />`),
         "</section>",
       ]),
     );

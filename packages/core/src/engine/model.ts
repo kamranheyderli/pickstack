@@ -35,7 +35,7 @@ export function createModel(): ProjectModel {
     },
     routes: [],
     routing: null,
-    demo: { counter: null, view: null },
+    demo: { counter: null, view: null, widgets: [], stackJson: null },
     seo: null,
     linter: null,
     formatter: null,
