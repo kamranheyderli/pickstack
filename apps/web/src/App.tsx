@@ -470,6 +470,26 @@ export default function App() {
             </p>
           </section>
         </div>
+        <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-sm text-muted">
+          <span>{t("footer.tagline")}</span>
+          <nav className="flex gap-4">
+            <a className="hover:text-ink" href="/stacks/">
+              {t("footer.templates")}
+            </a>
+            <a
+              className="hover:text-ink"
+              href="https://www.npmjs.com/package/create-pickstack"
+            >
+              npm
+            </a>
+            <a
+              className="hover:text-ink"
+              href="https://github.com/kamranheyderli/pickstack"
+            >
+              GitHub
+            </a>
+          </nav>
+        </footer>
       </main>
     </LocaleProvider>
   );

@@ -24,6 +24,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm --filter create-pickstack build
+      # The web app and its prerendered template pages.
+      - run: pnpm --filter @stackforge/web build
 
   # Generates the ready-made stacks and installs, builds, lints and tests each one.
   smoke:

@@ -88,5 +88,7 @@
   "preview.newFile": "New file: added by your last change",
   "preview.editor": "Edit {path}",
   "preview.done": "Done",
-  "preview.doneHint": "Finish editing (Esc or Ctrl/⌘+Enter)"
+  "preview.doneHint": "Finish editing (Esc or Ctrl/⌘+Enter)",
+  "footer.tagline": "pickstack: tested frontend starters, from the browser, the terminal or your AI agent.",
+  "footer.templates": "Starter templates"
 }

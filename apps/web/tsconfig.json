@@ -4,11 +4,12 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   },
   "include": [
     "src",
     "test",
+    "seo",
     "vite.config.ts",
     "../../packages/core/src/**/*.d.ts"
   ]

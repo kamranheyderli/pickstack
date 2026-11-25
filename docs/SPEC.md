@@ -533,6 +533,28 @@ Funksiyalar:
 - İnterfeys dili: Azərbaycan və İngilis (sadə JSON lüğət).
 - İşıqlı və qaranlıq rejim, klaviatura ilə tam idarə, mobil uyğunluq.
 
+### 7.1 SEO: hazır şablon səhifələri
+
+Axtarışlar adətən konkret olur ("react tanstack query starter"). Ona görə `vite build`-dən sonra `seo/prerender.ts` statik səhifələr yazır:
+
+- **Səhifələr:**
+  - hər framework üçün: `/stacks/<framework>/`;
+  - framework-ün dəstəklədiyi hər modul üçün: `/stacks/<framework>/<modul>/`;
+  - hər preset üçün: `/stacks/presets/<id>/`;
+  - hamısının siyahısı: `/stacks/`.
+
+  Hazırda 310 səhifədir.
+- **Məzmun:** səhifədəki məlumat core-un həqiqətən generasiya etdiyi fayllardan gəlir:
+  - modulun bazaya nisbətən əlavə etdiyi paketlər (versiyaları ilə);
+  - yeni fayllar (shiki ilə rənglənmiş);
+  - mövcud fayllardakı diff;
+  - hazır `npm create` əmri və konfiquratora link.
+
+  Ona görə səhifələr bir-birinin surəti deyil və versiyalar yenilənəndə özləri də yenilənir.
+- **Hər səhifədə:** unikal `title` (≤70 simvol), söz sərhədində kəsilən `description` (≤160 simvol), canonical, Open Graph, JSON-LD (`HowTo` və `BreadcrumbList`) və əlaqəli şablonlara daxili linklər.
+- **Əlavə fayllar:** `sitemap.xml` və `robots.txt` də yazılır. Tətbiqin `index.html`-i canonical və mütləq `og:image` ünvanı alır. Konfiquratorun footer-i `/stacks/`-ə link verir.
+- **Domen:** `SITE_URL` (default `https://pickstack.io`) build zamanı verilir. Domen qoşulanda Vercel-də bu dəyişən təyin olunur.
+
 ## 8. Testlər
 
 **Unit**: hər modulun `apply` funksiyası modeli düzgün dəyişir.

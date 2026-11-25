@@ -88,5 +88,7 @@
   "preview.newFile": "Yeni fayl: son seçimlə əlavə olunub",
   "preview.editor": "{path} faylını redaktə et",
   "preview.done": "Hazır",
-  "preview.doneHint": "Redaktəni bitir (Esc və ya Ctrl/⌘+Enter)"
+  "preview.doneHint": "Redaktəni bitir (Esc və ya Ctrl/⌘+Enter)",
+  "footer.tagline": "pickstack: brauzerdən, terminaldan və ya AI agentindən test olunmuş frontend layihələri.",
+  "footer.templates": "Hazır şablonlar"
 }
