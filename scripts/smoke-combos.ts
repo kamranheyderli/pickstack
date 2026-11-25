@@ -978,5 +978,16 @@ function backendCombos(): Combo[] {
     },
     { framework: "vue", language: "js", modules: ["express", "drizzle"] },
     { framework: "angular", language: "ts", modules: ["nestjs", "drizzle"] },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: [
+        "express",
+        "github-actions",
+        "license",
+        "editorconfig",
+        "eslint",
+      ],
+    },
   ];
 }

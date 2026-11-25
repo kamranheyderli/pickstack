@@ -1,5 +1,6 @@
 import { file } from "../../engine/code";
 import { installCommand, runCommand } from "../../engine/finalize";
+import { serverScripts } from "../../engine/server";
 import { githubActions } from "../../versions/known-good";
 import type { Module, PackageManager } from "../../types";
 
@@ -51,10 +52,31 @@ export const githubActionsModule: Module = {
   order: 90,
   apply(model, ctx) {
     const pm = ctx.selection.packageManager;
-    const scripts = CHECKS.filter(
-      (s) =>
-        s in model.pkg.scripts && (!model.monorepo || WORKSPACE_TASKS.has(s)),
-    );
+    const checks = (scripts: Record<string, string>) =>
+      CHECKS.filter(
+        (s) => s in scripts && (!model.monorepo || WORKSPACE_TASKS.has(s)),
+      );
+    /** One job: install and run the checks, in `dir` when the repository holds several projects. */
+    const job = (name: string, scripts: string[], dir?: string) => [
+      `  ${name}:`,
+      "    runs-on: ubuntu-latest",
+      ...(dir
+        ? ["    defaults:", "      run:", `        working-directory: ${dir}`]
+        : []),
+      "    steps:",
+      `      - uses: ${githubActions.checkout}`,
+      ...setupSteps(pm),
+      `      - run: ${installCommand(pm)}`,
+      ...scripts.map((s) => `      - run: ${runCommand(pm, s)}`),
+    ];
+    // With an API in server/, the app is in web/: each project gets its own job.
+    const jobs = model.server
+      ? [
+          ...job("web", checks(model.pkg.scripts), "web"),
+          "",
+          ...job("server", checks(serverScripts(model.server, ctx)), "server"),
+        ]
+      : job("ci", checks(model.pkg.scripts));
     model.repoFiles.set(
       ".github/workflows/ci.yml",
       file([
@@ -69,13 +91,7 @@ export const githubActionsModule: Module = {
         "  contents: read",
         "",
         "jobs:",
-        "  ci:",
-        "    runs-on: ubuntu-latest",
-        "    steps:",
-        `      - uses: ${githubActions.checkout}`,
-        ...setupSteps(pm),
-        `      - run: ${installCommand(pm)}`,
-        ...scripts.map((s) => `      - run: ${runCommand(pm, s)}`),
+        ...jobs,
       ]),
     );
     model.readme.stack.push("GitHub Actions");

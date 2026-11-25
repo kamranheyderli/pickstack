@@ -10,6 +10,10 @@ import { file, json, sortRecord } from "./code";
 import { APP_NAME, writeTurborepo } from "./monorepo";
 import { renderServer } from "./server";
 
+/** Repository files that cover every project in it, not just the app. */
+const isRepoWide = (path: string) =>
+  path.startsWith(".github/") || path === "LICENSE" || path === ".editorconfig";
+
 /** Built-in pnpm commands that shadow scripts with the same name. */
 const PNPM_COMMANDS = new Set(["deploy", "publish", "pack", "link", "update"]);
 
@@ -98,14 +102,21 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
     model.files.set("README.md", readme(model, ctx, rootScripts));
     return;
   }
-  // Without a workspace root, repository files live with the app (the host project).
-  for (const [path, content] of model.repoFiles) model.files.set(path, content);
+  // Without a workspace root, repository files live with the app (the host project). With an
+  // API next to it, files about the whole repository (CI, license, editor settings) go to the
+  // root; writeServer moves the rest into web/ with the app.
+  const repoRoot = new Map<string, string>();
+  for (const [path, content] of model.repoFiles) {
+    if (model.server && isRepoWide(path)) repoRoot.set(path, content);
+    else model.files.set(path, content);
+  }
   if (model.federation) {
     writeFederation(model, ctx, model.federation);
     return;
   }
   if (model.server) {
     writeServer(model, ctx, model.server);
+    for (const [path, content] of repoRoot) model.files.set(path, content);
     return;
   }
   model.files.set(

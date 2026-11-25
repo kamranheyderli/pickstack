@@ -1475,6 +1475,35 @@ describe("express", () => {
     expect(getModule("express")?.frameworks).not.toContain("next");
   });
 
+  it("keeps CI, license and editor settings at the root, with a job per project", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "pnpm",
+      modules: [
+        "express",
+        "eslint",
+        "github-actions",
+        "license",
+        "editorconfig",
+        "agents-md",
+      ],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    const ci = files.get(".github/workflows/ci.yml") ?? "";
+    expect(files.has("web/.github/workflows/ci.yml")).toBe(false);
+    expect(ci).toContain("working-directory: web");
+    expect(ci).toContain("working-directory: server");
+    expect(ci).toContain("      - run: pnpm lint");
+    expect(ci).toContain("      - run: pnpm typecheck");
+    expect(files.has("LICENSE")).toBe(true);
+    expect(files.has(".editorconfig")).toBe(true);
+    // Agent guides describe the app's commands, so they stay with it.
+    expect(files.has("web/AGENTS.md")).toBe(true);
+  });
+
   it("proxies /api from the app and calls it from a widget", async () => {
     const react = await project("ts");
     expect(react.get("web/vite.config.ts")).toContain(

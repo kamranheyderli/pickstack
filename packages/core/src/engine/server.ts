@@ -62,6 +62,14 @@ function scripts(spec: ServerSpec, ctx: Ctx): Record<string, string> {
     : { dev: "node --watch src/index.js", start: "node src/index.js" };
 }
 
+/** The server's package.json scripts: the framework's own plus the modules' (e.g. `db:push`). */
+export function serverScripts(
+  spec: ServerSpec,
+  ctx: Ctx,
+): Record<string, string> {
+  return { ...scripts(spec, ctx), ...spec.scripts };
+}
+
 function packageJson(spec: ServerSpec, ctx: Ctx): string {
   const { name, framework } = ctx.selection;
   const versions = (names: Set<string>) =>
@@ -75,7 +83,7 @@ function packageJson(spec: ServerSpec, ctx: Ctx): string {
     private: true,
     version: "0.1.0",
     type: "module",
-    scripts: { ...scripts(spec, ctx), ...spec.scripts },
+    scripts: serverScripts(spec, ctx),
     dependencies: versions(spec.dependencies),
     ...(spec.devDependencies.size
       ? { devDependencies: versions(spec.devDependencies) }
