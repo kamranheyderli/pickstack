@@ -70,6 +70,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* A faint grid behind the top of the page, fading out towards the content. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.55;
+  mask-image: radial-gradient(70rem 34rem at 50% 0%, #000 0%, transparent 75%);
+}
+
 /* Shiki renders its own <pre>; let the wrapper own spacing and background. */
 .code-html pre {
   margin: 0;

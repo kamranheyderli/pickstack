@@ -14,6 +14,7 @@ import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
+import { TerminalDemo } from "./components/TerminalDemo";
 import {
   LocaleProvider,
   translate,
@@ -198,23 +199,50 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-[1320px] px-4 pt-6 pb-10 sm:px-6">
-        <section className="mb-5">
-          <p className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-line bg-panel px-2.5 py-0.5 text-xs font-medium text-muted shadow-xs">
-            <span
-              className="size-1.5 rounded-full bg-emerald-500"
-              aria-hidden="true"
-            />
-            {t("hero.badge")}
-          </p>
-          <h1 className="mb-1.5 text-[clamp(1.6rem,3.2vw,2.25rem)] leading-[1.1] font-semibold tracking-[-0.03em]">
-            {t("hero.title")}{" "}
-            <span className="bg-linear-to-r from-accent to-accent-2 bg-clip-text text-transparent">
-              {t("hero.titleAccent")}
-            </span>
-          </h1>
-          <p className="m-0 max-w-[70ch] text-sm text-muted sm:text-base">
-            {t("app.tagline")}
-          </p>
+        <section className="mb-6 grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)]">
+          <div>
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-line bg-panel/80 px-2.5 py-0.5 text-xs font-medium text-muted shadow-xs backdrop-blur">
+              <span
+                className="size-1.5 rounded-full bg-emerald-500"
+                aria-hidden="true"
+              />
+              {t("hero.badge")}
+            </p>
+            <h1 className="mb-3 text-[clamp(1.9rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.035em]">
+              {t("hero.title")}{" "}
+              <span className="bg-linear-to-r from-accent to-accent-2 bg-clip-text text-transparent">
+                {t("hero.titleAccent")}
+              </span>
+            </h1>
+            <p className="m-0 max-w-[60ch] text-sm text-muted sm:text-base">
+              {t("app.tagline")}
+            </p>
+          </div>
+          <TerminalDemo
+            command={createCommand({ ...selection, name: projectName })}
+            output={[
+              `◇ Created ${projectName}/ (${files?.size ?? 0} files)`,
+              "◇ Initialized a git repository",
+              `◇ Installed dependencies with ${selection.packageManager}`,
+              `$ cd ${projectName} && ${runCommand(selection.packageManager, "dev")}`,
+            ]}
+          />
+        </section>
+
+        <section aria-labelledby="presets-heading" className="mb-6">
+          <h2 id="presets-heading" className="mb-2 text-sm font-semibold">
+            {t("preset.title")}
+          </h2>
+          <PresetPicker
+            active={activePreset}
+            onPick={(preset) =>
+              onBaseChange({
+                ...selection,
+                framework: preset.framework,
+                modules: preset.modules,
+              })
+            }
+          />
         </section>
 
         <section aria-labelledby="framework-heading" className="mb-5">
@@ -225,16 +253,6 @@ export default function App() {
           <FrameworkPicker
             value={selection.framework}
             onChange={(framework) => onBaseChange({ ...selection, framework })}
-          />
-          <PresetPicker
-            active={activePreset}
-            onPick={(preset) =>
-              onBaseChange({
-                ...selection,
-                framework: preset.framework,
-                modules: preset.modules,
-              })
-            }
           />
         </section>
 
@@ -345,6 +363,11 @@ export default function App() {
                   path={activePath}
                   code={files.get(activePath) ?? ""}
                   edited={edited.has(activePath)}
+                  before={
+                    generated.before && generated.changed.has(activePath)
+                      ? (generated.before.get(activePath) ?? null)
+                      : undefined
+                  }
                   onEdit={(code) =>
                     setEdits((prev) => {
                       const next = new Map(prev);

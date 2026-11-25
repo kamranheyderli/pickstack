@@ -10,6 +10,8 @@ export interface Generated {
   result: GenerateResult | null;
   /** Paths that were added or changed by the latest generation (empty on first render). */
   changed: Set<string>;
+  /** Files from the generation before the latest one, to diff a changed file against. */
+  before: Map<string, string> | null;
   pending: boolean;
 }
 
@@ -18,6 +20,7 @@ export function useGenerated(selection: Selection): Generated {
   const [state, setState] = useState<Generated>({
     result: null,
     changed: new Set(),
+    before: null,
     pending: true,
   });
   const previous = useRef<Map<string, string> | null>(null);
@@ -37,8 +40,9 @@ export function useGenerated(selection: Selection): Generated {
           if (previous.current.get(path) !== content) changed.add(path);
         }
       }
+      const before = previous.current;
       if (result.ok) previous.current = result.files;
-      setState({ result, changed, pending: false });
+      setState({ result, changed, before, pending: false });
     }, 120);
     return () => {
       cancelled = true;

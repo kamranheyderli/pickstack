@@ -1,5 +1,12 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { useT } from "../i18n";
+import { diffStats, lineDiff } from "../lib/diff";
 import { highlight } from "../lib/highlight";
 import { UiIcon } from "../lib/icons";
 
@@ -10,6 +17,11 @@ interface CodeViewProps {
   edited: boolean;
   onEdit: (code: string) => void;
   onReset: () => void;
+  /**
+   * The file before the latest selection change: its old text, `null` when the change added
+   * it, `undefined` when the change left it alone.
+   */
+  before?: string | null;
 }
 
 const codeClass =
@@ -40,13 +52,25 @@ export function CodeView({
   edited,
   onEdit,
   onReset,
+  before,
 }: CodeViewProps) {
   const t = useT();
+
   const [html, setHtml] = useState<{ code: string; html: string } | null>(null);
   const [editing, setEditing] = useState(false);
   const underlay = useRef<HTMLDivElement>(null);
   const editButton = useRef<HTMLButtonElement>(null);
   const finishing = useRef(false);
+  const [showDiff, setShowDiff] = useState(false);
+  const diff = useMemo(
+    () =>
+      before === undefined || before === code
+        ? null
+        : lineDiff(before ?? "", code),
+    [before, code],
+  );
+  const stats = diff ? diffStats(diff) : null;
+  const diffing = showDiff && diff !== null && !editing;
 
   /** Leaves the editor and puts focus back on "Edit", so keyboard users aren't lost. */
   const finish = () => {
@@ -95,6 +119,19 @@ export function CodeView({
           <span className="mr-1 hidden sm:inline">
             {t("preview.lines", { count: lines })}
           </span>
+          {stats && !editing && (
+            <button
+              type="button"
+              aria-pressed={diffing}
+              onClick={() => setShowDiff((v) => !v)}
+              title={t("preview.diffHint")}
+              className={`${toolButton} aria-pressed:bg-white/10 aria-pressed:text-code-ink`}
+            >
+              <span className="text-emerald-400">+{stats.added}</span>
+              <span className="text-red-400">−{stats.removed}</span>
+              {diffing ? t("preview.code") : t("preview.diff")}
+            </button>
+          )}
           {edited && (
             <button type="button" onClick={onReset} className={toolButton}>
               <UiIcon name="undo" size={13} />
@@ -124,7 +161,53 @@ export function CodeView({
           )}
         </span>
       </div>
-      {editing ? (
+      {diffing && diff ? (
+        <pre
+          className={`${codeClass} whitespace-pre`}
+          aria-label={t("preview.diff")}
+        >
+          {before === null && (
+            <span className="mb-2 block text-xs text-emerald-400">
+              {t("preview.newFile")}
+            </span>
+          )}
+          {diff.map((line, index) =>
+            line.type === "skip" ? (
+              <span
+                key={index}
+                className="my-1 block rounded bg-white/5 px-2 text-xs text-code-ink/50"
+              >
+                ⋯ {t("preview.unchanged", { count: line.count })}
+              </span>
+            ) : (
+              <span
+                key={index}
+                className={`-mx-5 block px-5 ${
+                  line.type === "add"
+                    ? "bg-emerald-500/15"
+                    : line.type === "del"
+                      ? "bg-red-500/15 text-code-ink/60 line-through decoration-red-400/40"
+                      : ""
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`mr-3 inline-block w-3 select-none ${
+                    line.type === "add"
+                      ? "text-emerald-400"
+                      : line.type === "del"
+                        ? "text-red-400"
+                        : "text-code-ink/30"
+                  }`}
+                >
+                  {line.type === "add" ? "+" : line.type === "del" ? "−" : " "}
+                </span>
+                {line.text || " "}
+              </span>
+            ),
+          )}
+        </pre>
+      ) : editing ? (
         // The textarea's text is transparent; the highlighted copy underneath shows through
         // and scrolls with it, so colours stay while typing.
         <div className="relative">
