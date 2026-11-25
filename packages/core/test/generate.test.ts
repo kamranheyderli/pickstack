@@ -46,6 +46,7 @@ function everything(framework: FrameworkId): string[] {
           "turborepo",
           "module-federation",
           "express",
+          "nestjs",
           "mongodb",
         ].includes(m.id),
     )
@@ -81,6 +82,12 @@ for (const framework of frameworks) {
 describe("express snapshot", () => {
   it("puts the app in web/ and the API in server/ (ts)", async () => {
     expect(await files("ts", ["express"])).toMatchSnapshot();
+  });
+});
+
+describe("nestjs snapshot", () => {
+  it("puts a NestJS API in server/ (ts)", async () => {
+    expect(await files("ts", ["nestjs"])).toMatchSnapshot();
   });
 });
 
@@ -167,12 +174,16 @@ describe("generate", () => {
           );
           if (!result.ok) {
             // Only expected rejections: two picks in a single-select category, Biome
-            // alongside ESLint/Prettier, or Husky without a tool to run.
+            // alongside ESLint/Prettier, Husky without a tool to run, or a TS-only
+            // module (NestJS) in JS.
             expect(
               result.errors.every((e) =>
-                ["single-category", "conflict", "missing-one-of"].includes(
-                  e.code,
-                ),
+                [
+                  "single-category",
+                  "conflict",
+                  "missing-one-of",
+                  "language-mismatch",
+                ].includes(e.code),
               ),
             ).toBe(true);
             continue;

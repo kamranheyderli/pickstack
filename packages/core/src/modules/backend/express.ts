@@ -1,5 +1,5 @@
 import { runCommand } from "../../engine/finalize";
-import type { Module } from "../../types";
+import type { Ctx, Module, ProjectModel } from "../../types";
 import { API_WIDGET, apiWidget } from "./widget";
 
 /** The API's port; the app's dev server proxies `/api` here. */
@@ -22,12 +22,9 @@ export const express: Module = {
   // A workspace or two front-end projects would need their own layout for the API.
   conflicts: ["turborepo", "module-federation"],
   apply(model, ctx) {
-    // The app calls the API through its dev server, so no CORS setup is needed.
-    model.apiProxy = `http://localhost:${SERVER_PORT}`;
-    for (const [path, content] of apiWidget(model, ctx))
-      model.files.set(path, content);
-    model.demo.widgets.push(API_WIDGET);
+    connectApi(model, ctx, "Express");
     model.server = {
+      kind: "express",
       port: SERVER_PORT,
       summary: `Express 5 API on port ${SERVER_PORT}`,
       dependencies: new Set(["express"]),
@@ -52,10 +49,19 @@ export const express: Module = {
       rootFiles: new Map(),
       setup: [],
     };
-    model.readme.stack.push("Express");
-    model.readme.sections.push({
-      title: "API",
-      body: `The API lives in \`../server\` (Express). Start it with \`${runCommand(ctx.selection.packageManager, "dev")}\` there; requests to \`/api\` from this app are proxied to it in development.`,
-    });
   },
 };
+
+/** The app's side of any backend: the `/api` proxy, the demo widget and a README section. */
+export function connectApi(model: ProjectModel, ctx: Ctx, name: string): void {
+  // The app calls the API through its dev server, so no CORS setup is needed.
+  model.apiProxy = `http://localhost:${SERVER_PORT}`;
+  for (const [path, content] of apiWidget(model, ctx))
+    model.files.set(path, content);
+  model.demo.widgets.push(API_WIDGET);
+  model.readme.stack.push(name);
+  model.readme.sections.push({
+    title: "API",
+    body: `The API lives in \`../server\` (${name}). Start it with \`${runCommand(ctx.selection.packageManager, "dev")}\` there; requests to \`/api\` from this app are proxied to it in development.`,
+  });
+}

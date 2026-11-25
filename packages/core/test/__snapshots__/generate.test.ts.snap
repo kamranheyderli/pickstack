@@ -4961,6 +4961,429 @@ export default defineConfig({
 }
 `;
 
+exports[`nestjs snapshot > puts a NestJS API in server/ (ts) 1`] = `
+Map {
+  "README.md" => "# my-app
+
+A web app and its API, as two projects:
+
+- \`web/\`: the app. In development its dev server proxies \`/api\` to the API.
+- \`server/\`: NestJS API on port 3001.
+
+## Getting started
+
+Start the API, then the app, in two terminals:
+
+\`\`\`bash
+cd server && npm install && npm run dev
+\`\`\`
+
+\`\`\`bash
+cd web && npm install && npm run dev
+\`\`\`
+",
+  "server/.env.example" => "PORT=3001
+",
+  "server/.gitignore" => "node_modules
+dist
+.env
+",
+  "server/nest-cli.json" => "{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true
+  }
+}
+",
+  "server/package.json" => "{
+  "name": "my-app-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.6.2",
+    "@nestjs/core": "^12.6.2",
+    "@nestjs/platform-express": "^12.6.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.15",
+    "@nestjs/schematics": "^12.0.16",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.2",
+    "tslib": "^2.9.1",
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
+",
+  "server/README.md" => "# my-app-server
+
+NestJS API on port 3001. Copy \`.env.example\` to \`.env\` to change settings.
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+",
+  "server/src/app.controller.ts" => "import { Controller, Get, Query } from "@nestjs/common";
+import { AppService } from "./app.service.js";
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get("health")
+  health(): { ok: boolean } {
+    return { ok: true };
+  }
+
+  @Get("hello")
+  hello(@Query("name") name?: string): { message: string } {
+    return { message: this.appService.greet(name ?? "world") };
+  }
+}
+",
+  "server/src/app.module.ts" => "import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller.js";
+import { AppService } from "./app.service.js";
+
+@Module({
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+",
+  "server/src/app.service.ts" => "import { Injectable } from "@nestjs/common";
+
+@Injectable()
+export class AppService {
+  greet(name: string): string {
+    return \`Hello, \${name}!\`;
+  }
+}
+",
+  "server/src/main.ts" => "import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module.js";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix("api");
+  const port = Number(process.env.PORT ?? 3001);
+  await app.listen(port);
+  console.log(\`API listening on http://localhost:\${port}\`);
+}
+await bootstrap();
+",
+  "server/tsconfig.build.json" => "{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}
+",
+  "server/tsconfig.json" => "{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "types": ["node"]
+  }
+}
+",
+  "web/.gitignore" => "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "web/index.html" => "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "web/package.json" => "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "web/README.md" => "# my-app
+
+Stack: React 19, Vite, TypeScript, NestJS.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## API
+
+The API lives in \`../server\` (NestJS). Start it with \`npm run dev\` there; requests to \`/api\` from this app are proxied to it in development.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "web/src/App.tsx" => "import ApiGreeting from "./components/ApiGreeting";
+import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main className="app">
+      <h1 className="title">my-app</h1>
+      <Counter />
+      <ApiGreeting />
+    </main>
+  );
+}
+",
+  "web/src/components/ApiGreeting.tsx" => "import { useEffect, useState } from "react";
+
+export default function ApiGreeting() {
+  const [message, setMessage] = useState("Calling the API…");
+
+  useEffect(() => {
+    fetch("/api/hello?name=my-app")
+      .then((response) => {
+        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+        return response.json();
+      })
+      .then((data) => setMessage(data.message))
+      .catch(() => setMessage("The API isn't running: start it in server/."));
+  }, []);
+
+  return <p className="text">{message}</p>;
+}
+",
+  "web/src/components/Counter.tsx" => "import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "web/src/index.css" => ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "web/src/main.tsx" => "import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+",
+  "web/tsconfig.json" => "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "web/vite.config.ts" => "import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [react()],
+  server: { proxy: { "/api": "http://localhost:3001" } },
+});
+",
+}
+`;
+
 exports[`next snapshots > everything (js) 1`] = `
 {
   ".claude/hooks/format.mjs": "// PostToolUse hook: formats the file Claude Code just wrote or edited.

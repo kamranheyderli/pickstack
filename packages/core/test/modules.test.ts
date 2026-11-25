@@ -1493,6 +1493,59 @@ describe("express", () => {
   });
 });
 
+describe("nestjs", () => {
+  async function project(framework: FrameworkId = "react") {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      packageManager: "npm",
+      modules: ["nestjs"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("writes the starter's layout to server/ with an /api prefix", async () => {
+    const files = await project();
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.scripts.dev).toBe("nest start --watch");
+    expect(pkg.dependencies["@nestjs/core"]).toBe(
+      knownGoodVersion("@nestjs/core", "react"),
+    );
+    expect(files.get("server/src/main.ts")).toContain(
+      'app.setGlobalPrefix("api");',
+    );
+    expect(files.get("server/src/app.controller.ts")).toContain(
+      '@Get("hello")',
+    );
+    expect(files.has("server/nest-cli.json")).toBe(true);
+    expect(files.has("server/src/app.ts")).toBe(false);
+    expect(files.get("web/vite.config.ts")).toContain(
+      '"/api": "http://localhost:3001"',
+    );
+  });
+
+  it("is TypeScript only and excludes Express", async () => {
+    const js = await generate({
+      name: "acme",
+      framework: "react",
+      language: "js",
+      packageManager: "npm",
+      modules: ["nestjs"],
+    });
+    expect(js.ok).toBe(false);
+    const both = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["nestjs", "express"],
+    });
+    expect(both.ok).toBe(false);
+  });
+});
+
 describe("mongodb", () => {
   it("connects before listening and adds todo routes and docker-compose", async () => {
     const result = await generate({

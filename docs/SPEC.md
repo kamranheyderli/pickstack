@@ -179,12 +179,19 @@ Qeydlər (2026-11, yoxlanılıb):
 | Modul | Uyğun | Tələb |
 |---|---|---|
 | `express` | R, V, S, So, P, A | |
+| `nestjs` | R, V, S, So, P, A (yalnız TS) | |
 | `mongodb` | R, V, S, So, P, A | `express` (avtomatik əlavə olunur) |
 
 - **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
   - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
   - Modullar `ServerSpec`-ə əlavə edir: paketlər, `src/app` importları və route-ları, `listen`-dən əvvəlki addımlar, env və kök faylları. Fayllar `finalize` mərhələsində `engine/server.ts` ilə yazılır, ona görə modullar paylaşılan faylları mətn kimi dəyişmir.
 - **Express 5:** `src/app` route-ları `listen`-dən ayrı saxlayır, testlər onu import edə bilsin deyə. TS-də `tsx watch` və `tsc` (NodeNext, `.js` importları), JS-də `node --watch` istifadə olunur.
+- **NestJS 12:**
+  - Rəsmi `typescript-starter`-in quruluşu: ESM, `nest build`, `nest-cli.json`, `tsconfig.build.json`, `AppModule`, `AppController` və `AppService`.
+  - `app.setGlobalPrefix("api")` ilə Express-dəki eyni `/api/health` və `/api/hello` route-ları verilir, ona görə ApiGreeting dəyişmir.
+  - Starter-dəki `@nestjs/observe` qoşulmur, çünki xarici xidmətdə qeydiyyat tələb edir.
+  - Yalnız TS-də təklif olunur, çünki Nest-in decorator-ları və DI-si TypeScript üzərində qurulub. `ServerSpec.kind` hansı serverin render olunacağını seçir.
+  - MongoDB hələlik yalnız Express ilə işləyir; Nest üçün `@nestjs/mongoose` növbəti addımdır.
 - **Frontend inteqrasiyası:** `model.apiProxy` dev server-də `/api` sorğularını API-yə yönləndirir (Vite-də `server.proxy`, Angular-da `proxy.conf.json`), CORS lazım olmur. `ApiGreeting` widget-i `/api/hello` çağırır; 6 SPA-nın hamısında brauzerdə yoxlanılıb.
 - **MongoDB:**
   - Mongoose ilə `connectDb` `listen`-dən əvvəl top-level await ilə çağırılır.

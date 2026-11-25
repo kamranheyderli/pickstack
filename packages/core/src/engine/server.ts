@@ -18,6 +18,50 @@ const tsconfig = json({
   include: ["src"],
 });
 
+/** The typescript-starter's config: decorators need `emitDecoratorMetadata`. */
+const nestTsconfig = json({
+  compilerOptions: {
+    module: "nodenext",
+    moduleResolution: "nodenext",
+    resolvePackageJsonExports: true,
+    esModuleInterop: true,
+    isolatedModules: true,
+    declaration: true,
+    removeComments: true,
+    emitDecoratorMetadata: true,
+    experimentalDecorators: true,
+    importHelpers: true,
+    allowSyntheticDefaultImports: true,
+    target: "ES2023",
+    sourceMap: true,
+    outDir: "./dist",
+    incremental: true,
+    skipLibCheck: true,
+    strict: true,
+    strictPropertyInitialization: false,
+    types: ["node"],
+  },
+});
+
+function scripts(spec: ServerSpec, ctx: Ctx): Record<string, string> {
+  if (spec.kind === "nestjs") {
+    return {
+      dev: "nest start --watch",
+      build: "nest build",
+      start: "node dist/main",
+      typecheck: "tsc --noEmit",
+    };
+  }
+  return ctx.isTs
+    ? {
+        dev: "tsx watch src/index.ts",
+        build: "tsc",
+        start: "node dist/index.js",
+        typecheck: "tsc --noEmit",
+      }
+    : { dev: "node --watch src/index.js", start: "node src/index.js" };
+}
+
 function packageJson(spec: ServerSpec, ctx: Ctx): string {
   const { name, framework } = ctx.selection;
   const versions = (names: Set<string>) =>
@@ -31,14 +75,7 @@ function packageJson(spec: ServerSpec, ctx: Ctx): string {
     private: true,
     version: "0.1.0",
     type: "module",
-    scripts: ctx.isTs
-      ? {
-          dev: "tsx watch src/index.ts",
-          build: "tsc",
-          start: "node dist/index.js",
-          typecheck: "tsc --noEmit",
-        }
-      : { dev: "node --watch src/index.js", start: "node src/index.js" },
+    scripts: scripts(spec, ctx),
     dependencies: versions(spec.dependencies),
     ...(spec.devDependencies.size
       ? { devDependencies: versions(spec.devDependencies) }
@@ -79,20 +116,116 @@ const indexFile = (spec: ServerSpec) =>
     "});",
   ]);
 
+/** Nest's entry: every route is served under `/api`, which the app's dev server proxies. */
+const nestMain = (spec: ServerSpec) =>
+  file([
+    'import { NestFactory } from "@nestjs/core";',
+    'import { AppModule } from "./app.module.js";',
+    "",
+    "async function bootstrap() {",
+    "  const app = await NestFactory.create(AppModule);",
+    '  app.setGlobalPrefix("api");',
+    `  const port = Number(process.env.PORT ?? ${spec.port});`,
+    "  await app.listen(port);",
+    "  console.log(`API listening on http://localhost:${port}`);",
+    "}",
+    "await bootstrap();",
+  ]);
+
+const nestFiles = (spec: ServerSpec): [string, string][] => [
+  [
+    "nest-cli.json",
+    json({
+      $schema: "https://json.schemastore.org/nest-cli",
+      collection: "@nestjs/schematics",
+      sourceRoot: "src",
+      compilerOptions: { deleteOutDir: true },
+    }),
+  ],
+  ["tsconfig.json", nestTsconfig],
+  [
+    "tsconfig.build.json",
+    json({
+      extends: "./tsconfig.json",
+      compilerOptions: { rootDir: "./src" },
+      include: ["src"],
+      exclude: ["node_modules", "test", "dist", "**/*spec.ts"],
+    }),
+  ],
+  ["src/main.ts", nestMain(spec)],
+  [
+    "src/app.module.ts",
+    file([
+      'import { Module } from "@nestjs/common";',
+      'import { AppController } from "./app.controller.js";',
+      'import { AppService } from "./app.service.js";',
+      "",
+      "@Module({",
+      "  controllers: [AppController],",
+      "  providers: [AppService],",
+      "})",
+      "export class AppModule {}",
+    ]),
+  ],
+  [
+    "src/app.controller.ts",
+    file([
+      'import { Controller, Get, Query } from "@nestjs/common";',
+      'import { AppService } from "./app.service.js";',
+      "",
+      "@Controller()",
+      "export class AppController {",
+      "  constructor(private readonly appService: AppService) {}",
+      "",
+      '  @Get("health")',
+      "  health(): { ok: boolean } {",
+      "    return { ok: true };",
+      "  }",
+      "",
+      '  @Get("hello")',
+      '  hello(@Query("name") name?: string): { message: string } {',
+      '    return { message: this.appService.greet(name ?? "world") };',
+      "  }",
+      "}",
+    ]),
+  ],
+  [
+    "src/app.service.ts",
+    file([
+      'import { Injectable } from "@nestjs/common";',
+      "",
+      "@Injectable()",
+      "export class AppService {",
+      "  greet(name: string): string {",
+      "    return `Hello, ${name}!`;",
+      "  }",
+      "}",
+    ]),
+  ],
+];
+
 /** The server project's files, relative to `server/`. */
 export function renderServer(spec: ServerSpec, ctx: Ctx): Map<string, string> {
   const x = ctx.ext.script;
   const files = new Map<string, string>([
     ["package.json", packageJson(spec, ctx)],
-    [`src/app.${x}`, appFile(spec)],
-    [`src/index.${x}`, indexFile(spec)],
     [
       ".env.example",
       file(Object.entries(spec.env).map(([k, v]) => `${k}=${v}`)),
     ],
     [".gitignore", file(["node_modules", "dist", ".env"])],
-    ...spec.files,
   ]);
-  if (ctx.isTs) files.set("tsconfig.json", tsconfig);
+  const own: [string, string][] =
+    spec.kind === "nestjs"
+      ? nestFiles(spec)
+      : [
+          [`src/app.${x}`, appFile(spec)],
+          [`src/index.${x}`, indexFile(spec)],
+          ...(ctx.isTs
+            ? [["tsconfig.json", tsconfig] as [string, string]]
+            : []),
+        ];
+  for (const [path, content] of [...own, ...spec.files])
+    files.set(path, content);
   return files;
 }

@@ -216,16 +216,18 @@ export interface FederationSpec {
  * package.json, to `server/`. Modules add to it; `finalize` renders it after all have run.
  */
 export interface ServerSpec {
+  /** Which server framework `engine/server.ts` renders. */
+  kind: "express" | "nestjs";
   /** Port the server listens on in development. */
   port: number;
   /** One line for the root README, e.g. "Express 5 API on port 3001". */
   summary: string;
   dependencies: Set<string>;
   devDependencies: Set<string>;
-  /** Imports and route handlers of `src/app`. */
+  /** Imports and route handlers of `src/app` (Express only). */
   appImports: ImportSpec[];
   routes: string[];
-  /** Imports and statements `src/index` runs before `listen` (top-level await allowed). */
+  /** Imports and statements `src/index` runs before `listen` (Express only; top-level await allowed). */
   entryImports: ImportSpec[];
   beforeListen: string[];
   /** `.env.example` entries. */
