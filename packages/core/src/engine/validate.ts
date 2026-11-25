@@ -1,6 +1,6 @@
 import { singleSelectCategories } from "../categories";
 import { getFramework } from "../frameworks";
-import type { Module, Selection, ValidationError } from "../types";
+import type { FrameworkId, Module, Selection, ValidationError } from "../types";
 import { resolve, type ModuleLookup } from "./resolve";
 
 export type ValidationResult =
@@ -80,7 +80,7 @@ export function validate(
   errors.push(
     ...conflictErrors(modules),
     ...singleCategoryErrors(modules),
-    ...oneOfErrors(modules),
+    ...oneOfErrors(modules, framework.id),
   );
 
   return errors.length
@@ -105,17 +105,33 @@ function conflictErrors(modules: Module[]): ValidationError[] {
   return errors;
 }
 
-function oneOfErrors(modules: Module[]): ValidationError[] {
+/** The modules of which `mod` needs at least one picked alongside it on `framework`, if any. */
+export function requiredOneOf(
+  mod: Module,
+  framework: FrameworkId,
+): string[] | undefined {
+  if (mod.requiresOneOf) return mod.requiresOneOf;
+  if (mod.spaRequiresOneOf && getFramework(framework)?.kind === "spa")
+    return mod.spaRequiresOneOf;
+  return undefined;
+}
+
+function oneOfErrors(
+  modules: Module[],
+  framework: FrameworkId,
+): ValidationError[] {
   const ids = new Set(modules.map((m) => m.id));
-  return modules
-    .filter(
-      (m) => m.requiresOneOf && !m.requiresOneOf.some((id) => ids.has(id)),
-    )
-    .map((m) => ({
-      code: "missing-one-of" as const,
-      moduleId: m.id,
-      message: `${m.name} needs one of: ${(m.requiresOneOf ?? []).join(", ")}.`,
-    }));
+  return modules.flatMap((m) => {
+    const options = requiredOneOf(m, framework);
+    if (!options || options.some((id) => ids.has(id))) return [];
+    return [
+      {
+        code: "missing-one-of" as const,
+        moduleId: m.id,
+        message: `${m.name} needs one of: ${options.join(", ")}.`,
+      },
+    ];
+  });
 }
 
 function singleCategoryErrors(modules: Module[]): ValidationError[] {

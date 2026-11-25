@@ -181,7 +181,7 @@ Qeydlər (2026-11, yoxlanılıb):
 | `express` | R, V, S, So, P, A | |
 | `nestjs` | R, V, S, So, P, A (yalnız TS) | |
 | `mongodb` | R, V, S, So, P, A | `express` və ya `nestjs` |
-| `drizzle` | N, Nu, SK | |
+| `drizzle` | N, Nu, SK, R, V, S, So, P, A | SPA-larda `express` və ya `nestjs` (`spaRequiresOneOf`) |
 
 - **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
   - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
@@ -209,7 +209,8 @@ Qeydlər (2026-11, yoxlanılıb):
   - SvelteKit: `sv add drizzle` quruluşu (`src/lib/server/db`); `DATABASE_URL` `src/env`-də `defineEnvVars` ilə elan olunur və `$app/env/private`-dən oxunur. `/todos` `+page.server` load funksiyası və default form action-u ilə işləyir (`use:enhance`), `prerender = false`; digər səhifələr prerender olunur.
   - **SvelteKit server rejimi** (`model.needsServer`): adapter deploy modulundan seçilir — Vercel → `adapter-vercel`, Netlify → `adapter-netlify`, Cloudflare → `adapter-cloudflare` (`wrangler.json`-da `nodejs_compat`, `assets` adapterə qalır), qalan hallarda `adapter-node`. Docker `node build`-i işlədir (yalnız `dependencies` ayrıca mərhələdə quraşdırılır). `.vercel`/`.netlify` `.gitignore`-a düşür, linter-lər onları keçir.
   - `src/env`-i `model.kitEnv` vasitəsilə adapter yazır, ona görə SEO-nun `SITE_URL`-u ilə birlikdə işləyir.
-  - Növbəti: Express/NestJS.
+  - SPA-larda baza `server/` layihəsinə düşür: `src/db/schema`, `src/db/index`, `drizzle.config` və `db:*` script-ləri serverin `package.json`-ında (`ServerSpec.scripts`). Express-də `GET`/`POST /api/todos` handler-ləri, NestJS-də `TodosModule` (service `db` klientini istifadə edir, tip `typeof todos.$inferSelect`).
+  - `spaRequiresOneOf`: modul yalnız öz serveri olmayan framework-lərdə backend tələb edir. `requiredOneOf(module, framework)` validasiya, UI səbəb mətni, SEO səhifələri və pairwise generatoru tərəfindən istifadə olunur.
 - **Məhdudiyyətlər:**
   - Next və Nuxt üçün təklif olunmur, çünki onların öz server route-ları var.
   - `turborepo` və `module-federation` ilə konflikt edir.

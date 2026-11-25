@@ -7,6 +7,7 @@ export { generate, createCtx, type GenerateOptions } from "./engine/generate";
 export {
   validate,
   blockerFor,
+  requiredOneOf,
   toProjectName,
   type ValidationResult,
 } from "./engine/validate";

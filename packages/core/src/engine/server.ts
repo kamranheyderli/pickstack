@@ -75,7 +75,7 @@ function packageJson(spec: ServerSpec, ctx: Ctx): string {
     private: true,
     version: "0.1.0",
     type: "module",
-    scripts: scripts(spec, ctx),
+    scripts: { ...scripts(spec, ctx), ...spec.scripts },
     dependencies: versions(spec.dependencies),
     ...(spec.devDependencies.size
       ? { devDependencies: versions(spec.devDependencies) }

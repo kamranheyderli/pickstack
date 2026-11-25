@@ -1660,6 +1660,53 @@ describe("drizzle", () => {
     });
   });
 
+  describe("on a SPA", () => {
+    async function spa(backend: string, language: "js" | "ts" = "ts") {
+      return generate({
+        name: "acme",
+        framework: "react",
+        language,
+        packageManager: "pnpm",
+        modules: [backend, "drizzle"].filter(Boolean),
+      });
+    }
+
+    it("needs a backend", async () => {
+      const result = await spa("");
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.errors.map((e) => e.code)).toContain("missing-one-of");
+    });
+
+    it("adds routes and db scripts to the Express server", async () => {
+      const result = await spa("express", "js");
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      const files = result.files;
+      expect(files.get("server/src/app.js")).toContain('app.post("/api/todos"');
+      expect(files.get("server/src/db/index.js")).toContain('pool.on("error"');
+      const pkg = JSON.parse(files.get("server/package.json") ?? "");
+      expect(pkg.scripts["db:push"]).toBe("drizzle-kit push");
+      expect(pkg.dependencies["drizzle-orm"]).toBeDefined();
+      expect(files.get("server/.env.example")).toContain("DATABASE_URL=");
+      expect(files.get("docker-compose.yml")).toContain("postgres:18");
+      expect(files.has("web/drizzle.config.js")).toBe(false);
+      expect(files.get("README.md")).toContain(
+        "cd server && pnpm install && pnpm db:push",
+      );
+    });
+
+    it("adds a TodosModule to the NestJS server", async () => {
+      const result = await spa("nestjs");
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      expect(result.files.get("server/src/app.module.ts")).toContain(
+        "TodosModule",
+      );
+      expect(result.files.get("server/src/todos/todos.service.ts")).toContain(
+        "typeof todos.$inferSelect",
+      );
+    });
+  });
+
   it("shares .env.example with axios", async () => {
     const files = await project("js", ["drizzle", "axios"]);
     const env = files.get(".env.example") ?? "";

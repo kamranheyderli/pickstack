@@ -235,6 +235,8 @@ export interface ServerSpec {
   beforeListen: string[];
   /** `.env.example` entries. */
   env: Record<string, string>;
+  /** Extra package.json scripts, next to dev/build/start (e.g. `db:push`). */
+  scripts: Record<string, string>;
   /** Other files, relative to `server/`. */
   files: Map<string, string>;
   /** Files at the root, next to `web/` and `server/` (e.g. docker-compose.yml). */
@@ -369,6 +371,8 @@ export interface Module {
   requires?: string[];
   /** At least one of these must be selected (not auto-added: the user picks which). */
   requiresOneOf?: string[];
+  /** Like `requiresOneOf`, on SPAs only: they have no server, so e.g. a database needs a backend. */
+  spaRequiresOneOf?: string[];
   conflicts?: string[];
   order?: number;
   apply(model: ProjectModel, ctx: Ctx): void;

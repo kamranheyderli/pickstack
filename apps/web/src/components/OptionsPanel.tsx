@@ -2,6 +2,7 @@ import {
   frameworkCatalog,
   getFramework,
   getModule,
+  requiredOneOf,
   toProjectName,
   type Category,
   type Language,
@@ -189,6 +190,11 @@ export function OptionsPanel({
   );
 }
 
+function requiredOneOfFor(id: string | undefined, selection: Selection) {
+  const mod = id ? getModule(id) : undefined;
+  return mod ? requiredOneOf(mod, selection.framework) : undefined;
+}
+
 export function reasonText(
   error: ValidationError,
   selection: Selection,
@@ -202,7 +208,7 @@ export function reasonText(
     module: name(error.moduleId),
     other: name(error.otherId),
     framework,
-    options: (getModule(error.moduleId ?? "")?.requiresOneOf ?? [])
+    options: (requiredOneOfFor(error.moduleId, selection) ?? [])
       .map((id) => name(id))
       .join(", "),
   };

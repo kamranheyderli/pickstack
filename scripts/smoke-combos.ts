@@ -971,5 +971,12 @@ function backendCombos(): Combo[] {
       language: "ts",
       modules: ["drizzle", "cloudflare"],
     },
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["express", "drizzle", "eslint", "prettier"],
+    },
+    { framework: "vue", language: "js", modules: ["express", "drizzle"] },
+    { framework: "angular", language: "ts", modules: ["nestjs", "drizzle"] },
   ];
 }

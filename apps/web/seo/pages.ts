@@ -5,6 +5,7 @@ import {
   getFramework,
   modules,
   presets,
+  requiredOneOf,
   type FrameworkInfo,
   type Module,
   type Selection,
@@ -156,8 +157,9 @@ export async function stackPages(): Promise<StackPage[]> {
     for (const mod of fwModules) {
       let ids = [mod.id];
       let files = await filesFor(selectionFor(fw, ids));
-      if (!files && mod.requiresOneOf?.length) {
-        ids = [mod.requiresOneOf[0] as string, mod.id];
+      const options = requiredOneOf(mod, fw.id);
+      if (!files && options?.length) {
+        ids = [options[0] as string, mod.id];
         files = await filesFor(selectionFor(fw, ids));
       }
       if (!files) continue;

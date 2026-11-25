@@ -2,6 +2,7 @@ import {
   frameworks,
   getModule,
   modules,
+  requiredOneOf,
   singleSelectCategories,
   validate,
   type Category,
@@ -156,7 +157,8 @@ function allPairs(framework: FrameworkAdapter): Combo[] {
           row[at] = NONE;
           continue;
         }
-        const option = (getModule(error.moduleId ?? "")?.requiresOneOf ?? [])
+        const mod = getModule(error.moduleId ?? "");
+        const option = (mod ? (requiredOneOf(mod, framework.id) ?? []) : [])
           .map((id) => [where.get(id), id] as const)
           .find(([k, id]) => {
             if (k === undefined || k === i || k === j) return false;

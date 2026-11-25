@@ -46,6 +46,7 @@ export const express: Module = {
       entryImports: [],
       beforeListen: [],
       env: { PORT: String(SERVER_PORT) },
+      scripts: {},
       files: new Map(),
       rootFiles: new Map(),
       setup: [],
