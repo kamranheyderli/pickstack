@@ -64,6 +64,18 @@ const shared: VersionSet = {
   "@fontsource-variable/inter": "^5.3.0",
   "@angular/material": "^22.3.0",
   "@angular/cdk": "^22.3.0",
+  "shadcn-vue": "^2.9.0",
+  "shadcn-nuxt": "^2.9.0",
+  "reka-ui": "^2.11.0",
+  "class-variance-authority": "^0.7.1",
+  // PrimeVue 5 and @primeuix/themes 3 moved to the PrimeUI license (key required); v4 is MIT.
+  primevue: "^4.5.5",
+  "@primeuix/themes": "^2.0.3",
+  "@primevue/nuxt-module": "^4.5.5",
+  "tailwindcss-primeui": "^0.6.1",
+  vuetify: "^4.3.4",
+  "vite-plugin-vuetify": "^2.1.3",
+  "@mdi/font": "^7.4.47",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

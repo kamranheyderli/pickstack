@@ -17,7 +17,10 @@ import { zustand } from "./state/zustand";
 import { sass } from "./style/sass";
 import { tailwind } from "./style/tailwind";
 import { angularMaterial } from "./ui/angular-material";
+import { primevue } from "./ui/primevue";
 import { shadcnSvelte } from "./ui/shadcn-svelte";
+import { shadcnVue } from "./ui/shadcn-vue";
+import { vuetify } from "./ui/vuetify";
 import { moduleFederation } from "./tooling/module-federation";
 import { turborepo } from "./tooling/turborepo";
 import { testingLibrary } from "./testing/testing-library";
@@ -26,6 +29,9 @@ import { vitest } from "./testing/vitest";
 export const modules: readonly Module[] = [
   tailwind,
   sass,
+  shadcnVue,
+  primevue,
+  vuetify,
   shadcnSvelte,
   angularMaterial,
   reduxToolkit,

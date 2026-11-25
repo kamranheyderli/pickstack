@@ -1,5 +1,5 @@
 import { file, indent, renderImports } from "../../engine/code";
-import type { CounterSpec, Ctx } from "../../types";
+import type { CounterSpec, CounterView, Ctx } from "../../types";
 import type { DemoClasses } from "./demo";
 
 /**
@@ -27,11 +27,29 @@ export function sfc(ctx: Ctx, script: string[], template: string[]): string {
   ]);
 }
 
+/**
+ * The counter card. A UI kit's view draws it with the kit's components; `autoImports` (Nuxt)
+ * leaves the kit's component imports out, since Nuxt modules register them.
+ */
 export function counterCard(
   spec: CounterSpec,
   ctx: Ctx,
   cls: DemoClasses,
+  view: CounterView | null = null,
+  autoImports = false,
 ): string {
+  if (view) {
+    const imports = [...(autoImports ? [] : view.imports), ...spec.imports];
+    return sfc(
+      ctx,
+      [
+        ...renderImports(imports),
+        ...(imports.length && spec.setup.length ? [""] : []),
+        ...spec.setup,
+      ],
+      view.markup(spec),
+    );
+  }
   return sfc(
     ctx,
     [
@@ -73,4 +91,15 @@ export function vueNavLinks(
       ? [`    ${glued}`]
       : [`    ${open}`, `      ${route.label}`, `    ${close}`];
   });
+}
+
+/** Wraps the app's root markup in a UI kit's shell (e.g. Vuetify's `<v-app>`), if any. */
+export function withAppShell(
+  view: CounterView | null,
+  markup: string[],
+): string[] {
+  const shell = view?.appShell;
+  return shell
+    ? [...shell.open, ...indent(markup, shell.open.length), ...shell.close]
+    : markup;
 }

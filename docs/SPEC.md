@@ -96,9 +96,9 @@ Tailwind v4 Vite layihələrində `@tailwindcss/vite` plugini ilə, Next-də Pos
 | `shadcn` | R, N | `tailwind`, `ts` | digər UI kitləri |
 | `mantine` | R, N | | digər UI kitləri |
 | `mui` | R, N | | digər UI kitləri |
-| `shadcn-vue` | V, Nu | `tailwind`, `ts` (yoxla) | digər UI kitləri |
-| `primevue` | V, Nu | | digər UI kitləri |
-| `vuetify` | V, Nu | | `tailwind` (tövsiyə olunmur, xəbərdarlıq ver) |
+| `shadcn-vue` | V, Nu | `tailwind` (TS və JS) | digər UI kitləri |
+| `primevue` | V, Nu | (v4, MIT) | digər UI kitləri |
+| `vuetify` | V, Nu (v4) | | `tailwind` ilə xəbərdarlıq |
 | `shadcn-svelte` | S, SK | `tailwind` (TS və JS) | digər UI kitləri |
 | `angular-material` | A | | (Tailwind ilə uyğundur) |
 
@@ -251,6 +251,12 @@ UI kitləri (2026-11 yoxlanılıb):
   - `utils` artıq `cn` paketindən re-export-dur (clsx/tailwind-merge yoxdur). CLI-nin JS `utils.js`-dəki asılı qalan eslint şərhi silinib. Fayllar həm Prettier, həm Biome organizeImports formasındadır.
   - SvelteKit + ESLint: shadcn Button-u `href` qəbul edir, ona görə `svelte/no-navigation-without-resolve` yalnız `src/lib/components/ui`-da söndürülür.
 - Angular Material 22: `ng add` kimi ayrıca `src/material-theme.scss` (`mat.theme`) yaradılır və `angular.json` `styles`-da qlobal faylın əvvəlinə qoyulur. `index.html`-ə Roboto və Material Symbols linkləri əlavə olunur. Animations provider lazım deyil. Tailwind ilə uyğundur: Tailwind v4 `@layer` içindədir, Material isə layer-sizdir.
+
+Vue UI kitləri (2026-11 yoxlanılıb):
+
+- shadcn-vue 2.9.0 (`reka-nova`): komponentlər `components/ui`-da vendored saxlanılır, `@/` alias-ı ilə. Vue root `tsconfig.json`-a `paths` əlavə olunur, çünki CLI alias-ı oradan oxuyur. Nuxt-da `shadcn-nuxt` modulu komponentləri auto-import edir. CLI-nin Google Fonts importu atılıb: "Geist" yükləyir, amma tema "Geist Variable" adını işlədir, ona görə şrift heç vaxt tətbiq olunmur. ESLint: `vue/multi-word-component-names` `src/components/ui`-da söndürülür.
+- PrimeVue **v4** (MIT, Aura preset). v5 və `@primeuix/themes` 3 PrimeUI lisenziyasına keçib (açar tələb edir). Tailwind ilə `tailwindcss-primeui` əlavə olunur və `cssLayer` (`theme, base, primevue`) qoyulur ki, Tailwind utility-ləri qalib gəlsin. Nuxt-da `@primevue/nuxt-module` işlədilir; config-dəki `preset: Aura` xam kod kimi yazılır (`raw()`).
+- Vuetify **v4**: `createVuetify` plugin-i, `vite-plugin-vuetify` auto-import, `@mdi/font`, tətbiq `<v-app><v-main>` içində (`CounterView.appShell`). Nuxt-da sənəddəki manual qurulum seçilib: `vuetify-nuxt-module` hələ RC-dir və hər build-də `useLayout` təkrar auto-import xəbərdarlığı verir. Testlərdə `createVuetify()` plugin-i quraşdırılır və `vuetify` Vitest-də inline olunur, çünki komponentləri CSS import edir. Tailwind ilə xəbərdarlıq verilir (layer-lər toqquşur).
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 

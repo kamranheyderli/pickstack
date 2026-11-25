@@ -106,3 +106,32 @@ export function sortRecord(
     Object.entries(record).sort(([a], [b]) => a.localeCompare(b)),
   );
 }
+
+/** Code to print as-is inside a config object, e.g. an imported identifier. */
+export interface RawCode {
+  readonly raw: string;
+}
+
+export function raw(code: string): RawCode {
+  return { raw: code };
+}
+
+function isRaw(value: unknown): value is RawCode {
+  return typeof value === "object" && value !== null && "raw" in value;
+}
+
+const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
+
+/** A JS literal for config files: like JSON, with bare keys and `raw()` values as code. */
+export function jsLiteral(value: unknown): string {
+  if (isRaw(value)) return value.raw;
+  if (Array.isArray(value)) return `[${value.map(jsLiteral).join(", ")}]`;
+  if (typeof value === "object" && value !== null) {
+    const entries = Object.entries(value).map(
+      ([key, item]) =>
+        `${IDENTIFIER.test(key) ? key : JSON.stringify(key)}: ${jsLiteral(item)}`,
+    );
+    return entries.length ? `{ ${entries.join(", ")} }` : "{}";
+  }
+  return JSON.stringify(value);
+}

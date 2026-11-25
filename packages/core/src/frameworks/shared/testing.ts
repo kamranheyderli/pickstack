@@ -231,7 +231,14 @@ export function vueCounterTest(
   const testing = model.testing;
   if (!testing) throw new Error("vueCounterTest requires model.testing");
   const nuxt = target === "nuxt";
-  const harness = nuxt ? undefined : model.demo.counter?.testHarness;
+  // Nuxt tests boot the app, which installs plugins; Vue mounts need the store's and the
+  // UI kit's plugins passed in.
+  const harness = nuxt
+    ? undefined
+    : mergeHarness(
+        model.demo.counter?.testHarness,
+        model.demo.view?.testHarness,
+      );
   const options = vueMountOptions(harness);
   const imports: ImportSpec[] = [
     VITEST_IMPORT,
@@ -352,4 +359,16 @@ export function astroCounterTest(): string {
       "renders the count and both buttons",
     ),
   ]);
+}
+
+function mergeHarness(
+  ...harnesses: (CounterTestHarness | undefined)[]
+): CounterTestHarness | undefined {
+  const present = harnesses.filter((h) => h !== undefined);
+  if (!present.length) return undefined;
+  return {
+    imports: present.flatMap((h) => h.imports),
+    plugins: present.flatMap((h) => h.plugins ?? []),
+    inlineDeps: present.flatMap((h) => h.inlineDeps ?? []),
+  };
 }

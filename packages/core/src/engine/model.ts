@@ -10,7 +10,13 @@ export function createModel(): ProjectModel {
       fields: {},
     },
     entry: { imports: [], providers: [], appUses: [], setup: [], head: [] },
-    bundler: { plugins: [], modules: [], config: {}, integrations: [] },
+    bundler: {
+      plugins: [],
+      modules: [],
+      config: {},
+      configImports: [],
+      integrations: [],
+    },
     styles: {
       globalImports: [],
       globalCss: [],

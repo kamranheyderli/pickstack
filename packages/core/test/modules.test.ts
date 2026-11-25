@@ -766,3 +766,69 @@ describe("angular-material", () => {
     expect(ts).toContain("imports: [MatButton, MatCard,");
   });
 });
+
+describe("vue UI kits", () => {
+  function rendered(
+    frameworkId: FrameworkId,
+    ids: string[],
+    language: "js" | "ts" = "ts",
+  ): ProjectModel {
+    const ctx = ctxFor(language, ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("shadcn-vue vendors components and keeps the CLI's alias usable", () => {
+    const model = rendered("vue", ["tailwind", "shadcn-vue"]);
+    expect(model.files.has("src/components/ui/button/Button.vue")).toBe(true);
+    expect(model.files.get("src/lib/utils.ts")).toBe(
+      'export { cn } from "cn";\n',
+    );
+    expect(model.files.get("tsconfig.json")).toContain('"@/*"');
+    expect(model.files.get("src/components/CounterCard.vue")).toContain(
+      '<Button @click="count++">+1</Button>',
+    );
+  });
+
+  it("shadcn-vue on Nuxt registers shadcn-nuxt and relies on auto-imports", () => {
+    const model = rendered("nuxt", ["tailwind", "shadcn-vue"]);
+    expect(model.files.get("nuxt.config.ts")).toContain('"shadcn-nuxt"');
+    expect(model.files.get("app/components/CounterCard.vue")).not.toContain(
+      "@/components/ui/button",
+    );
+  });
+
+  it("PrimeVue uses the Aura preset, in a CSS layer when Tailwind is selected", () => {
+    const vue = rendered("vue", ["primevue"]);
+    expect(vue.files.get("src/main.ts")).toContain(
+      "app.use(PrimeVue, { theme: { preset: Aura } });",
+    );
+    const tailwind = rendered("vue", ["tailwind", "primevue"]);
+    expect(tailwind.files.get("src/main.ts")).toContain(
+      'cssLayer: { name: "primevue"',
+    );
+    expect(tailwind.files.get("src/assets/main.css")).toContain(
+      '@import "tailwindcss-primeui";',
+    );
+    const nuxt =
+      rendered("nuxt", ["primevue"]).files.get("nuxt.config.ts") ?? "";
+    expect(nuxt).toContain('import Aura from "@primeuix/themes/aura";');
+    expect(nuxt).toContain("preset: Aura");
+  });
+
+  it("Vuetify wraps the app in v-app and auto-imports components", () => {
+    const model = rendered("vue", ["vuetify"]);
+    expect(model.files.get("src/App.vue")).toContain("<v-app>");
+    expect(model.files.get("vite.config.ts")).toContain(
+      "vuetify({ autoImport: true })",
+    );
+    expect(model.files.get("src/plugins/vuetify.ts")).toContain(
+      'import "vuetify/styles";',
+    );
+    expect(rendered("vue", ["tailwind", "vuetify"]).warnings).toHaveLength(1);
+  });
+});

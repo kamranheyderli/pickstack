@@ -17,7 +17,7 @@ import {
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
 import { testBlock, vueCounterTest } from "../shared/testing";
-import { counterCard, localVueCounter, sfc } from "../shared/vue";
+import { counterCard, localVueCounter, sfc, withAppShell } from "../shared/vue";
 
 /**
  * Vue 3 + Vite, following the layout of the official `create-vue` scaffold:
@@ -101,7 +101,11 @@ export const vueAdapter: FrameworkAdapter = {
     if (model.testing) {
       model.files.set(
         `vitest.config.${ctx.ext.script}`,
-        vitestConfig(model.testing, ctx),
+        vitestConfig(
+          model.testing,
+          ctx,
+          model.demo.view?.testHarness?.inlineDeps ?? [],
+        ),
       );
       model.files.set(
         `src/components/__tests__/CounterCard.spec.${ctx.ext.script}`,
@@ -112,7 +116,12 @@ export const vueAdapter: FrameworkAdapter = {
     model.files.set(`src/assets/main.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/components/CounterCard.vue",
-      counterCard(model.demo.counter ?? localVueCounter, ctx, cls),
+      counterCard(
+        model.demo.counter ?? localVueCounter,
+        ctx,
+        cls,
+        model.demo.view,
+      ),
     );
 
     if (model.routing && model.routes.length) {
@@ -129,12 +138,12 @@ export const vueAdapter: FrameworkAdapter = {
         sfc(
           ctx,
           ['import CounterCard from "./components/CounterCard.vue";'],
-          [
+          withAppShell(model.demo.view, [
             `<main class="${cls.main}">`,
             `  <h1 class="${cls.title}">${ctx.selection.name}</h1>`,
             "  <CounterCard />",
             "</main>",
-          ],
+          ]),
         ),
       );
     }
@@ -149,6 +158,10 @@ function writeTsconfigs(model: ProjectModel): void {
     "tsconfig.json",
     json({
       files: [],
+      // The shadcn-vue CLI reads the `@` alias from the root tsconfig.
+      ...(model.files.has("components.json")
+        ? { compilerOptions: { paths: { "@/*": ["./src/*"] } } }
+        : {}),
       references: [
         { path: "./tsconfig.node.json" },
         { path: "./tsconfig.app.json" },
@@ -222,7 +235,11 @@ function viteConfig(model: ProjectModel): string {
 }
 
 /** create-vue's `vitest.config`: the Vite config merged with the test options. */
-function vitestConfig(testing: TestingSpec, ctx: Ctx): string {
+function vitestConfig(
+  testing: TestingSpec,
+  ctx: Ctx,
+  inlineDeps: string[],
+): string {
   return file([
     'import { fileURLToPath } from "node:url";',
     'import { defineConfig, mergeConfig } from "vitest/config";',
@@ -235,6 +252,9 @@ function vitestConfig(testing: TestingSpec, ctx: Ctx): string {
       [
         ...testBlock(testing).slice(0, -1),
         '  root: fileURLToPath(new URL("./", import.meta.url)),',
+        ...(inlineDeps.length
+          ? [`  server: { deps: { inline: ${JSON.stringify(inlineDeps)} } },`]
+          : []),
         "},",
       ],
       2,
@@ -269,23 +289,27 @@ function mainEntry(model: ProjectModel): string {
 function routedApp(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
   const routing = model.routing;
   if (!routing) throw new Error("routedApp requires model.routing");
-  return sfc(ctx, renderImports(routing.imports), [
-    `<main class="${cls.main}">`,
-    `  <nav class="${cls.nav}">`,
-    ...model.routes.flatMap((route) => {
-      const open = `<${routing.link} class="${cls.link}" ${routing.linkProp}="${route.path}">`;
-      const close = `</${routing.link}>`;
-      // Prettier treats router links as inline: glued text stays clean only while the line
-      // fits; longer links need the label on its own line or it splits at `>Home</RouterLink`.
-      const glued = `${open}${route.label}${close}`;
-      return LINK_INDENT + glued.length <= PRINT_WIDTH
-        ? [`    ${glued}`]
-        : [`    ${open}`, `      ${route.label}`, `    ${close}`];
-    }),
-    "  </nav>",
-    ...indent(routing.outlet),
-    "</main>",
-  ]);
+  return sfc(
+    ctx,
+    renderImports(routing.imports),
+    withAppShell(model.demo.view, [
+      `<main class="${cls.main}">`,
+      `  <nav class="${cls.nav}">`,
+      ...model.routes.flatMap((route) => {
+        const open = `<${routing.link} class="${cls.link}" ${routing.linkProp}="${route.path}">`;
+        const close = `</${routing.link}>`;
+        // Prettier treats router links as inline: glued text stays clean only while the line
+        // fits; longer links need the label on its own line or it splits at `>Home</RouterLink`.
+        const glued = `${open}${route.label}${close}`;
+        return LINK_INDENT + glued.length <= PRINT_WIDTH
+          ? [`    ${glued}`]
+          : [`    ${open}`, `      ${route.label}`, `    ${close}`];
+      }),
+      "  </nav>",
+      ...indent(routing.outlet),
+      "</main>",
+    ]),
+  );
 }
 
 function view(

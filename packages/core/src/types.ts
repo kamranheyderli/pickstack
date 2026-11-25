@@ -112,6 +112,8 @@ export interface CounterTestHarness {
   wrapper?: { open: string; close: string };
   /** Vue app plugins installed on mount, e.g. `createPinia()`. */
   plugins?: string[];
+  /** Packages Vitest must bundle instead of externalizing (e.g. ones that import CSS). */
+  inlineDeps?: string[];
 }
 
 /** The counter's state expressions, as a `CounterSpec` gives them. */
@@ -130,6 +132,10 @@ export interface CounterView {
   /** Angular standalone components to list in the component's `imports`. */
   components?: string[];
   markup(counter: CounterBinding): string[];
+  /** Markup around the app's root (Vuetify needs everything inside `<v-app>`). */
+  appShell?: { open: string[]; close: string[] };
+  /** What a component test needs to mount the kit's components (e.g. its Vue plugin). */
+  testHarness?: CounterTestHarness;
 }
 
 /** How the demo app renders navigation and the active route. Filled by routing modules. */
@@ -214,8 +220,13 @@ export interface ProjectModel {
     plugins: ImportedCall[];
     /** Framework modules/integrations, e.g. Nuxt's `modules: ["@pinia/nuxt"]`. */
     modules: string[];
-    /** Extra top-level keys for the framework config file (nuxt.config, astro.config). */
+    /**
+     * Extra top-level keys for the framework config file (nuxt.config, astro.config). Values
+     * are data; wrap code such as an imported identifier in `raw()`.
+     */
     config: Record<string, unknown>;
+    /** Imports the config file needs for `raw()` values in `config`. */
+    configImports: ImportSpec[];
     /** Integrations called in the config, e.g. Astro's `integrations: [sitemap()]`. */
     integrations: ImportedCall[];
   };

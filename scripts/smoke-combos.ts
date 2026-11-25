@@ -409,6 +409,35 @@ function uiCombos(): Combo[] {
       language: "ts",
       modules: ["angular-material", "builtin", "eslint", "prettier", "vitest"],
     },
+    ...(["shadcn-vue", "primevue", "vuetify"] as const).flatMap(
+      (kit): Combo[] => [
+        {
+          framework: "vue",
+          language: "ts",
+          modules: [kit, "pinia", "vue-router", "eslint", "prettier", "vitest"],
+        },
+        {
+          framework: "vue",
+          language: "js",
+          modules: [kit, "eslint", "prettier", "testing-library"],
+        },
+        {
+          framework: "nuxt",
+          language: "ts",
+          modules: [kit, "pinia", "eslint", "prettier", "vitest"],
+        },
+      ],
+    ),
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["primevue", "tailwind", "biome"],
+    },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["shadcn-vue", "tailwind", "biome"],
+    },
     {
       framework: "angular",
       language: "ts",

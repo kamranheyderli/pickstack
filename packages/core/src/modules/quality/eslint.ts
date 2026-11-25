@@ -164,6 +164,16 @@ function vue(ctx: Ctx): EslintSetup {
   const prettier = ctx.has("prettier");
   const ignores =
     '  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),';
+  // shadcn-vue's components are single-word (Button.vue, Card.vue).
+  const shadcn = ctx.has("shadcn-vue")
+    ? [
+        "  {",
+        '    name: "app/shadcn-ui",',
+        '    files: ["src/components/ui/**/*.vue"],',
+        '    rules: { "vue/multi-word-component-names": "off" },',
+        "  },",
+      ]
+    : [];
   if (ctx.isTs) {
     return {
       path: "eslint.config.ts",
@@ -191,6 +201,7 @@ function vue(ctx: Ctx): EslintSetup {
         ignores,
         '  ...pluginVue.configs["flat/essential"],',
         "  vueTsConfigs.recommended,",
+        ...shadcn,
         ...(prettier ? ["  skipFormatting,"] : []),
         ");",
       ],
@@ -218,6 +229,7 @@ function vue(ctx: Ctx): EslintSetup {
       "  { languageOptions: { globals: { ...globals.browser } } },",
       "  js.configs.recommended,",
       '  ...pluginVue.configs["flat/essential"],',
+      ...shadcn,
       ...(prettier ? ["  skipFormatting,"] : []),
       "]);",
     ],

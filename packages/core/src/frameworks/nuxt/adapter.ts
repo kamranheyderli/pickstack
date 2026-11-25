@@ -1,4 +1,4 @@
-import { file, json, renderImports } from "../../engine/code";
+import { file, json, jsLiteral, renderImports } from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type {
   Ctx,
@@ -9,7 +9,13 @@ import type {
 } from "../../types";
 import { aboutText, demoClasses, globalCss, styleExt } from "../shared/demo";
 import { testBlock, vueCounterTest } from "../shared/testing";
-import { counterCard, localVueCounter, sfc, vueNavLinks } from "../shared/vue";
+import {
+  counterCard,
+  localVueCounter,
+  sfc,
+  vueNavLinks,
+  withAppShell,
+} from "../shared/vue";
 
 const routes = [
   { path: "/", label: "Home" },
@@ -73,7 +79,13 @@ export const nuxtAdapter: FrameworkAdapter = {
     model.files.set(`app/assets/css/main.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "app/components/CounterCard.vue",
-      counterCard(model.demo.counter ?? localVueCounter, ctx, cls),
+      counterCard(
+        model.demo.counter ?? localVueCounter,
+        ctx,
+        cls,
+        model.demo.view,
+        true,
+      ),
     );
     if (model.testing) {
       model.files.set(
@@ -89,12 +101,14 @@ export const nuxtAdapter: FrameworkAdapter = {
       "app/app.vue",
       sfc(ctx, model.seo ? appSeoScript(model.seo, ctx) : [], [
         "<NuxtRouteAnnouncer />",
-        `<main class="${cls.main}">`,
-        `  <nav class="${cls.nav}">`,
-        ...vueNavLinks("NuxtLink", "to", routes, cls),
-        "  </nav>",
-        "  <NuxtPage />",
-        "</main>",
+        ...withAppShell(model.demo.view, [
+          `<main class="${cls.main}">`,
+          `  <nav class="${cls.nav}">`,
+          ...vueNavLinks("NuxtLink", "to", routes, cls),
+          "  </nav>",
+          "  <NuxtPage />",
+          "</main>",
+        ]),
       ]),
     );
     // Components in app/components are auto-imported.
@@ -147,10 +161,11 @@ function appSeoScript(seo: SeoSpec, ctx: Ctx): string[] {
 }
 
 function nuxtConfig(model: ProjectModel): string {
-  const { plugins, modules, config } = model.bundler;
+  const { plugins, modules, config, configImports } = model.bundler;
+  const imports = [...plugins.map((p) => p.import), ...configImports];
   return file([
-    ...renderImports(plugins.map((p) => p.import)),
-    ...(plugins.length ? [""] : []),
+    ...renderImports(imports),
+    ...(imports.length ? [""] : []),
     "// https://nuxt.com/docs/api/configuration/nuxt-config",
     "export default defineNuxtConfig({",
     '  compatibilityDate: "2025-07-15",',
@@ -161,7 +176,7 @@ function nuxtConfig(model: ProjectModel): string {
       ? [`  vite: { plugins: [${plugins.map((p) => p.call).join(", ")}] },`]
       : []),
     ...Object.entries(config).map(
-      ([key, value]) => `  ${key}: ${JSON.stringify(value)},`,
+      ([key, value]) => `  ${key}: ${jsLiteral(value)},`,
     ),
     "});",
   ]);
