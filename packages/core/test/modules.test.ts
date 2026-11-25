@@ -1282,3 +1282,30 @@ describe("forms", () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe("pwa", () => {
+  it("adds the Vite plugin, the icon and the head tags", async () => {
+    const result = await generate({
+      name: "shop",
+      framework: "vue",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["pwa"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const config = result.files.get("vite.config.ts") ?? "";
+    expect(config).toContain('import { VitePWA } from "vite-plugin-pwa";');
+    expect(config).toContain('registerType: "autoUpdate"');
+    expect(config).toContain('sizes: "any"');
+    expect(result.files.get("public/pwa-icon.svg")).toContain(
+      "<title>shop</title>",
+    );
+    expect(result.files.get("index.html")).toContain(
+      '<link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />',
+    );
+    const pkg = JSON.parse(result.files.get("package.json") ?? "");
+    expect(pkg.devDependencies["vite-plugin-pwa"]).toBe(
+      knownGoodVersion("vite-plugin-pwa", "vue"),
+    );
+  });
+});

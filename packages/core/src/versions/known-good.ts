@@ -58,6 +58,7 @@ const shared: VersionSet = {
   turbo: "^2.11.13",
   wrangler: "^4.168.0",
   zod: "^4.6.7",
+  "vite-plugin-pwa": "^2.0.0",
   "react-hook-form": "^7.92.0",
   "@hookform/resolvers": "^7.0.9",
   "@tanstack/react-form": "^1.33.5",

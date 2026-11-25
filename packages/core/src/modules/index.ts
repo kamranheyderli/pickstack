@@ -39,6 +39,7 @@ import { vercel } from "./deploy/vercel";
 import { reactHookForm } from "./forms/react-hook-form";
 import { tanstackForm } from "./forms/tanstack-form";
 import { editorconfig } from "./tooling/editorconfig";
+import { pwa } from "./tooling/pwa";
 import { githubActionsModule } from "./tooling/github-actions";
 import { license } from "./tooling/license";
 import { turborepo } from "./tooling/turborepo";
@@ -81,6 +82,7 @@ export const modules: readonly Module[] = [
   githubActionsModule,
   editorconfig,
   license,
+  pwa,
   tanstackForm,
   reactHookForm,
   vercel,

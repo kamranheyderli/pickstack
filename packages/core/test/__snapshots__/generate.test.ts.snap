@@ -9911,7 +9911,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -9992,7 +9992,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -10023,6 +10023,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -10121,6 +10131,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="app"></div>
@@ -10204,6 +10216,7 @@ export default defineConfig([
     "sass": "^1.108.2",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }
@@ -10221,6 +10234,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -10342,7 +10372,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest,
         Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
-        GitHub Actions.
+        PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -10380,9 +10410,38 @@ afterEach(() => {
   "vite.config.js": "import preact from "@preact/preset-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [preact(), tailwindcss()],
+  plugins: [
+    preact(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.js"],
@@ -10563,7 +10622,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -10646,7 +10705,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -10678,6 +10737,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -10775,6 +10844,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="app"></div>
@@ -10862,6 +10933,7 @@ export default defineConfig([
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }
@@ -10879,6 +10951,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -11000,7 +11089,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso,
         Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
-        SEO, llms.txt, GitHub Actions.
+        SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -11099,9 +11188,38 @@ afterEach(() => {
 import preact from "@preact/preset-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [preact(), tailwindcss()],
+  plugins: [
+    preact(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
@@ -11826,7 +11944,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -11911,7 +12029,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -11946,6 +12064,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -12078,6 +12206,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="root"></div>
@@ -12181,6 +12311,7 @@ export default defineConfig([
     "sass": "^1.108.2",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }
@@ -12198,6 +12329,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -12244,6 +12392,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -12740,8 +12889,8 @@ createRoot(document.getElementById("root")).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
         React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
-        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
-        Actions.
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
+        GitHub Actions.
       </p>
     </section>
   );
@@ -12813,9 +12962,38 @@ afterEach(() => {
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   test: {
     environment: "jsdom",
@@ -13026,7 +13204,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -13113,7 +13291,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -13149,6 +13327,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -13277,6 +13465,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="root"></div>
@@ -13376,6 +13566,7 @@ export default defineConfig([
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }
@@ -13393,6 +13584,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -13440,6 +13648,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -13946,7 +14155,7 @@ createRoot(document.getElementById("root")!).render(
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
         Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod,
         Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-        llms.txt, GitHub Actions.
+        llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -14051,9 +14260,38 @@ afterEach(() => {
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   resolve: { tsconfigPaths: true },
   test: {
     environment: "jsdom",
@@ -15342,7 +15580,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -15424,7 +15662,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -15455,6 +15693,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -15547,6 +15795,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="root"></div>
@@ -15631,6 +15881,7 @@ export default defineConfig([
     "sass": "^1.108.2",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vite-plugin-solid": "^2.11.17",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
@@ -15649,6 +15900,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -15694,6 +15962,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -15893,8 +16162,8 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
         Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
-        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
-        Actions.
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
+        GitHub Actions.
       </p>
     </section>
   );
@@ -15949,10 +16218,39 @@ afterEach(() => {
 ",
   "vite.config.js": "import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import solid from "vite-plugin-solid";
 
 export default defineConfig({
-  plugins: [solid(), tailwindcss()],
+  plugins: [
+    solid(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.js"],
@@ -16133,7 +16431,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -16217,7 +16515,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -16249,6 +16547,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -16342,6 +16650,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="root"></div>
@@ -16430,6 +16740,7 @@ export default defineConfig([
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vite-plugin-solid": "^2.11.17",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
@@ -16448,6 +16759,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -16494,6 +16822,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -16695,7 +17024,7 @@ render(
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
         store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Vitest,
         Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
-        GitHub Actions.
+        PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -16807,10 +17136,39 @@ afterEach(() => {
   "vite.config.ts": "/// <reference types="vitest/config" />
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import solid from "vite-plugin-solid";
 
 export default defineConfig({
-  plugins: [solid(), tailwindcss()],
+  plugins: [
+    solid(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
@@ -17522,7 +17880,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -17604,7 +17962,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -17639,6 +17997,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -17751,6 +18119,8 @@ export default defineConfig(
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="app"></div>
@@ -17855,6 +18225,7 @@ export default defineConfig(
     "tailwindcss": "^4.3.5",
     "tw-animate-css": "^1.4.0",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }
@@ -17871,6 +18242,23 @@ export default defineConfig(
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -17913,6 +18301,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -18501,9 +18890,39 @@ export default {};
 import tailwindcss from "@tailwindcss/vite";
 import { svelteTesting } from "@testing-library/svelte/vite";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [svelte(), tailwindcss(), svelteTesting()],
+  plugins: [
+    svelte(),
+    tailwindcss(),
+    svelteTesting(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.js"],
@@ -18723,7 +19142,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -18807,7 +19226,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -18843,6 +19262,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -18969,6 +19398,8 @@ export default defineConfig(
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="app"></div>
@@ -19062,6 +19493,7 @@ export default defineConfig(
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }
@@ -19078,6 +19510,23 @@ export default defineConfig(
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -19121,6 +19570,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -19801,9 +20251,39 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { svelteTesting } from "@testing-library/svelte/vite";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [svelte(), tailwindcss(), svelteTesting()],
+  plugins: [
+    svelte(),
+    tailwindcss(),
+    svelteTesting(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
@@ -24897,7 +25377,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -24981,7 +25461,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -25016,6 +25496,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -25134,6 +25624,8 @@ export default defineConfig([
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="app"></div>
@@ -25236,6 +25728,7 @@ export default defineConfig([
     "sass": "^1.108.2",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "vue-eslint-parser": "^10.4.2",
     "wrangler": "^4.168.0"
@@ -25254,6 +25747,23 @@ export default defineConfig([
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -25300,6 +25810,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -25908,7 +26419,7 @@ afterEach(() => {
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
       Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library,
-      ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+      ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
     </p>
   </section>
 </template>
@@ -25942,9 +26453,38 @@ import SignupForm from "../components/SignupForm.vue";
 import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -26142,7 +26682,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -26228,7 +26768,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -26264,6 +26804,16 @@ The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 
 ## License
 
 MIT, see \`LICENSE\`.
+
+## Progressive Web App
+
+The production build is installable and works offline: \`vite-plugin-pwa\` writes the web manifest and a service worker that precaches the build, and updates it on the next visit after a deploy.
+
+The icon is \`public/pwa-icon.svg\`. To also ship PNG icons (iOS home screen, older tools), generate them from it:
+
+\`\`\`sh
+npx @vite-pwa/assets-generator --preset minimal-2023 public/pwa-icon.svg
+\`\`\`
 
 ## Deploy to Cloudflare
 
@@ -26385,6 +26935,8 @@ export default defineConfigWithVueTs(
         "url": "https://example.com/"
       }
     </script>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
   </head>
   <body>
     <div id="app"></div>
@@ -26484,6 +27036,7 @@ export default defineConfigWithVueTs(
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.1",
     "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "^3.3.14",
@@ -26503,6 +27056,23 @@ export default defineConfigWithVueTs(
 ## Optional
 
 - [Sitemap](https://example.com/sitemap.xml)
+",
+  "public/pwa-icon.svg": "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>my-app</title>
+  <rect width="512" height="512" fill="#4f46e5" />
+  <text
+    x="256"
+    y="256"
+    fill="#ffffff"
+    font-family="system-ui, sans-serif"
+    font-size="280"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >
+    M
+  </text>
+</svg>
 ",
   "public/robots.txt": "User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
@@ -26550,6 +27120,7 @@ Sitemap: https://example.com/sitemap.xml
   "lint-staged",
   "SEO",
   "llms.txt",
+  "PWA",
   "GitHub Actions"
 ]
 ",
@@ -27151,7 +27722,7 @@ afterEach(() => {
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
       Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vitest, Testing
-      Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+      Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub
       Actions.
     </p>
   </section>
@@ -27243,9 +27814,38 @@ import SignupForm from "../components/SignupForm.vue";
 import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["pwa-icon.svg"],
+      manifest: {
+        name: "my-app",
+        short_name: "my-app",
+        description: "my-app",
+        theme_color: "#4f46e5",
+        background_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

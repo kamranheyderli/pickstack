@@ -193,6 +193,22 @@ Qeydlər (2026-11, yoxlanılıb):
 | `cursor` | hamısı | `agents-md` |
 | `copilot` | hamısı | `agents-md` |
 
+### 5.8.2.1 PWA (`pwa`, Alətlər)
+
+Hazırda yalnız Vite SPA-lar üçündür: React, Vue, Svelte, Solid, Preact. `vite-plugin-pwa` 2.x manifest-i və Workbox service worker-ini yazır, qeydiyyat skriptini isə `index.html`-ə özü əlavə edir, ona görə tətbiq koduna dəyişiklik lazım olmur.
+
+- **İkon:** bir SVG ikon (`sizes: "any"`, purpose `any` və `maskable`) Chrome-un quraşdırma yoxlamasından keçir (`Page.getInstallabilityErrors` → `[]`), baxmayaraq ki, sənədlərdə hələ də 192/512 PNG yazılıb. Generator mətn fayllar yazdığı üçün PNG yoxdur. README-də PNG-ləri yaratmaq üçün `@vite-pwa/assets-generator` göstərilir.
+- **Biome:** SVG-də `<title>` var (`noSvgWithoutTitle` qaydası). Fayl Biome-un HTML formatında yazılıb; Prettier SVG-yə toxunmur.
+- **Yoxlama:** brauzerdə 5 SPA-nın hamısında service worker səhifəni idarə edir və build keşlənir.
+- **Qalan işlər:**
+  - Angular: `@angular/service-worker`, `ngsw-config.json`.
+  - Next: `app/manifest.ts` + service worker və ya Serwist.
+  - Nuxt: `@vite-pwa/nuxt` 2.x. `<NuxtPwaManifest />` və `navigateFallback: null` lazımdır.
+  - SvelteKit: `withPwa`, `magicast` asılılığı.
+  - Astro: `AstroPWAIntegration`.
+
+  Bunlar araşdırılıb və build ilə yoxlanılıb (2026-11). Hər birinə adapter dəyişikliyi lazımdır, ona görə ayrıca addım kimi qalır.
+
 ### 5.8.3 Deploy
 
 | Modul | SPA-lar (Vite, Angular) | SvelteKit, Astro (statik) | Next.js | Nuxt |

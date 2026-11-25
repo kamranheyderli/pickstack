@@ -84,6 +84,7 @@ export const quickCombos: Combo[] = [
   ...projectFileCombos(),
   ...deployCombos(),
   ...formCombos(),
+  ...pwaCombos(),
   ...presetCombos,
 ];
 
@@ -743,6 +744,45 @@ function formCombos(): Combo[] {
       framework: "angular",
       language: "ts",
       modules: ["tanstack-form", "angular-material", "biome"],
+    },
+  ];
+}
+
+/** The PWA plugin next to the other Vite plugins, linters and the test config. */
+function pwaCombos(): Combo[] {
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: [
+        "pwa",
+        "tailwind",
+        "react-router",
+        "eslint",
+        "prettier",
+        "vitest",
+        "testing-library",
+      ],
+    },
+    {
+      framework: "vue",
+      language: "js",
+      modules: ["pwa", "vue-router", "biome"],
+    },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["pwa", "seo", "eslint", "prettier"],
+    },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["pwa", "tailwind", "biome"],
+    },
+    {
+      framework: "preact",
+      language: "js",
+      modules: ["pwa", "eslint", "prettier", "vitest"],
     },
   ];
 }
