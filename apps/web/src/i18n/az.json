@@ -17,7 +17,6 @@
   "category.forms": "Formlar",
   "category.testing": "Test",
   "category.quality": "Kod keyfiyyəti",
-  "option.none": "Yoxdur",
   "badge.auto": "avtomatik",
   "reason.conflict": "{module} ilə {other} birlikdə işləmir.",
   "reason.framework-mismatch": "{module} {framework} üçün mövcud deyil.",

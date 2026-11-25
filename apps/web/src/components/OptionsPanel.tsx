@@ -23,7 +23,6 @@ import { Segmented } from "./Segmented";
 
 const packageManagers: PackageManager[] = ["npm", "pnpm", "yarn", "bun"];
 const languageOrder: Language[] = ["ts", "js"];
-const NONE = "";
 
 interface OptionsPanelProps {
   selection: Selection;
@@ -43,15 +42,15 @@ export function OptionsPanel({
   const locale = useLocale();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <div>
         <label
           htmlFor="project-name"
-          className="mb-2.5 block text-xs font-medium tracking-wider text-muted uppercase"
+          className="mb-1.5 block text-[0.7rem] font-medium tracking-wider text-muted uppercase"
         >
           {t("field.name")}
         </label>
-        <div className="flex items-center gap-2 rounded-xl border border-line bg-panel-2 px-3 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--color-accent-ring)]">
+        <div className="flex items-center gap-2 rounded-lg border border-line bg-panel-2 px-2.5 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--color-accent-ring)]">
           <span className="text-muted">
             <UiIcon name="folder" />
           </span>
@@ -62,29 +61,45 @@ export function OptionsPanel({
             autoComplete="off"
             spellCheck={false}
             onChange={(e) => onChange({ ...selection, name: e.target.value })}
-            className="w-full bg-transparent py-2.5 font-mono text-sm outline-none"
+            className="w-full bg-transparent py-1.5 font-mono text-sm outline-none"
           />
         </div>
-        <p className="mt-1.5 text-xs text-muted">
+        <p className="mt-1 mb-0 text-xs text-muted">
           {t("field.nameHint", { name: toProjectName(selection.name) })}
         </p>
       </div>
 
-      <Segmented
-        legend={t("field.language")}
-        name="language"
-        value={selection.language}
-        options={languageOrder
-          .filter((l) =>
-            getFramework(selection.framework)?.languages.includes(l),
-          )
-          .map((l) => ({
-            value: l,
-            label: t(`language.${l}`),
-            icon: <BrandIcon icon={languageIcons[l]} size={15} />,
+      <div className="grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)]">
+        <Segmented
+          legend={t("field.language")}
+          name="language"
+          value={selection.language}
+          options={languageOrder
+            .filter((l) =>
+              getFramework(selection.framework)?.languages.includes(l),
+            )
+            .map((l) => ({
+              value: l,
+              label: t(`language.${l}`),
+              icon: <BrandIcon icon={languageIcons[l]} size={15} />,
+            }))}
+          onChange={(language) => onBaseChange({ ...selection, language })}
+        />
+
+        <Segmented
+          legend={t("field.packageManager")}
+          name="packageManager"
+          value={selection.packageManager}
+          options={packageManagers.map((pm) => ({
+            value: pm,
+            label: pm,
+            icon: <BrandIcon icon={packageManagerIcons[pm]} size={14} />,
           }))}
-        onChange={(language) => onBaseChange({ ...selection, language })}
-      />
+          onChange={(packageManager) =>
+            onChange({ ...selection, packageManager })
+          }
+        />
+      </div>
 
       {groupOptions(selection).map((group) => {
         const items = group.options.map(({ module, checked, blocker }) => {
@@ -104,22 +119,22 @@ export function OptionsPanel({
             description: module.description[locale],
           };
         });
+        // One pick at most: choosing replaces the current one, choosing it again clears it.
         return group.single ? (
           <Chips
             key={group.category}
             legend={t(`category.${group.category}`)}
             name={group.category}
-            type="radio"
-            items={[
-              {
-                value: NONE,
-                label: t("option.none"),
-                checked: !items.some((i) => i.checked),
-              },
-              ...items,
-            ]}
+            type="checkbox"
+            items={items}
             onChange={(id) =>
-              onChange(chooseSingle(selection, group.category, id || null))
+              onChange(
+                chooseSingle(
+                  selection,
+                  group.category,
+                  items.find((i) => i.value === id)?.checked ? null : id,
+                ),
+              )
             }
           />
         ) : (
@@ -139,20 +154,6 @@ export function OptionsPanel({
           {t("hint.svelteRouting")}
         </p>
       )}
-
-      <Segmented
-        legend={t("field.packageManager")}
-        name="packageManager"
-        value={selection.packageManager}
-        options={packageManagers.map((pm) => ({
-          value: pm,
-          label: pm,
-          icon: <BrandIcon icon={packageManagerIcons[pm]} size={14} />,
-        }))}
-        onChange={(packageManager) =>
-          onChange({ ...selection, packageManager })
-        }
-      />
     </div>
   );
 }

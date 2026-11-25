@@ -29,7 +29,7 @@ export function CodeView({ path, code }: CodeViewProps) {
 
   const lines = code.split("\n").length - (code.endsWith("\n") ? 1 : 0);
   const codeClass =
-    "m-0 h-[min(68vh,640px)] overflow-auto px-5 py-4 font-mono text-[0.8rem] leading-[1.7] text-code-ink [tab-size:2]";
+    "m-0 h-[min(68vh,640px)] lg:h-[calc(100dvh-13.5rem)] overflow-auto px-5 py-4 font-mono text-[0.8rem] leading-[1.7] text-code-ink [tab-size:2]";
 
   return (
     <div className="flex min-w-0 flex-col bg-code">

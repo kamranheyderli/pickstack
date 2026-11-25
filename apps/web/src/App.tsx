@@ -146,28 +146,28 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1320px] px-4 pt-12 pb-16 sm:px-6">
-        <section className="mb-10 max-w-3xl">
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1 text-xs font-medium text-muted shadow-xs">
+      <main className="mx-auto max-w-[1320px] px-4 pt-6 pb-10 sm:px-6">
+        <section className="mb-5">
+          <p className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-line bg-panel px-2.5 py-0.5 text-xs font-medium text-muted shadow-xs">
             <span
               className="size-1.5 rounded-full bg-emerald-500"
               aria-hidden="true"
             />
             {t("hero.badge")}
           </p>
-          <h1 className="mb-4 text-[clamp(2.2rem,5.5vw,3.75rem)] leading-[1.05] font-semibold tracking-[-0.035em]">
+          <h1 className="mb-1.5 text-[clamp(1.6rem,3.2vw,2.25rem)] leading-[1.1] font-semibold tracking-[-0.03em]">
             {t("hero.title")}{" "}
             <span className="bg-linear-to-r from-accent to-accent-2 bg-clip-text text-transparent">
               {t("hero.titleAccent")}
             </span>
           </h1>
-          <p className="m-0 max-w-[58ch] text-lg text-muted">
+          <p className="m-0 max-w-[70ch] text-sm text-muted sm:text-base">
             {t("app.tagline")}
           </p>
         </section>
 
-        <section aria-labelledby="framework-heading" className="mb-8">
-          <h2 id="framework-heading" className="mb-4 text-sm font-semibold">
+        <section aria-labelledby="framework-heading" className="mb-5">
+          <h2 id="framework-heading" className="mb-2 text-sm font-semibold">
             <span className="mr-2 text-muted">01</span>
             {t("section.framework")}
           </h2>
@@ -177,15 +177,15 @@ export default function App() {
           />
         </section>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)]">
           <form
             aria-labelledby="configure-heading"
             onSubmit={(e) => e.preventDefault()}
-            className="rounded-2xl border border-line bg-panel p-5 shadow-sm sm:p-6"
+            className="rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5"
           >
             <h2
               id="configure-heading"
-              className="mt-0 mb-5 text-sm font-semibold"
+              className="mt-0 mb-4 text-sm font-semibold"
             >
               <span className="mr-2 text-muted">02</span>
               {t("section.configure")}
@@ -227,7 +227,7 @@ export default function App() {
           <section
             aria-label={t("preview.label")}
             aria-busy={generated.pending}
-            className="overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_24px_60px_-30px_rgb(0_0_0/0.35)] lg:sticky lg:top-20"
+            className="overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_24px_60px_-30px_rgb(0_0_0/0.35)] lg:sticky lg:top-18"
           >
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
               <div className="flex min-w-0 items-center gap-3">
@@ -272,7 +272,7 @@ export default function App() {
                 />
               </div>
             ) : (
-              <p className="m-0 h-[min(68vh,640px)] p-6 text-muted">
+              <p className="m-0 h-[min(68vh,640px)] p-6 text-muted lg:h-[calc(100dvh-11rem)]">
                 {t("preview.generating")}
               </p>
             )}

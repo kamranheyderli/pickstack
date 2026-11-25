@@ -17,7 +17,6 @@
   "category.forms": "Forms",
   "category.testing": "Testing",
   "category.quality": "Code quality",
-  "option.none": "None",
   "badge.auto": "auto",
   "reason.conflict": "{module} cannot be used with {other}.",
   "reason.framework-mismatch": "{module} is not available for {framework}.",
