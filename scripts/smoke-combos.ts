@@ -935,5 +935,15 @@ function backendCombos(): Combo[] {
     },
     { framework: "vue", language: "ts", modules: ["nestjs", "pinia"] },
     { framework: "angular", language: "ts", modules: ["nestjs"] },
+    {
+      framework: "next",
+      language: "ts",
+      modules: ["drizzle", "tailwind", "eslint", "prettier"],
+    },
+    {
+      framework: "next",
+      language: "js",
+      modules: ["drizzle", "axios", "biome"],
+    },
   ];
 }

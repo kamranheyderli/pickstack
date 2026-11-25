@@ -1546,6 +1546,46 @@ describe("nestjs", () => {
   });
 });
 
+describe("drizzle", () => {
+  async function project(language: "js" | "ts", modules = ["drizzle"]) {
+    const result = await generate({
+      name: "acme",
+      framework: "next",
+      language,
+      packageManager: "pnpm",
+      modules,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("adds the schema, client, config, scripts and a local Postgres", async () => {
+    const files = await project("ts");
+    const pkg = JSON.parse(files.get("package.json") ?? "");
+    expect(pkg.dependencies["drizzle-orm"]).toBe(
+      knownGoodVersion("drizzle-orm", "next"),
+    );
+    expect(pkg.scripts["db:push"]).toBe("drizzle-kit push");
+    expect(files.get("db/schema.ts")).toContain('pgTable("todos"');
+    expect(files.get("drizzle.config.ts")).toContain('dialect: "postgresql"');
+    expect(files.get(".env.example")).toContain(
+      "DATABASE_URL=postgres://postgres:postgres@localhost:5432/acme",
+    );
+    expect(files.get("docker-compose.yml")).toContain("image: postgres:18");
+    expect(files.get("app/todos/page.tsx")).toContain("await connection();");
+    expect(files.get("app/layout.tsx")).toContain('href="/todos"');
+    expect(files.get("README.md")).toContain("pnpm db:push");
+  });
+
+  it("shares .env.example with axios", async () => {
+    const files = await project("js", ["drizzle", "axios"]);
+    const env = files.get(".env.example") ?? "";
+    expect(env).toContain("DATABASE_URL=");
+    expect(env).toContain("NEXT_PUBLIC_API_URL=");
+    expect(files.has("app/todos/page.jsx")).toBe(true);
+  });
+});
+
 describe("mongodb", () => {
   it("connects before listening and adds todo routes and docker-compose", async () => {
     const result = await generate({

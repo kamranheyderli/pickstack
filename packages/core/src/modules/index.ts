@@ -42,6 +42,7 @@ import { reactI18next } from "./i18n/react-i18next";
 import { vueI18n } from "./i18n/vue-i18n";
 import { express } from "./backend/express";
 import { nestjs } from "./backend/nestjs";
+import { drizzle } from "./backend/drizzle";
 import { mongodb } from "./backend/mongodb";
 import { editorconfig } from "./tooling/editorconfig";
 import { pwa } from "./tooling/pwa";
@@ -99,6 +100,7 @@ export const modules: readonly Module[] = [
   express,
   nestjs,
   mongodb,
+  drizzle,
   vercel,
   netlify,
   cloudflare,

@@ -68,6 +68,12 @@ const shared: VersionSet = {
   "@nestjs/cli": "^12.0.15",
   "@nestjs/schematics": "^12.0.16",
   "@nestjs/mongoose": "^12.0.1",
+  // Drizzle's docs install the 1.0 release candidates; the generator stays on the stable line.
+  "drizzle-orm": "^0.45.4",
+  "drizzle-kit": "^0.31.11",
+  pg: "^8.23.1",
+  "@types/pg": "^8.23.1",
+  dotenv: "^18.0.10",
   "reflect-metadata": "^0.2.2",
   rxjs: "^7.8.2",
   tslib: "^2.9.1",
@@ -276,6 +282,7 @@ export const deploy = {
   nginx: "nginx:1.29-alpine",
   bun: "oven/bun:1",
   mongo: "mongo:8",
+  postgres: "postgres:18",
   pnpm: "10",
   /** Cloudflare's `compatibility_date`: the runtime behaviour the project was tested with. */
   cloudflareCompatibilityDate: "2026-11-25",

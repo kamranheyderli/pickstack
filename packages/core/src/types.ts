@@ -303,6 +303,8 @@ export interface ProjectModel {
      * `app/components/<kebab-name>/`.
      */
     widgets: string[];
+    /** Pages a module adds (e.g. `/todos`), linked from the nav after the built-in ones. */
+    links: { path: string; label: string }[];
     /** Where `finalize` serves the stack list as JSON (a data-fetching demo reads it). */
     stackJson: string | null;
   };

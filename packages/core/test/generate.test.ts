@@ -48,6 +48,7 @@ function everything(framework: FrameworkId): string[] {
           "express",
           "nestjs",
           "mongodb",
+          "drizzle",
         ].includes(m.id),
     )
     .filter((m) => {
@@ -88,6 +89,14 @@ describe("express snapshot", () => {
 describe("nestjs snapshot", () => {
   it("puts a NestJS API in server/ (ts)", async () => {
     expect(await files("ts", ["nestjs"])).toMatchSnapshot();
+  });
+});
+
+describe("drizzle snapshot", () => {
+  it("adds PostgreSQL with Drizzle to Next.js (ts)", async () => {
+    expect(
+      await files("ts", ["drizzle", "tailwind"], "next"),
+    ).toMatchSnapshot();
   });
 });
 

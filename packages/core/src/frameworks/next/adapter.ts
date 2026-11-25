@@ -176,7 +176,7 @@ function tsconfig() {
 }
 
 function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
-  const links = routes.flatMap((r) => [
+  const links = [...routes, ...model.demo.links].flatMap((r) => [
     `<Link className="${cls.link}" href="${r.path}">`,
     `  ${r.label}`,
     "</Link>",

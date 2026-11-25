@@ -181,6 +181,7 @@ Qeydlər (2026-11, yoxlanılıb):
 | `express` | R, V, S, So, P, A | |
 | `nestjs` | R, V, S, So, P, A (yalnız TS) | |
 | `mongodb` | R, V, S, So, P, A | `express` və ya `nestjs` |
+| `drizzle` | N | |
 
 - **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
   - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
@@ -198,6 +199,13 @@ Qeydlər (2026-11, yoxlanılıb):
   - `MONGODB_URI` `.env.example`-də verilir; kökdə `docker-compose.yml` (`mongo:8`) var.
   - NestJS ilə rəsmi MongoDB bələdçisindəki kimi `@nestjs/mongoose` istifadə olunur: `AppModule`-da `MongooseModule.forRoot`, `@Schema` sinfi, `forFeature` və `@InjectModel` ilə `TodosModule` (controller və service). Boş `title` üçün `BadRequestException` qaytarılır.
   - Backend-i özü əlavə etmir (`requiresOneOf`), çünki hansı serverin seçiləcəyini istifadəçi bilir.
+- **PostgreSQL (Drizzle):**
+  - Drizzle-in PostgreSQL bələdçisi əsasında: `node-postgres` (`pg`), `db/schema`-da `todos` cədvəli, `db/index`-də `db` klienti, Drizzle Kit üçün `drizzle.config` (`dotenv` ilə) və `db:push`/`db:generate`/`db:migrate`/`db:studio` script-ləri.
+  - Sənəd 1.0 RC-ni quraşdırır, generator isə stabil xəttdə qalır (`drizzle-orm` 0.45, `drizzle-kit` 0.31); istifadə olunan API eynidir.
+  - `Pool` açıq yaradılır və ona `error` dinləyicisi qoşulur: dinləyici olmasa, Postgres yenidən başlayanda boş bağlantının xətası prosesi çökdürür (canlı yoxlanılıb).
+  - Next.js: `/todos` server komponentidir, `connection()` ilə hər sorğuda render olunur (build vaxtı baza yoxdur), server action ilə sətir əlavə edir; baza hazır olmayanda səhifə nə etmək lazım olduğunu yazır. Menyuya `model.demo.links` ilə əlavə olunur.
+  - `.env.example`-i `model.env` vasitəsilə yazır, ona görə axios ilə birlikdə işləyir. Kökdə `docker-compose.yml` (`postgres:18`) var.
+  - Növbəti: Nuxt və SvelteKit, sonra Express/NestJS.
 - **Məhdudiyyətlər:**
   - Next və Nuxt üçün təklif olunmur, çünki onların öz server route-ları var.
   - `turborepo` və `module-federation` ilə konflikt edir.
