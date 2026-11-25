@@ -177,7 +177,9 @@ type UiIconName =
   | "file"
   | "chevron"
   | "pencil"
-  | "undo";
+  | "undo"
+  | "copy"
+  | "terminal";
 
 const uiPaths: Record<UiIconName, string[]> = {
   sun: [
@@ -203,6 +205,11 @@ const uiPaths: Record<UiIconName, string[]> = {
     "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4",
   ],
   check: ["M20 6 9 17l-5-5"],
+  copy: [
+    "M10 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z",
+    "M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2",
+  ],
+  terminal: ["m4 17 6-6-6-6", "M12 19h8"],
   folder: [
     "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
   ],

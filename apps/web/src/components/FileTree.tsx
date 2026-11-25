@@ -197,7 +197,7 @@ export function FileTree({
   return (
     <nav
       aria-label={label}
-      className="max-h-64 overflow-auto border-b border-line bg-panel-2/60 p-2 font-mono text-[0.78rem] md:max-h-none md:border-r md:border-b-0"
+      className="max-h-64 overflow-auto border-b border-line bg-panel-2/60 p-2 font-mono text-[0.78rem] md:h-0 md:max-h-none md:min-h-full md:border-r md:border-b-0"
     >
       <div ref={listRef} onKeyDown={onKeyDown}>
         {renderNode(tree, 0)}

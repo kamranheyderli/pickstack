@@ -1,4 +1,5 @@
 import {
+  createCommand,
   getModule,
   installCommand,
   runCommand,
@@ -7,6 +8,7 @@ import {
 } from "@stackforge/core";
 import { useEffect, useState } from "react";
 import { CodeView } from "./components/CodeView";
+import { CommandBar } from "./components/CommandBar";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { OptionsPanel } from "./components/OptionsPanel";
@@ -308,9 +310,16 @@ export default function App() {
                 />
               </div>
             ) : (
-              <p className="m-0 h-[min(68vh,640px)] p-6 text-muted lg:h-[calc(100dvh-11rem)]">
+              <p className="m-0 h-[min(68vh,640px)] p-6 text-muted lg:h-[calc(100dvh-16.25rem)]">
                 {t("preview.generating")}
               </p>
+            )}
+
+            {result?.ok && (
+              <CommandBar
+                command={createCommand({ ...selection, name: projectName })}
+                hasEdits={edited.size > 0}
+              />
             )}
 
             <p

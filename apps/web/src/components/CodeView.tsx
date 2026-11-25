@@ -13,7 +13,7 @@ interface CodeViewProps {
 }
 
 const codeClass =
-  "m-0 h-[min(68vh,640px)] lg:h-[calc(100dvh-13.5rem)] overflow-auto px-5 py-4 font-mono text-[0.8rem] leading-[1.7] text-code-ink [tab-size:2]";
+  "m-0 h-[min(68vh,640px)] lg:h-[calc(100dvh-18.75rem)] overflow-auto px-5 py-4 font-mono text-[0.8rem] leading-[1.7] text-code-ink [tab-size:2]";
 
 const toolButton =
   "inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-code-ink/80 transition hover:bg-white/10 hover:text-code-ink focus-visible:outline-2 focus-visible:outline-accent";

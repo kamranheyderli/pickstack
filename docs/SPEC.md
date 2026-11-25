@@ -454,7 +454,19 @@ Funksiyalar:
 
 ## 10. CLI (packages/cli)
 
-`npx stackforge` interaktiv suallar verir (framework, dil, modullar), `--preset next-shadcn` və ya `--config ./stack.json` ilə qeyri-interaktiv işləyir, eyni `core` paketini istifadə edir, faylları diskə yazır və istəyə görə `git init` + install edir.
+npm paketi `create-pickstack`-dir: `npm create pickstack@latest`, `pnpm create pickstack`, `yarn create pickstack`, `bun create pickstack`. Paket meneceri `npm_config_user_agent`-dən götürülür, `--pm` ilə dəyişdirilə bilər.
+
+- **İnteraktiv rejim:** `@clack/prompts` ilə suallar verilir: ad, framework, dil, sonra hər kateqoriya.
+  - Seçilmiş framework-ə uyğun olmayan modullar göstərilmir.
+  - Konfliktli modullar səbəbi ilə birlikdə görünür, amma seçilə bilmir (`blockerFor`).
+  - Seçim `validate`-dən keçmirsə, həmin kateqoriya yenidən soruşulur.
+- **Qeyri-interaktiv rejim:** `--framework`, `--language`, `--modules a,b,c`, `--site-url` və `--yes` bayraqları ilə işləyir. Terminal olmayanda (CI, agentlər) də bu rejim işləyir.
+- **Əmrin mənbəyi:** veb-dəki "Və ya terminaldan yarat" paneli əmri core-dakı `createCommand(selection)` ilə qurur. Ona görə veb və CLI eyni bayraq formatını paylaşır; bu, round-trip testi ilə yoxlanılır.
+- **Yaratdıqdan sonra:** əvvəlcə `git init` işləyir, çünki Husky-nin `prepare` skripti repo tələb edir. Sonra hər `package.json` qovluğunda install işləyir (federation host və remote ayrıca). Bunları `--no-git` və `--no-install` söndürür.
+- **Qərar dəyişikliyi:**
+  - `stackforge` və `create-stackforge` adları npm-də tutulub, ona görə `create-pickstack` götürülüb.
+  - `--preset` və `--config` sonraya qalır; bayraqlar eyni işi görür.
+  - Core CLI bundle-ının içindədir (tsdown, `deps.alwaysBundle`). Prettier, prettier-plugin-svelte və svelte adi asılılıq kimi qalır. jszip tree-shake ilə atılır.
 
 ## 11. Fazalar və qəbul meyarları
 
@@ -481,7 +493,7 @@ Presetlər, URL ilə paylaşma, "ən son versiyalar" rejimi, həftəlik versiya 
 `apps/api`, OAuth, repo yaratma.
 
 ### Faza 7: CLI
-`packages/cli`, npm-də dərc.
+`packages/cli`, npm-də dərc. Vəziyyət: CLI hazırdır və tarball-dan real yoxlanılıb. npm-də dərc gözləyir.
 
 ## 12. Hələ açıq olan suallar
 
