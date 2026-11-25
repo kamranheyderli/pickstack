@@ -2,6 +2,7 @@ import {
   createCommand,
   getModule,
   installCommand,
+  presets,
   runCommand,
   toProjectName,
   type Selection,
@@ -12,6 +13,7 @@ import { CommandBar } from "./components/CommandBar";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { OptionsPanel } from "./components/OptionsPanel";
+import { PresetPicker } from "./components/PresetPicker";
 import {
   LocaleProvider,
   translate,
@@ -21,6 +23,7 @@ import {
 import { downloadZip } from "./lib/download";
 import { UiIcon } from "./lib/icons";
 import { readPref, writePref } from "./lib/storage";
+import { selectionFromQuery, selectionToQuery } from "./lib/url";
 import { useGenerated } from "./lib/useGenerated";
 import { useTheme } from "./lib/useTheme";
 import { defaultSelection, pruneIncompatible } from "./state/selection";
@@ -33,7 +36,13 @@ export default function App() {
     readPref("locale", locales, "az"),
   );
   const [theme, cycleTheme] = useTheme();
-  const [selection, setSelection] = useState<Selection>(defaultSelection);
+  // A shared link (?f=vue&m=pinia or ?p=<preset>) opens with that selection.
+  const [selection, setSelection] = useState<Selection>(
+    () =>
+      selectionFromQuery(window.location.search, defaultSelection) ??
+      defaultSelection,
+  );
+  const [linkCopied, setLinkCopied] = useState(false);
   const [notice, setNotice] = useState("");
   const [current, setCurrent] = useState("src/App.tsx");
   const [busy, setBusy] = useState(false);
@@ -73,6 +82,30 @@ export default function App() {
         "package.json")
       : current;
   const projectName = toProjectName(selection.name);
+
+  const sameModules = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((id) => b.includes(id));
+  const activePreset =
+    presets.find(
+      (p) =>
+        p.framework === selection.framework &&
+        sameModules(p.modules, selection.modules),
+    )?.id ?? null;
+
+  // The address bar always holds the current selection, so it can be shared as is.
+  useEffect(() => {
+    window.history.replaceState(null, "", selectionToQuery(selection));
+    setLinkCopied(false);
+  }, [selection]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+    } catch {
+      setLinkCopied(false);
+    }
+  };
 
   // `lang` drives case mapping too: uppercase "i" is "İ" in Azerbaijani, "I" in English.
   useEffect(() => {
@@ -193,6 +226,16 @@ export default function App() {
             value={selection.framework}
             onChange={(framework) => onBaseChange({ ...selection, framework })}
           />
+          <PresetPicker
+            active={activePreset}
+            onPick={(preset) =>
+              onBaseChange({
+                ...selection,
+                framework: preset.framework,
+                modules: preset.modules,
+              })
+            }
+          />
         </section>
 
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)]">
@@ -263,15 +306,27 @@ export default function App() {
                   </span>
                 )}
               </div>
-              <button
-                type="button"
-                disabled={!files || busy}
-                onClick={onDownload}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-bg shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
-              >
-                <UiIcon name="download" />
-                {t("download.button")}
-              </button>
+              <span className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={copyLink}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  <UiIcon name={linkCopied ? "check" : "link"} />
+                  <span aria-live="polite">
+                    {linkCopied ? t("share.copied") : t("share.button")}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  disabled={!files || busy}
+                  onClick={onDownload}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-bg shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
+                >
+                  <UiIcon name="download" />
+                  {t("download.button")}
+                </button>
+              </span>
             </div>
 
             {files ? (

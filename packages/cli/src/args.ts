@@ -8,6 +8,8 @@ export interface CliArgs {
   language?: Language;
   packageManager?: PackageManager;
   modules?: string[];
+  /** A preset id; its framework and modules fill whatever the flags leave open. */
+  preset?: string;
   siteUrl?: string;
   yes: boolean;
   install: boolean;
@@ -48,6 +50,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
       language: { type: "string", short: "l" },
       pm: { type: "string" },
       modules: { type: "string", short: "m" },
+      preset: { type: "string", short: "p" },
       "site-url": { type: "string" },
       yes: { type: "boolean", short: "y", default: false },
       install: { type: "boolean", default: true },
@@ -73,6 +76,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
             .split(",")
             .map((m) => m.trim())
             .filter(Boolean),
+    preset: values.preset,
     siteUrl: values["site-url"],
     yes: values.yes,
     install: values.install,
@@ -97,6 +101,7 @@ Options:
   -f, --framework <id>   react, vue, angular, svelte, solid, preact, next, nuxt, sveltekit, astro
   -l, --language <id>    ts (default) or js
   -m, --modules <ids>    comma-separated module ids (see --list)
+  -p, --preset <id>      start from a ready stack (see --list)
       --pm <id>          npm, pnpm, yarn or bun (default: the one running this command)
       --site-url <url>   public origin for canonical URLs, sitemap and llms.txt
   -y, --yes              don't ask: use defaults for anything not given
@@ -108,4 +113,5 @@ Options:
 
 Examples:
   npm create pickstack@latest
+  npm create pickstack@latest my-app -- --preset next-shadcn --yes
   pnpm create pickstack my-app --framework vue --modules tailwind,pinia,vue-router --yes`;

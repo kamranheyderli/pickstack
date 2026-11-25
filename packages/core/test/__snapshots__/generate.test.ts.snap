@@ -1780,7 +1780,8 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+      Built with Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier,
+      Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </Layout>
@@ -2357,7 +2358,8 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
+      Built with Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint,
+      Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </Layout>

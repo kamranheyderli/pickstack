@@ -7,6 +7,8 @@ import {
   frameworkCatalog,
   generate,
   getFramework,
+  getPreset,
+  presets,
   installCommand,
   modules,
   runCommand,
@@ -65,7 +67,10 @@ function version(): string {
 }
 
 function printList(): void {
-  console.log("Frameworks:");
+  console.log("Presets:");
+  for (const p of presets)
+    console.log(`  ${p.id.padEnd(20)}${p.description.en}`);
+  console.log("\nFrameworks:");
   for (const f of availableFrameworks)
     console.log(`  ${f.id.padEnd(12)}${f.name}`);
   for (const category of categoryOrder) {
@@ -137,9 +142,21 @@ async function pickModules(base: Selection): Promise<string[]> {
 
 /** Fills in everything the flags left open, asking unless --yes or there's no terminal. */
 async function collect(
-  args: CliArgs,
+  input: CliArgs,
   interactive: boolean,
 ): Promise<Selection> {
+  const preset =
+    input.preset === undefined ? undefined : getPreset(input.preset);
+  if (input.preset !== undefined && !preset)
+    throw new Error(
+      `Unknown preset "${input.preset}". Presets: ${presets.map((p) => p.id).join(", ")}.`,
+    );
+  // A preset answers the framework and module questions; explicit flags still win.
+  const args: CliArgs = {
+    ...input,
+    framework: input.framework ?? preset?.framework,
+    modules: input.modules ?? preset?.modules,
+  };
   const packageManager =
     args.packageManager ??
     detectPackageManager(process.env.npm_config_user_agent);

@@ -4,6 +4,7 @@
  *   pnpm smoke --quick         curated set (scripts/smoke-combos.ts)
  *   pnpm smoke                 full pairwise set
  *   pnpm smoke --filter=react  only combos whose id contains "react"
+ *   pnpm smoke --presets       only the ready-made stacks (presets.ts)
  *   pnpm smoke --keep          keep generated projects for inspection
  */
 import { spawn } from "node:child_process";
@@ -12,7 +13,7 @@ import { availableParallelism, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { generate, modules } from "../packages/core/src";
 import { pairwiseCombos } from "./pairwise";
-import { quickCombos, type Combo } from "./smoke-combos";
+import { presetCombos, quickCombos, type Combo } from "./smoke-combos";
 
 interface Outcome {
   id: string;
@@ -167,9 +168,12 @@ if (uncovered.length) {
   process.exit(1);
 }
 
-const combos = (args.has("--quick") ? quickCombos : pairwiseCombos()).filter(
-  (c) => !filter || comboId(c).includes(filter),
-);
+const source = args.has("--presets")
+  ? presetCombos
+  : args.has("--quick")
+    ? quickCombos
+    : pairwiseCombos();
+const combos = source.filter((c) => !filter || comboId(c).includes(filter));
 console.log(`Smoke: ${combos.length} combos in ${root}\n`);
 
 const outcomes = await pool(

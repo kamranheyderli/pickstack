@@ -28,6 +28,20 @@ export function el(
 
 export type MarkupStyle = "prettier" | "biome";
 
+/** Text on its own lines: both Prettier and Biome fill words up to the print width. */
+function fill(text: string, indent: string): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && (indent + next).length > WIDTH) {
+      lines.push(indent + line);
+      line = word;
+    } else line = next;
+  }
+  return [...lines, indent + line];
+}
+
 export function printMarkup(
   node: El | string,
   depth = 0,
@@ -60,7 +74,7 @@ export function printMarkup(
     const line = `${pad}${inlineOpen}>${node.children}${close}`;
     const fewAttrs = style === "biome" || attrs.length <= 1;
     if (fewAttrs && line.length <= WIDTH) return [line];
-    return [...head, `${pad}  ${node.children}`, `${pad}${close}`];
+    return [...head, ...fill(node.children, `${pad}  `), `${pad}${close}`];
   }
 
   return [

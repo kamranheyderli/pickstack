@@ -16,3 +16,4 @@ export { cliPackage, createCommand } from "./engine/command";
 export { formatFiles } from "./engine/format";
 export { knownGoodVersion } from "./versions/known-good";
 export { toZip } from "./output/zip";
+export { getPreset, presets, type Preset } from "./presets";

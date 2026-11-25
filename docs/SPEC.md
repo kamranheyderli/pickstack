@@ -468,6 +468,17 @@ npm paketi `create-pickstack`-dir: `npm create pickstack@latest`, `pnpm create p
   - `--preset` və `--config` sonraya qalır; bayraqlar eyni işi görür.
   - Core CLI bundle-ının içindədir (tsdown, `deps.alwaysBundle`). Prettier, prettier-plugin-svelte və svelte adi asılılıq kimi qalır. jszip tree-shake ilə atılır.
 
+### 10.1 Hazır stack-lər və paylaşma linki
+
+- **Preset-lər:** `packages/core/src/presets.ts`-dədir: React + shadcn/ui, Next.js + shadcn/ui, Vue + Pinia, Nuxt + shadcn-vue, SvelteKit + shadcn-svelte, Angular + Material, Astro content site.
+  - Veb-də framework seçiminin altında düymə kimi görünür. CLI-da `--preset <id>` ilə seçilir; açıq verilən bayraqlar preset-in üstünə yazılır.
+  - Hər preset unit testdə xəbərdarlıqsız yaranır və `pnpm smoke --presets` ilə real build olunur.
+  - SvelteKit preset-ində TanStack Query və Testing Library yoxdur, çünki matrisdə SvelteKit üçün aktiv deyillər. Next preset-ində də TanStack Query əvəzinə Zustand var, eyni səbəbdən.
+- **URL:** seçim həmişə ünvan sətrindədir: `?f=vue&l=js&pm=pnpm&n=shop&m=tailwind,pinia`. Default dəyərlər linkə yazılmır.
+  - `?p=<preset>` preset-lə açır; digər açarlar onun üzərinə yazılır.
+  - Naməlum və ya uyğun olmayan modullar atılır (`pruneIncompatible`).
+  - "Linki kopyala" düyməsi cari ünvanı kopyalayır.
+
 ## 11. Fazalar və qəbul meyarları
 
 ### Faza 1: Təməl

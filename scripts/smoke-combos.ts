@@ -1,10 +1,17 @@
-import type { FrameworkId, Language } from "../packages/core/src";
+import { presets, type FrameworkId, type Language } from "../packages/core/src";
 
 export interface Combo {
   framework: FrameworkId;
   language: Language;
   modules: string[];
 }
+
+/** Every ready-made stack from the web app and `--preset`. */
+export const presetCombos: Combo[] = presets.map((p) => ({
+  framework: p.framework,
+  language: "ts",
+  modules: p.modules,
+}));
 
 /**
  * Curated set for `pnpm smoke --quick` (runs on PRs).
@@ -75,6 +82,7 @@ export const quickCombos: Combo[] = [
   ...aiCombos(),
   ...tanstackCombos(),
   ...projectFileCombos(),
+  ...presetCombos,
 ];
 
 /** Minimal and "everything" in both languages. */
