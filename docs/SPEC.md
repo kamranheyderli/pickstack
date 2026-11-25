@@ -567,6 +567,16 @@ npm paketi `create-pickstack`-dir: `npm create pickstack@latest`, `pnpm create p
   - `--preset` və `--config` sonraya qalır; bayraqlar eyni işi görür.
   - Core CLI bundle-ının içindədir (tsdown, `deps.alwaysBundle`). Prettier, prettier-plugin-svelte və svelte adi asılılıq kimi qalır. jszip tree-shake ilə atılır.
 
+### 10.0 MCP server
+
+`create-pickstack --mcp` eyni paketdə stdio üzərindən MCP server işə salır (`@modelcontextprotocol/sdk` 1.x, `registerTool`). Üç tool var:
+
+- `list_options`: framework-lər, preset-lər və modullar. Hər modulun hansı framework-lərlə işlədiyi və nə ilə konflikt etdiyi göstərilir.
+- `preview_project`: yaddaşda generasiya edir, fayl siyahısını, istəsən bir faylın məzmununu qaytarır. Heç nə yazmır.
+- `create_project`: `parentDirectory` mütləq yol olmalıdır və hədəf qovluq boş olmalıdır. `git init` default olaraq aktivdir, install isə söndürülüb, çünki uzun çəkir.
+
+Validasiya xətaları `isError` ilə core-un öz mesajlarını qaytarır. stdout protokola aid olduğu üçün bu rejimdə CLI heç nə çap etmir. SDK client-i ilə real yoxlanılıb.
+
 ### 10.1 Hazır stack-lər və paylaşma linki
 
 - **Preset-lər:** `packages/core/src/presets.ts`-dədir: React + shadcn/ui, Next.js + shadcn/ui, Vue + Pinia, Nuxt + shadcn-vue, SvelteKit + shadcn-svelte, Angular + Material, Astro content site.

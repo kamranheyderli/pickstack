@@ -230,6 +230,11 @@ async function main(): Promise<void> {
   if (args.help) return console.log(helpText);
   if (args.version) return console.log(version());
   if (args.list) return printList();
+  if (args.mcp) {
+    // stdout carries the protocol, so nothing else may print there.
+    const { startMcpServer } = await import("./mcp");
+    return startMcpServer(version());
+  }
 
   const interactive = !args.yes && process.stdin.isTTY === true;
   p.intro(`create-pickstack ${version()}`);

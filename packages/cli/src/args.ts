@@ -17,6 +17,7 @@ export interface CliArgs {
   help: boolean;
   version: boolean;
   list: boolean;
+  mcp: boolean;
 }
 
 const languages: readonly Language[] = ["ts", "js"];
@@ -58,6 +59,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
       help: { type: "boolean", short: "h", default: false },
       version: { type: "boolean", short: "v", default: false },
       list: { type: "boolean", default: false },
+      mcp: { type: "boolean", default: false },
     },
   });
   if (positionals.length > 1)
@@ -84,6 +86,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     help: values.help,
     version: values.version,
     list: values.list,
+    mcp: values.mcp,
   };
 }
 
@@ -108,6 +111,7 @@ Options:
       --no-install       skip installing dependencies
       --no-git           skip git init
       --list             list frameworks and modules
+      --mcp              run as an MCP server over stdio (for AI agents)
   -h, --help             show this help
   -v, --version          show the version
 

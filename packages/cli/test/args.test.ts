@@ -51,6 +51,7 @@ describe("parseCliArgs", () => {
       help: false,
       version: false,
       list: false,
+      mcp: false,
     });
   });
 

@@ -32,6 +32,35 @@ The web configurator shows the exact command for any selection.
 | `--no-git`             | skip `git init`                                                                              |
 | `--list`               | list frameworks and modules                                                                  |
 
+## For AI agents (MCP)
+
+`create-pickstack --mcp` runs an MCP server over stdio, so Claude Code, Cursor or any MCP client can create projects for you. It has three tools:
+
+- `list_options`: the frameworks, presets and modules, with what each supports and conflicts with.
+- `preview_project`: the files a selection produces, without writing anything.
+- `create_project`: writes the project to a folder, with optional `git init` and install.
+
+Claude Code:
+
+```bash
+claude mcp add pickstack -- npx -y create-pickstack@latest --mcp
+```
+
+Cursor (`.cursor/mcp.json`) or VS Code (`.vscode/mcp.json`, under `"servers"`):
+
+```json
+{
+  "mcpServers": {
+    "pickstack": {
+      "command": "npx",
+      "args": ["-y", "create-pickstack@latest", "--mcp"]
+    }
+  }
+}
+```
+
+Then ask, for example: "Create a Vue app with Pinia, Vue Router and Vitest in ~/projects".
+
 Requires Node.js 22.12 or later.
 
 ## License
