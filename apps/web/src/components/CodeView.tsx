@@ -1,4 +1,4 @@
-import { useEffect, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useT } from "../i18n";
 import { highlight } from "../lib/highlight";
 import { UiIcon } from "../lib/icons";
@@ -44,9 +44,10 @@ export function CodeView({
   const t = useT();
   const [html, setHtml] = useState<{ code: string; html: string } | null>(null);
   const [editing, setEditing] = useState(false);
+  const underlay = useRef<HTMLDivElement>(null);
 
+  // Highlighting runs while editing too: the editor is a transparent textarea over it.
   useEffect(() => {
-    if (editing) return;
     let cancelled = false;
     highlight(code, path)
       .then((result) => {
@@ -59,9 +60,10 @@ export function CodeView({
     return () => {
       cancelled = true;
     };
-  }, [code, path, editing]);
+  }, [code, path]);
 
   const lines = code.split("\n").length - (code.endsWith("\n") ? 1 : 0);
+  const highlighted = html && html.code === code ? html.html : null;
 
   return (
     <div className="flex min-w-0 flex-col bg-code">
@@ -97,20 +99,41 @@ export function CodeView({
         </span>
       </div>
       {editing ? (
-        <textarea
-          aria-label={t("preview.editor", { path })}
-          value={code}
-          spellCheck={false}
-          autoCapitalize="off"
-          autoComplete="off"
-          onChange={(e) => onEdit(e.target.value)}
-          onKeyDown={(e) => onEditorKeyDown(e, onEdit)}
-          className={`${codeClass} w-full resize-none border-0 bg-transparent whitespace-pre caret-accent outline-none`}
-        />
-      ) : html && html.code === code ? (
+        // The textarea's text is transparent; the highlighted copy underneath shows through
+        // and scrolls with it, so colours stay while typing.
+        <div className="relative">
+          <div
+            ref={underlay}
+            aria-hidden="true"
+            className={`code-html ${codeClass} pointer-events-none overflow-hidden`}
+          >
+            {highlighted ? (
+              <div dangerouslySetInnerHTML={{ __html: highlighted }} />
+            ) : (
+              <pre>{code}</pre>
+            )}
+          </div>
+          <textarea
+            aria-label={t("preview.editor", { path })}
+            value={code}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+            onChange={(e) => onEdit(e.target.value)}
+            onKeyDown={(e) => onEditorKeyDown(e, onEdit)}
+            onScroll={(e) => {
+              const box = underlay.current;
+              if (!box) return;
+              box.scrollTop = e.currentTarget.scrollTop;
+              box.scrollLeft = e.currentTarget.scrollLeft;
+            }}
+            className={`${codeClass} absolute inset-0 w-full resize-none border-0 bg-transparent whitespace-pre text-transparent caret-code-ink outline-none selection:bg-white/20`}
+          />
+        </div>
+      ) : highlighted ? (
         <div
           className={`code-html ${codeClass}`}
-          dangerouslySetInnerHTML={{ __html: html.html }}
+          dangerouslySetInnerHTML={{ __html: highlighted }}
         />
       ) : (
         <pre className={codeClass}>{code}</pre>
