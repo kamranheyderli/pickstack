@@ -1598,6 +1598,68 @@ describe("drizzle", () => {
     expect(files.get("app/app.vue")).toContain('to="/todos"');
   });
 
+  describe("sveltekit", () => {
+    async function kit(modules: string[]) {
+      const result = await generate({
+        name: "acme",
+        framework: "sveltekit",
+        language: "ts",
+        packageManager: "npm",
+        modules: ["drizzle", ...modules],
+      });
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return result.files;
+    }
+    const devDeps = (files: Map<string, string>) =>
+      Object.keys(JSON.parse(files.get("package.json") ?? "").devDependencies);
+
+    it("builds a Node server, declares DATABASE_URL and opts /todos out of prerendering", async () => {
+      const files = await kit([]);
+      expect(devDeps(files)).toContain("@sveltejs/adapter-node");
+      expect(devDeps(files)).not.toContain("@sveltejs/adapter-static");
+      expect(files.get("vite.config.ts")).toContain(
+        'import adapter from "@sveltejs/adapter-node";',
+      );
+      expect(files.get("src/env.ts")).toContain("DATABASE_URL: {");
+      expect(files.get("src/lib/server/db/index.ts")).toContain(
+        'import { DATABASE_URL } from "$app/env/private";',
+      );
+      expect(files.get("src/routes/todos/+page.server.ts")).toContain(
+        "export const prerender = false;",
+      );
+      expect(files.get("src/routes/+layout.svelte")).toContain(
+        'href={resolve("/todos")}',
+      );
+    });
+
+    it("follows the deploy target's adapter", async () => {
+      expect(devDeps(await kit(["vercel"]))).toContain(
+        "@sveltejs/adapter-vercel",
+      );
+      const netlify = await kit(["netlify"]);
+      expect(devDeps(netlify)).toContain("@sveltejs/adapter-netlify");
+      expect(netlify.get(".gitignore")).toContain(".netlify");
+      const cloudflare = await kit(["cloudflare"]);
+      expect(devDeps(cloudflare)).toContain("@sveltejs/adapter-cloudflare");
+      const wrangler = JSON.parse(cloudflare.get("wrangler.json") ?? "");
+      expect(wrangler.compatibility_flags).toEqual(["nodejs_compat"]);
+      expect(wrangler.assets).toBeUndefined();
+    });
+
+    it("runs the Node server in Docker", async () => {
+      const dockerfile = (await kit(["docker"])).get("Dockerfile") ?? "";
+      expect(dockerfile).toContain("RUN npm install --omit=dev");
+      expect(dockerfile).toContain('CMD ["node", "build"]');
+      expect(dockerfile).not.toContain("nginx");
+    });
+
+    it("keeps SITE_URL next to DATABASE_URL with seo", async () => {
+      const env = (await kit(["seo"])).get("src/env.ts") ?? "";
+      expect(env).toContain("SITE_URL: {");
+      expect(env).toContain("DATABASE_URL: {");
+    });
+  });
+
   it("shares .env.example with axios", async () => {
     const files = await project("js", ["drizzle", "axios"]);
     const env = files.get(".env.example") ?? "";

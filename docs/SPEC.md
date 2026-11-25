@@ -181,7 +181,7 @@ Qeydlər (2026-11, yoxlanılıb):
 | `express` | R, V, S, So, P, A | |
 | `nestjs` | R, V, S, So, P, A (yalnız TS) | |
 | `mongodb` | R, V, S, So, P, A | `express` və ya `nestjs` |
-| `drizzle` | N, Nu | |
+| `drizzle` | N, Nu, SK | |
 
 - **Quruluş:** tətbiq `web/`, API isə öz `package.json`-ı ilə `server/` qovluğuna yazılır; kökdəki README hər ikisini işə salmağı izah edir.
   - Bu, Module Federation-dakı host/remote quruluşunun eynisidir.
@@ -206,7 +206,10 @@ Qeydlər (2026-11, yoxlanılıb):
   - Next.js: `/todos` server komponentidir, `connection()` ilə hər sorğuda render olunur (build vaxtı baza yoxdur), server action ilə sətir əlavə edir; baza hazır olmayanda səhifə nə etmək lazım olduğunu yazır. Menyuya `model.demo.links` ilə əlavə olunur.
   - `.env.example`-i `model.env` vasitəsilə yazır, ona görə axios ilə birlikdə işləyir. Kökdə `docker-compose.yml` (`postgres:18`) var.
   - Nuxt: sxem `server/db`-də, klient `server/utils/db`-də (Nitro route-larına avtomatik import olunur); `server/api/todos.get`/`todos.post` (`readBody`, `createError`, `returning()`); `app/pages/todos.vue` `useFetch` ilə serverdə oxuyur, `$fetch` ilə əlavə edir.
-  - Növbəti: SvelteKit, sonra Express/NestJS.
+  - SvelteKit: `sv add drizzle` quruluşu (`src/lib/server/db`); `DATABASE_URL` `src/env`-də `defineEnvVars` ilə elan olunur və `$app/env/private`-dən oxunur. `/todos` `+page.server` load funksiyası və default form action-u ilə işləyir (`use:enhance`), `prerender = false`; digər səhifələr prerender olunur.
+  - **SvelteKit server rejimi** (`model.needsServer`): adapter deploy modulundan seçilir — Vercel → `adapter-vercel`, Netlify → `adapter-netlify`, Cloudflare → `adapter-cloudflare` (`wrangler.json`-da `nodejs_compat`, `assets` adapterə qalır), qalan hallarda `adapter-node`. Docker `node build`-i işlədir (yalnız `dependencies` ayrıca mərhələdə quraşdırılır). `.vercel`/`.netlify` `.gitignore`-a düşür, linter-lər onları keçir.
+  - `src/env`-i `model.kitEnv` vasitəsilə adapter yazır, ona görə SEO-nun `SITE_URL`-u ilə birlikdə işləyir.
+  - Növbəti: Express/NestJS.
 - **Məhdudiyyətlər:**
   - Next və Nuxt üçün təklif olunmur, çünki onların öz server route-ları var.
   - `turborepo` və `module-federation` ilə konflikt edir.

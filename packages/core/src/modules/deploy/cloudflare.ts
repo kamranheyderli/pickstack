@@ -40,13 +40,19 @@ export const cloudflare: Module = {
         $schema: "node_modules/wrangler/config-schema.json",
         name: ctx.selection.name,
         compatibility_date: deploy.cloudflareCompatibilityDate,
-        assets: {
-          directory: `./${staticOutput(ctx)}/`,
-          // SPAs answer every path with index.html; static sites serve their 404 page.
-          not_found_handling: isSpa(ctx)
-            ? "single-page-application"
-            : "404-page",
-        },
+        // A SvelteKit server (a database module): adapter-cloudflare fills in the Worker and
+        // its assets; node-postgres needs Node's APIs.
+        ...(model.needsServer
+          ? { compatibility_flags: ["nodejs_compat"] }
+          : {
+              assets: {
+                directory: `./${staticOutput(ctx)}/`,
+                // SPAs answer every path with index.html; static sites serve their 404 page.
+                not_found_handling: isSpa(ctx)
+                  ? "single-page-application"
+                  : "404-page",
+              },
+            }),
       }),
     );
     model.gitignore.push(".wrangler");

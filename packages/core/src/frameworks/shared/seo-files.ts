@@ -168,21 +168,12 @@ function sveltekitFiles(model: ProjectModel, ctx: Ctx, seo: SeoSpec): void {
   // The prerendered route replaces the scaffold's static/robots.txt (they would conflict).
   model.files.delete("static/robots.txt");
   // SvelteKit 3 declares env vars in src/env and exposes them through $app/env/*.
-  model.files.set(
-    `src/env.${ext}`,
-    file([
-      'import { defineEnvVars } from "@sveltejs/kit/env";',
-      "",
-      "export const variables = defineEnvVars({",
-      "  SITE_URL: {",
-      "    public: true,",
-      "    static: true,",
-      '    description: "Public origin of the site, without trailing slash",',
-      `    schema: (value) => value ?? "${seo.siteUrl}",`,
-      "  },",
-      "});",
-    ]),
-  );
+  model.kitEnv["SITE_URL"] = [
+    "public: true,",
+    "static: true,",
+    'description: "Public origin of the site, without trailing slash",',
+    `schema: (value) => value ?? "${seo.siteUrl}",`,
+  ];
   const route = (name: string, type: string, content: string) =>
     model.files.set(
       `src/routes/${name}/+server.${ext}`,

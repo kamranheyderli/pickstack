@@ -15,7 +15,8 @@ import { svelteCounterTest } from "../shared/testing";
 /**
  * SvelteKit 3, following `sv create --template minimal`: kit options live in `vite.config`,
  * `#lib` is a package.json import alias. adapter-static + `prerender = true` gives a deployable
- * build without picking a host (adapter-auto builds nothing deployable without one).
+ * build without picking a host (adapter-auto builds nothing deployable without one). When a
+ * module needs a server, the adapter follows the deploy module (see `kitAdapter`).
  */
 export const sveltekitAdapter: FrameworkAdapter = {
   id: "sveltekit",
@@ -117,8 +118,40 @@ export const sveltekitAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    const kit = kitAdapter(model, ctx);
+    if (kit !== "@sveltejs/adapter-static") {
+      model.pkg.devDependencies.delete("@sveltejs/adapter-static");
+      model.pkg.devDependencies.add(kit);
+    }
+    // Build output of the host adapters; linters and formatters skip what .gitignore lists.
+    const hostOutput: Record<string, string> = {
+      "@sveltejs/adapter-vercel": ".vercel",
+      "@sveltejs/adapter-netlify": ".netlify",
+    };
+    const output = hostOutput[kit];
+    if (output) model.gitignore.push(output);
     const cls = demoClasses(model);
-    model.files.set(`vite.config.${ctx.ext.script}`, viteConfig(model, ctx));
+    const env = Object.entries(model.kitEnv);
+    if (env.length) {
+      model.files.set(
+        `src/env.${ctx.ext.script}`,
+        file([
+          'import { defineEnvVars } from "@sveltejs/kit/env";',
+          "",
+          "export const variables = defineEnvVars({",
+          ...env.flatMap(([name, options]) => [
+            `  ${name}: {`,
+            ...options.map((o) => `    ${o}`),
+            "  },",
+          ]),
+          "});",
+        ]),
+      );
+    }
+    model.files.set(
+      `vite.config.${ctx.ext.script}`,
+      viteConfig(model, ctx, kit),
+    );
     model.files.set(`src/routes/layout.${styleExt(model)}`, globalCss(model));
     model.files.set(
       "src/lib/Counter.svelte",
@@ -188,6 +221,10 @@ export const sveltekitAdapter: FrameworkAdapter = {
           `  <nav class="${cls.nav}">`,
           `    <a class="${cls.link}" href={resolve("/")}>Home</a>`,
           `    <a class="${cls.link}" href={resolve("/about")}>About</a>`,
+          ...model.demo.links.map(
+            (l) =>
+              `    <a class="${cls.link}" href={resolve("${l.path}")}>${l.label}</a>`,
+          ),
           "  </nav>",
           "  {@render children()}",
           "</main>",
@@ -220,7 +257,20 @@ export const sveltekitAdapter: FrameworkAdapter = {
  * Kit options live in `vite.config`. With Vitest it follows `sv add vitest`: a jsdom "client"
  * project (browser build of Svelte) for `.svelte.test` files and a node "server" project.
  */
-function viteConfig(model: ProjectModel, ctx: Ctx): string {
+/**
+ * A static site unless a module needs a server; then the deploy target's adapter, or
+ * adapter-node for Docker and self-hosting.
+ */
+function kitAdapter(model: ProjectModel, ctx: Ctx): string {
+  if (!model.needsServer) return "@sveltejs/adapter-static";
+  const { modules } = ctx.selection;
+  if (modules.includes("vercel")) return "@sveltejs/adapter-vercel";
+  if (modules.includes("netlify")) return "@sveltejs/adapter-netlify";
+  if (modules.includes("cloudflare")) return "@sveltejs/adapter-cloudflare";
+  return "@sveltejs/adapter-node";
+}
+
+function viteConfig(model: ProjectModel, ctx: Ctx, kit: string): string {
   const plugins = model.bundler.plugins;
   const self = `./vite.config.${ctx.ext.script}`;
   const test = model.testing
@@ -252,7 +302,7 @@ function viteConfig(model: ProjectModel, ctx: Ctx): string {
     : [];
   return file([
     ...renderImports([
-      { from: "@sveltejs/adapter-static", default: "adapter" },
+      { from: kit, default: "adapter" },
       { from: "@sveltejs/kit/vite", named: ["sveltekit"] },
       {
         from: model.testing ? "vitest/config" : "vite",

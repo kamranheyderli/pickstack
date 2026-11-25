@@ -43,6 +43,8 @@ export function createModel(): ProjectModel {
     federation: null,
     server: null,
     apiProxy: null,
+    needsServer: false,
+    kitEnv: {},
     env: {},
     repoFiles: new Map(),
     gitignore: [],

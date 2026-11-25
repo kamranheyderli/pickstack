@@ -325,6 +325,16 @@ export interface ProjectModel {
   server: ServerSpec | null;
   /** Where the app's dev server sends `/api` requests (the backend), if anywhere. */
   apiProxy: string | null;
+  /**
+   * A module needs requests handled at runtime (a database): SvelteKit then builds a server
+   * (adapter-node, or the deploy target's adapter) instead of a static site.
+   */
+  needsServer: boolean;
+  /**
+   * SvelteKit 3's `src/env` declarations: each variable's `defineEnvVars` options, one line
+   * per option. The adapter writes the file, so modules can share it.
+   */
+  kitEnv: Record<string, string[]>;
   /** The app's `.env.example` entries; finalize writes the file, so modules can share it. */
   env: Record<string, string>;
   /**

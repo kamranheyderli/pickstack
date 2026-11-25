@@ -40,6 +40,7 @@ const SCRIPT_PURPOSE: Record<string, string> = {
 function frameworkNotes(
   framework: FrameworkId,
   ctx: Ctx,
+  needsServer: boolean,
 ): { structure: string[]; rules: string[] } {
   const x = ctx.ext.component;
   const s = ctx.ext.script;
@@ -107,7 +108,9 @@ function frameworkNotes(
         ],
         rules: [
           "Svelte 5 runes (`$state`, `$derived`, `$props`).",
-          "Pages are prerendered with adapter-static; keep routes static or change the adapter.",
+          needsServer
+            ? "Pages are prerendered by default; routes that read the database opt out with `prerender = false`."
+            : "Pages are prerendered with adapter-static; keep routes static or change the adapter.",
         ],
       };
     case "next":
@@ -210,7 +213,7 @@ export function agentScripts(model: ProjectModel): string[] {
 
 export function agentsMd(model: ProjectModel, ctx: Ctx): string {
   const { name, packageManager: pm, framework } = ctx.selection;
-  const notes = frameworkNotes(framework, ctx);
+  const notes = frameworkNotes(framework, ctx, model.needsServer);
   const scripts = Object.keys(model.pkg.scripts).filter(
     (s) => s !== "prepare" && s !== "postinstall",
   );

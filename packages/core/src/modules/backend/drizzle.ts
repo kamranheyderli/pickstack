@@ -1,6 +1,7 @@
 import { file } from "../../engine/code";
 import { runCommand } from "../../engine/finalize";
 import { demoClasses } from "../../frameworks/shared/demo";
+import { svelteComponent } from "../../frameworks/shared/svelte";
 import { sfc } from "../../frameworks/shared/vue";
 import { deploy } from "../../versions/known-good";
 import type { Ctx, Module, ProjectModel } from "../../types";
@@ -13,7 +14,9 @@ import type { Ctx, Module, ProjectModel } from "../../types";
  * Next.js: a `/todos` page (a server component rendered per request) lists todos and adds
  * them with a server action. Nuxt: the schema lives in `server/db`, the client in
  * `server/utils` (auto-imported by server routes), `/api/todos` routes serve the
- * `/todos` page.
+ * `/todos` page. SvelteKit: `src/lib/server/db` as `sv add drizzle` lays it out, DATABASE_URL
+ * declared in `src/env`, and a `/todos` route with a load function and a form action; the
+ * site becomes a server build (`needsServer`), other pages stay prerendered.
  */
 export const drizzle: Module = {
   id: "drizzle",
@@ -23,7 +26,7 @@ export const drizzle: Module = {
     az: "Drizzle ORM ilə PostgreSQL: sxem, migration əmrləri, /todos səhifəsi və lokal docker-compose.",
     en: "PostgreSQL with Drizzle ORM: a schema, migration commands, a /todos page and a local docker-compose.",
   },
-  frameworks: ["next", "nuxt"],
+  frameworks: ["next", "nuxt", "sveltekit"],
   apply(model, ctx) {
     const { name, packageManager } = ctx.selection;
     const x = ctx.ext.script;
@@ -40,8 +43,23 @@ export const drizzle: Module = {
     });
     model.env["DATABASE_URL"] = url;
 
-    const nuxt = ctx.selection.framework === "nuxt";
-    const schema = `${nuxt ? "server/db" : "db"}/schema.${x}`;
+    const { framework } = ctx.selection;
+    const nuxt = framework === "nuxt";
+    const kit = framework === "sveltekit";
+    const dir = {
+      next: "db",
+      nuxt: "server/db",
+      sveltekit: "src/lib/server/db",
+    }[framework as "next" | "nuxt" | "sveltekit"];
+    const schema = `${dir}/schema.${x}`;
+    // SvelteKit 3 reads env through $app/env, declared in src/env; the others read process.env.
+    if (kit) {
+      model.needsServer = true;
+      model.kitEnv["DATABASE_URL"] = [
+        'description: "PostgreSQL connection string",',
+        `schema: (value) => value ?? "${url}",`,
+      ];
+    }
     model.files.set(
       schema,
       file([
@@ -56,14 +74,17 @@ export const drizzle: Module = {
       ]),
     );
     model.files.set(
-      nuxt ? `server/utils/db.${x}` : `db/index.${x}`,
+      nuxt ? `server/utils/db.${x}` : `${dir}/index.${x}`,
       file([
         'import { drizzle } from "drizzle-orm/node-postgres";',
         'import { Pool } from "pg";',
+        ...(kit ? ['import { DATABASE_URL } from "$app/env/private";'] : []),
         "",
         "// Connects lazily: the first query opens a connection.",
         "const pool = new Pool({",
-        `  connectionString: process.env.DATABASE_URL ?? "${url}",`,
+        kit
+          ? "  connectionString: DATABASE_URL,"
+          : `  connectionString: process.env.DATABASE_URL ?? "${url}",`,
         "});",
         "// An idle connection can drop (e.g. Postgres restarts); without a listener that crashes the process.",
         'pool.on("error", (error) => console.error("Postgres pool error:", error.message));',
@@ -89,6 +110,7 @@ export const drizzle: Module = {
     );
     const push = runCommand(packageManager, "db:push");
     if (nuxt) nuxtTodos(model, ctx, push);
+    else if (kit) kitTodos(model, ctx, push);
     else
       model.files.set(
         `app/todos/page.${ctx.ext.component}`,
@@ -258,6 +280,98 @@ function nuxtTodos(model: ProjectModel, ctx: Ctx, push: string): void {
         "  <ul v-else>",
         '    <li v-for="todo in todos" :key="todo.id">{{ todo.title }}</li>',
         "  </ul>",
+        "</section>",
+      ],
+    ),
+  );
+}
+
+/** A route whose load function reads the table and whose default form action inserts a row. */
+function kitTodos(model: ProjectModel, ctx: Ctx, push: string): void {
+  const x = ctx.ext.script;
+  const ts = ctx.isTs;
+  const cls = demoClasses(model);
+  model.files.set(
+    `src/routes/todos/+page.server.${x}`,
+    file([
+      'import { fail } from "@sveltejs/kit";',
+      'import { desc } from "drizzle-orm";',
+      'import { db } from "#lib/server/db/index.js";',
+      'import { todos } from "#lib/server/db/schema.js";',
+      ...(ts
+        ? ['import type { Actions, PageServerLoad } from "./$types";']
+        : []),
+      "",
+      "// Read per request: the database is not there when the site is built.",
+      "export const prerender = false;",
+      "",
+      ...(ts ? [] : ['/** @type {import("./$types").PageServerLoad} */']),
+      `export const load${ts ? ": PageServerLoad" : ""} = async () => {`,
+      "  const rows = await db",
+      "    .select()",
+      "    .from(todos)",
+      "    .orderBy(desc(todos.createdAt))",
+      "    .limit(100)",
+      "    .catch(() => null);",
+      "  return { todos: rows };",
+      "};",
+      "",
+      ...(ts ? [] : ['/** @type {import("./$types").Actions} */']),
+      `export const actions${ts ? ": Actions" : ""} = {`,
+      "  default: async ({ request }) => {",
+      "    const data = await request.formData();",
+      '    const title = String(data.get("title") ?? "").trim();',
+      '    if (!title) return fail(400, { error: "title is required" });',
+      "    await db.insert(todos).values({ title: title.slice(0, 200) });",
+      "  },",
+      "};",
+    ]),
+  );
+  const input =
+    model.styles.mode === "tailwind"
+      ? ' class="rounded-lg border border-slate-300 px-3 py-2"'
+      : "";
+  model.files.set(
+    "src/routes/todos/+page.svelte",
+    svelteComponent(
+      ctx,
+      [
+        { from: "$app/forms", named: ["enhance"] },
+        ...(ts ? [{ from: "./$types", types: ["PageProps"] }] : []),
+      ],
+      [
+        ...(ts ? [] : ['/** @type {import("./$types").PageProps} */']),
+        `let { data, form }${ts ? ": PageProps" : ""} = $props();`,
+      ],
+      [
+        ...(model.seo
+          ? [
+              "<svelte:head>",
+              `  <title>Todos | ${ctx.selection.name}</title>`,
+              "</svelte:head>",
+              "",
+            ]
+          : []),
+        `<section class="${cls.page}">`,
+        `  <h1 class="${cls.title}">Todos</h1>`,
+        `  <form method="POST" use:enhance class="${cls.row}">`,
+        `    <input${input} name="title" required maxlength="200" placeholder="What needs doing?" />`,
+        `    <button class="${cls.btn}" type="submit">Add</button>`,
+        "  </form>",
+        "  {#if form?.error}",
+        `    <p class="${cls.text}">{form.error}</p>`,
+        "  {/if}",
+        "  {#if data.todos}",
+        "    <ul>",
+        "      {#each data.todos as todo (todo.id)}",
+        "        <li>{todo.title}</li>",
+        "      {/each}",
+        "    </ul>",
+        "  {:else}",
+        `    <p class="${cls.text}">`,
+        `      The database isn't ready: run docker compose up -d, then ${push}.`,
+        "    </p>",
+        "  {/if}",
         "</section>",
       ],
     ),

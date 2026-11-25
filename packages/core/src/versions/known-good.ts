@@ -179,6 +179,10 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
   sveltekit: {
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/adapter-node": "^6.0.6",
+    "@sveltejs/adapter-vercel": "^7.0.5",
+    "@sveltejs/adapter-netlify": "^7.1.0",
+    "@sveltejs/adapter-cloudflare": "^9.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     svelte: "^5.59.1",
     vite: "^8.3.8",

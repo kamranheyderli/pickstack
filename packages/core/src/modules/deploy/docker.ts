@@ -82,6 +82,24 @@ function nodeRuntime(port: string[], copy: string[], cmd: string): string[] {
   ];
 }
 
+/** Installs only `dependencies`, which adapter-node leaves out of its bundle. */
+const prodInstall: Record<PackageManager, string> = {
+  npm: "npm install --omit=dev",
+  pnpm: "pnpm install --prod",
+  yarn: "yarn install --production",
+  bun: "bun install --production",
+};
+
+function depsStage(pm: PackageManager): string[] {
+  return [
+    `FROM ${pm === "bun" ? deploy.bun : deploy.node} AS deps`,
+    "WORKDIR /app",
+    ...(pm === "pnpm" ? [`RUN npm install -g pnpm@${deploy.pnpm}`] : []),
+    `COPY package.json ${lockfiles[pm]}* ./`,
+    `RUN ${prodInstall[pm]}`,
+  ];
+}
+
 const dockerignore = file([
   "node_modules",
   "dist",
@@ -124,8 +142,8 @@ export const docker: Module = {
   name: "Docker",
   category: "deploy",
   description: {
-    az: "Multi-stage Dockerfile: statik saytlar nginx ilə, Next/Nuxt isə Node serveri ilə.",
-    en: "Multi-stage Dockerfile: nginx for static sites, a Node server for Next/Nuxt.",
+    az: "Multi-stage Dockerfile: statik saytlar nginx ilə, server tələb edən tətbiqlər Node ilə.",
+    en: "Multi-stage Dockerfile: nginx for static sites, a Node server for apps that need one.",
   },
   frameworks: "all",
   conflicts: DEPLOY_CONFLICTS,
@@ -166,6 +184,26 @@ export const docker: Module = {
           ["ENV HOST=0.0.0.0", "ENV PORT=3000"],
           ["COPY --from=build --chown=node:node /app/.output ./.output"],
           '["node", ".output/server/index.mjs"]',
+        ),
+      ]);
+    } else if (framework === "sveltekit" && model.needsServer) {
+      // adapter-node bundles devDependencies; `dependencies` come from node_modules.
+      port = "3000:3000";
+      dockerfile = file([
+        "# syntax=docker/dockerfile:1",
+        "",
+        ...buildStage(pm),
+        "",
+        ...depsStage(pm),
+        "",
+        ...nodeRuntime(
+          ["ENV HOST=0.0.0.0", "ENV PORT=3000"],
+          [
+            "COPY --from=deps --chown=node:node /app/node_modules ./node_modules",
+            "COPY --from=build --chown=node:node /app/build ./build",
+            "COPY --chown=node:node package.json ./",
+          ],
+          '["node", "build"]',
         ),
       ]);
     } else {

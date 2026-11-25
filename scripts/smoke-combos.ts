@@ -951,5 +951,25 @@ function backendCombos(): Combo[] {
       modules: ["drizzle", "tailwind", "eslint", "prettier", "seo"],
     },
     { framework: "nuxt", language: "js", modules: ["drizzle", "biome"] },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: ["drizzle", "tailwind", "eslint", "prettier", "seo", "docker"],
+    },
+    {
+      framework: "sveltekit",
+      language: "js",
+      modules: ["drizzle", "vercel", "eslint"],
+    },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: ["drizzle", "biome", "netlify"],
+    },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: ["drizzle", "cloudflare"],
+    },
   ];
 }
