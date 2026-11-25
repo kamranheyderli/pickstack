@@ -46,7 +46,7 @@ function envClient(model: ProjectModel, ctx: Ctx): void {
       "});",
     ]),
   );
-  model.files.set(".env.example", file([`${env.key}=${DEFAULT_URL}`]));
+  model.env[env.key] = DEFAULT_URL;
   model.readme.sections.push({
     title: "API client",
     body: `Copy \`.env.example\` to \`.env\` and set \`${env.key}\`. Import the client from \`${clientPath.replace(/\.\w+$/, "")}\`.`,
@@ -72,7 +72,7 @@ function nuxtPlugin(model: ProjectModel, ctx: Ctx): void {
       "});",
     ]),
   );
-  model.files.set(".env.example", file([`NUXT_PUBLIC_API_URL=${DEFAULT_URL}`]));
+  model.env["NUXT_PUBLIC_API_URL"] = DEFAULT_URL;
   model.readme.sections.push({
     title: "API client",
     body: "Set `NUXT_PUBLIC_API_URL` (see `.env.example`). Use the client via `const { $api } = useNuxtApp()`.",

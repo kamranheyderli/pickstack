@@ -91,7 +91,7 @@ describe("axios", () => {
     expect(model.files.get("src/api/client.js")).toContain(
       "import.meta.env.VITE_API_URL",
     );
-    expect(model.files.has(".env.example")).toBe(true);
+    expect(model.env["VITE_API_URL"]).toBeDefined();
   });
 });
 

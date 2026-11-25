@@ -68,6 +68,10 @@ export function finalize(model: ProjectModel, ctx: Ctx): void {
     }),
   );
 
+  const env = Object.entries(model.env);
+  if (env.length) {
+    model.files.set(".env.example", file(env.map(([k, v]) => `${k}=${v}`)));
+  }
   if (model.demo.stackJson) {
     model.files.set(model.demo.stackJson, json(model.readme.stack));
   }
