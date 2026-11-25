@@ -10200,7 +10200,9 @@ if (file && root) {
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
-      "Bash(npm run format:check *)"
+      "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
     "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
@@ -10297,6 +10299,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -10314,9 +10318,31 @@ bun.lock
 ",
   ".prettierrc": "{}
 ",
+  ".storybook/main.js": "/** @type {import("@storybook/preact-vite").StorybookConfig} */
+const config = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/preact-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.js": "import "../src/index.css";
+
+/** @type {import("@storybook/preact-vite").Preview} */
+const preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -10329,6 +10355,8 @@ Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, 
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -10398,7 +10426,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -10417,6 +10445,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## API client
@@ -10523,7 +10553,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "storybook-static"]),
   {
     files: ["**/*.{js,jsx}"],
     extends: [js.configs.recommended, reactHooks.configs.flat.recommended],
@@ -10621,6 +10651,8 @@ export default defineConfig([
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -10633,6 +10665,9 @@ export default defineConfig([
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
     "@preact/preset-vite": "^2.10.6",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/preact-vite": "^10.6.9",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -10647,6 +10682,7 @@ export default defineConfig([
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
+    "storybook": "^10.6.9",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
     "vite-plugin-pwa": "^2.0.0",
@@ -10787,6 +10823,14 @@ export default function Counter() {
   );
 }
 ",
+  "src/components/Counter.stories.js": "import Counter from "./Counter";
+
+export default {
+  component: Counter,
+};
+
+export const Default = {};
+",
   "src/components/Counter.test.jsx": "import { render, screen } from "@testing-library/preact";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -10824,7 +10868,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios,
         Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -10962,7 +11006,9 @@ if (file && root) {
       "Bash(npm run test *)",
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
-      "Bash(npm run format:check *)"
+      "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
     "deny": ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"]
@@ -11060,6 +11106,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -11077,9 +11125,32 @@ bun.lock
 ",
   ".prettierrc": "{}
 ",
+  ".storybook/main.ts": "import type { StorybookConfig } from "@storybook/preact-vite";
+
+const config: StorybookConfig = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/preact-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.ts": "import type { Preview } from "@storybook/preact-vite";
+import "../src/index.css";
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -11093,6 +11164,8 @@ Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwrig
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -11163,7 +11236,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -11183,6 +11256,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## API client
@@ -11290,7 +11365,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "storybook-static"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -11387,6 +11462,8 @@ export default defineConfig([
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -11399,6 +11476,9 @@ export default defineConfig([
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
     "@preact/preset-vite": "^2.10.6",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/preact-vite": "^10.6.9",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -11414,6 +11494,7 @@ export default defineConfig([
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
+    "storybook": "^10.6.9",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
@@ -11528,6 +11609,18 @@ export const api = axios.create({
   timeout: 10_000,
 });
 ",
+  "src/components/Counter.stories.ts": "import type { Meta, StoryObj } from "@storybook/preact-vite";
+import Counter from "./Counter";
+
+const meta = {
+  component: Counter,
+} satisfies Meta<typeof Counter>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+",
   "src/components/Counter.test.tsx": "import { render, screen } from "@testing-library/preact";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -11593,7 +11686,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso,
         Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -12309,6 +12402,8 @@ if (file && root) {
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
       "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)",
       "Bash(npx shadcn@latest add *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
@@ -12415,6 +12510,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -12441,6 +12538,28 @@ bun.lock
 ",
   ".prettierrc": "{}
 ",
+  ".storybook/main.js": "/** @type {import("@storybook/react-vite").StorybookConfig} */
+const config = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/react-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.js": "import "../src/index.css";
+
+/** @type {import("@storybook/react-vite").Preview} */
+const preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   ".vscode/mcp.json": "{
   "servers": {
     "shadcn": {
@@ -12453,7 +12572,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -12466,6 +12585,8 @@ Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Route
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -12539,7 +12660,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -12558,6 +12679,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## UI components
@@ -12691,7 +12814,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "storybook-static"]),
   {
     files: ["**/*.{js,jsx}"],
     extends: [
@@ -12809,6 +12932,8 @@ export default defineConfig([
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -12832,6 +12957,9 @@ export default defineConfig([
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/react-vite": "^10.6.9",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -12848,6 +12976,7 @@ export default defineConfig([
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
+    "storybook": "^10.6.9",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
     "vite-plugin-pwa": "^2.0.0",
@@ -12953,6 +13082,7 @@ Sitemap: https://example.com/sitemap.xml
   "SEO",
   "llms.txt",
   "PWA",
+  "Storybook",
   "GitHub Actions"
 ]
 ",
@@ -13025,6 +13155,23 @@ export default function Counter() {
     </Card>
   );
 }
+",
+  "src/components/Counter.stories.jsx": "import { Provider } from "react-redux";
+import { store } from "../store";
+import Counter from "./Counter";
+
+export default {
+  component: Counter,
+  decorators: [
+    (Story) => (
+      <Provider store={store}>
+        <Story />
+      </Provider>
+    ),
+  ],
+};
+
+export const Default = {};
 ",
   "src/components/Counter.test.jsx": "import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -13499,7 +13646,7 @@ createRoot(document.getElementById("root")).render(
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
         React Router, Axios, TanStack Query, TanStack Form, Zod, i18next,
         Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -13675,6 +13822,8 @@ if (file && root) {
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
       "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)",
       "Bash(npx shadcn@latest add *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
@@ -13782,6 +13931,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -13808,6 +13959,29 @@ bun.lock
 ",
   ".prettierrc": "{}
 ",
+  ".storybook/main.ts": "import type { StorybookConfig } from "@storybook/react-vite";
+
+const config: StorybookConfig = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/react-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.ts": "import type { Preview } from "@storybook/react-vite";
+import "../src/index.css";
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   ".vscode/mcp.json": "{
   "servers": {
     "shadcn": {
@@ -13820,7 +13994,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -13834,6 +14008,8 @@ Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -13908,7 +14084,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -13928,6 +14104,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## UI components
@@ -14062,7 +14240,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "storybook-static"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -14167,6 +14345,8 @@ export default defineConfig([
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -14190,6 +14370,9 @@ export default defineConfig([
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/react-vite": "^10.6.9",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -14209,6 +14392,7 @@ export default defineConfig([
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
+    "storybook": "^10.6.9",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.74.0",
@@ -14317,6 +14501,7 @@ Sitemap: https://example.com/sitemap.xml
   "SEO",
   "llms.txt",
   "PWA",
+  "Storybook",
   "GitHub Actions"
 ]
 ",
@@ -14356,6 +14541,27 @@ export async function fetchStack(): Promise<string[]> {
   if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
   return response.json();
 }
+",
+  "src/components/Counter.stories.tsx": "import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Provider } from "react-redux";
+import { store } from "../store";
+import Counter from "./Counter";
+
+const meta = {
+  component: Counter,
+  decorators: [
+    (Story) => (
+      <Provider store={store}>
+        <Story />
+      </Provider>
+    ),
+  ],
+} satisfies Meta<typeof Counter>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
 ",
   "src/components/Counter.test.tsx": "import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -14872,7 +15078,7 @@ createRoot(document.getElementById("root")!).render(
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
         Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod,
         i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -18556,6 +18762,8 @@ if (file && root) {
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
       "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)",
       "Bash(npx shadcn-svelte@latest add *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
@@ -18662,6 +18870,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -18698,6 +18908,28 @@ bun.lock
   ]
 }
 ",
+  ".storybook/main.js": "/** @type {import("@storybook/svelte-vite").StorybookConfig} */
+const config = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/svelte-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.js": "import "../src/app.css";
+
+/** @type {import("@storybook/svelte-vite").Preview} */
+const preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   ".vscode/mcp.json": "{
   "servers": {
     "svelte": {
@@ -18710,7 +18942,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -18723,6 +18955,8 @@ Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Ax
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -18793,7 +19027,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -18812,6 +19046,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## UI components
@@ -18934,7 +19170,7 @@ import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 
 export default defineConfig(
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "storybook-static"]),
   js.configs.recommended,
   svelte.configs.recommended,
   eslintConfigPrettier,
@@ -19041,6 +19277,8 @@ export default defineConfig(
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -19053,6 +19291,9 @@ export default defineConfig(
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.3.0",
     "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/svelte-vite": "^10.6.9",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -19071,6 +19312,7 @@ export default defineConfig(
     "prettier-plugin-svelte": "^4.2.0",
     "sass": "^1.108.2",
     "shadcn-svelte": "^1.8.1",
+    "storybook": "^10.6.9",
     "svelte": "^5.59.1",
     "tailwind-variants": "^3.3.0",
     "tailwindcss": "^4.3.5",
@@ -19173,6 +19415,7 @@ Sitemap: https://example.com/sitemap.xml
   "SEO",
   "llms.txt",
   "PWA",
+  "Storybook",
   "GitHub Actions"
 ]
 ",
@@ -19339,6 +19582,14 @@ export async function fetchStack() {
     @apply font-sans;
   }
 }
+",
+  "src/lib/Counter.stories.js": "import Counter from "./Counter.svelte";
+
+export default {
+  component: Counter,
+};
+
+export const Default = {};
 ",
   "src/lib/Counter.svelte": "<script>
   import { Button } from "#lib/components/ui/button/index.js";
@@ -19863,6 +20114,8 @@ if (file && root) {
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
       "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)",
       "Bash(npx shadcn-svelte@latest add *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
@@ -19970,6 +20223,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -20006,6 +20261,29 @@ bun.lock
   ]
 }
 ",
+  ".storybook/main.ts": "import type { StorybookConfig } from "@storybook/svelte-vite";
+
+const config: StorybookConfig = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/svelte-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.ts": "import type { Preview } from "@storybook/svelte-vite";
+import "../src/app.css";
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   ".vscode/mcp.json": "{
   "servers": {
     "svelte": {
@@ -20018,7 +20296,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -20032,6 +20310,8 @@ Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte run
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -20103,7 +20383,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -20123,6 +20403,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## UI components
@@ -20246,7 +20528,7 @@ import globals from "globals";
 import ts from "typescript-eslint";
 
 export default defineConfig(
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "storybook-static"]),
   js.configs.recommended,
   ts.configs.recommended,
   svelte.configs.recommended,
@@ -20350,6 +20632,8 @@ export default defineConfig(
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -20362,6 +20646,9 @@ export default defineConfig(
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.3.0",
     "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/svelte-vite": "^10.6.9",
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
@@ -20382,6 +20669,7 @@ export default defineConfig(
     "prettier-plugin-svelte": "^4.2.0",
     "sass": "^1.108.2",
     "shadcn-svelte": "^1.8.1",
+    "storybook": "^10.6.9",
     "svelte": "^5.59.1",
     "svelte-check": "^4.7.8",
     "tailwind-variants": "^3.3.0",
@@ -20488,6 +20776,7 @@ Sitemap: https://example.com/sitemap.xml
   "SEO",
   "llms.txt",
   "PWA",
+  "Storybook",
   "GitHub Actions"
 ]
 ",
@@ -20654,6 +20943,18 @@ export async function fetchStack(): Promise<string[]> {
     @apply font-sans;
   }
 }
+",
+  "src/lib/Counter.stories.ts": "import type { Meta, StoryObj } from "@storybook/svelte-vite";
+import Counter from "./Counter.svelte";
+
+const meta = {
+  component: Counter,
+} satisfies Meta<typeof Counter>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
 ",
   "src/lib/Counter.svelte": "<script lang="ts">
   import { Button } from "#lib/components/ui/button/index.js";
@@ -26298,6 +26599,8 @@ if (file && root) {
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
       "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)",
       "Bash(npx shadcn-vue@latest add *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
@@ -26395,6 +26698,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -26412,9 +26717,38 @@ bun.lock
 ",
   ".prettierrc": "{}
 ",
+  ".storybook/main.js": "/** @type {import("@storybook/vue3-vite").StorybookConfig} */
+const config = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/vue3-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.js": "import { setup } from "@storybook/vue3-vite";
+import { createPinia } from "pinia";
+import "../src/assets/main.css";
+
+// The counter reads app-level plugins, as it does in the app.
+setup((app) => {
+  app.use(createPinia());
+});
+
+/** @type {import("@storybook/vue3-vite").Preview} */
+const preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -26427,6 +26761,8 @@ Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, Ta
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -26499,7 +26835,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -26518,6 +26854,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## UI components
@@ -26653,7 +26991,12 @@ export default defineConfig([
     name: "app/files-to-lint",
     files: ["**/*.{vue,js,mjs,jsx}"],
   },
-  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),
+  globalIgnores([
+    "**/dist/**",
+    "**/dist-ssr/**",
+    "**/coverage/**",
+    "storybook-static",
+  ]),
   { languageOptions: { globals: { ...globals.browser } } },
   js.configs.recommended,
   ...pluginVue.configs["flat/essential"],
@@ -26755,6 +27098,8 @@ export default defineConfig([
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -26776,6 +27121,9 @@ export default defineConfig([
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/vue3-vite": "^10.6.9",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -26792,6 +27140,7 @@ export default defineConfig([
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
+    "storybook": "^10.6.9",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
     "vite-plugin-pwa": "^2.0.0",
@@ -26898,6 +27247,7 @@ Sitemap: https://example.com/sitemap.xml
   "SEO",
   "llms.txt",
   "PWA",
+  "Storybook",
   "GitHub Actions"
 ]
 ",
@@ -27061,6 +27411,14 @@ export async function fetchStack() {
     @apply font-sans;
   }
 }
+",
+  "src/components/CounterCard.stories.js": "import CounterCard from "./CounterCard.vue";
+
+export default {
+  component: CounterCard,
+};
+
+export const Default = {};
 ",
   "src/components/CounterCard.vue": "<script setup>
 import { Button } from "@/components/ui/button";
@@ -27549,7 +27907,7 @@ afterEach(() => {
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
       Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest,
       Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
-      GitHub Actions.
+      Storybook, GitHub Actions.
     </p>
   </section>
 </template>
@@ -27702,6 +28060,8 @@ if (file && root) {
       "Bash(npm run lint *)",
       "Bash(npm run format *)",
       "Bash(npm run format:check *)",
+      "Bash(npm run storybook *)",
+      "Bash(npm run build-storybook *)",
       "Bash(npx shadcn-vue@latest add *)"
     ],
     "ask": ["Bash(git push *)", "Bash(npm run deploy *)"],
@@ -27800,6 +28160,8 @@ dist
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+storybook-static
+*storybook.log
 .wrangler
 .claude/settings.local.json
 CLAUDE.local.md
@@ -27817,9 +28179,39 @@ bun.lock
 ",
   ".prettierrc": "{}
 ",
+  ".storybook/main.ts": "import type { StorybookConfig } from "@storybook/vue3-vite";
+
+const config: StorybookConfig = {
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  framework: "@storybook/vue3-vite",
+};
+
+export default config;
+",
+  ".storybook/preview.ts": "import type { Preview } from "@storybook/vue3-vite";
+import { setup } from "@storybook/vue3-vite";
+import { createPinia } from "pinia";
+import "../src/assets/main.css";
+
+// The counter reads app-level plugins, as it does in the app.
+setup((app) => {
+  app.use(createPinia());
+});
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -27833,6 +28225,8 @@ Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Route
 - \`npm run lint\`: lint
 - \`npm run format\`: format all files
 - \`npm run format:check\`: check formatting
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`: build and publish the site (ask first)
 
 ## Project structure
@@ -27906,7 +28300,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -27926,6 +28320,8 @@ npm run dev
 - \`npm run format\`
 - \`npm run format:check\`
 - \`npm run prepare\`
+- \`npm run storybook\`
+- \`npm run build-storybook\`
 - \`npm run deploy\`
 
 ## UI components
@@ -28065,7 +28461,12 @@ export default defineConfigWithVueTs(
     name: "app/files-to-lint",
     files: ["**/*.{vue,ts,mts,tsx}"],
   },
-  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),
+  globalIgnores([
+    "**/dist/**",
+    "**/dist-ssr/**",
+    "**/coverage/**",
+    "storybook-static",
+  ]),
   ...pluginVue.configs["flat/essential"],
   vueTsConfigs.recommended,
   {
@@ -28158,6 +28559,8 @@ export default defineConfigWithVueTs(
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
@@ -28178,6 +28581,9 @@ export default defineConfigWithVueTs(
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.9",
+    "@storybook/addon-docs": "^10.6.9",
+    "@storybook/vue3-vite": "^10.6.9",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",
@@ -28199,6 +28605,7 @@ export default defineConfigWithVueTs(
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
+    "storybook": "^10.6.9",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "vite": "^8.3.8",
@@ -28308,6 +28715,7 @@ Sitemap: https://example.com/sitemap.xml
   "SEO",
   "llms.txt",
   "PWA",
+  "Storybook",
   "GitHub Actions"
 ]
 ",
@@ -28471,6 +28879,18 @@ export async function fetchStack(): Promise<string[]> {
     @apply font-sans;
   }
 }
+",
+  "src/components/CounterCard.stories.ts": "import type { Meta, StoryObj } from "@storybook/vue3-vite";
+import CounterCard from "./CounterCard.vue";
+
+const meta = {
+  component: CounterCard,
+} satisfies Meta<typeof CounterCard>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
 ",
   "src/components/CounterCard.vue": "<script setup lang="ts">
 import { Button } from "@/components/ui/button";
@@ -28952,7 +29372,7 @@ afterEach(() => {
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
       Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n,
       Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
-      SEO, llms.txt, PWA, GitHub Actions.
+      SEO, llms.txt, PWA, Storybook, GitHub Actions.
     </p>
   </section>
 </template>

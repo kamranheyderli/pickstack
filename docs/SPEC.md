@@ -230,6 +230,30 @@ Hazırda yalnız Vite SPA-lar üçündür: React, Vue, Svelte, Solid, Preact. `v
 
   Bunlar araşdırılıb və build ilə yoxlanılıb (2026-11). Hər birinə adapter dəyişikliyi lazımdır, ona görə ayrıca addım kimi qalır.
 
+### 5.8.2.2 Storybook (`storybook`, Alətlər)
+
+React, Preact, Vue və Svelte (Vite) üçün Storybook 10 qurulur. Qurulum `storybook init`-in yazdığına əsaslanır; bu, real olaraq işə salınıb yoxlanılıb. Bəzi hissələri bilərəkdən atılıb, çünki onlar ağırdır, `latest` versiyalar yazır və ya bizdə ayrıca modul kimi mövcuddur:
+
+- nümunə Button/Header/Page komponentləri;
+- Chromatic, MCP və Vitest addonları;
+- `vite.config`-ə əlavə olunan brauzer test layihəsi.
+
+Nə yazılır:
+
+- `.storybook/main`: docs və a11y addonları.
+- `.storybook/preview`: tətbiqin qlobal stilləri; Vue-də sayğacın plugin-ləri `setup()` ilə qoşulur (Pinia, Vuetify, PrimeVue).
+- Sayğac üçün story. React və Preact-da story store və UI kit provider-ləri ilə decorator-a bükülür; bu, testlərdəki harness ilə eynidir.
+- ESLint ignore siyahısına `storybook-static` əlavə olunur. ESLint modulu Storybook-dan əvvəl işlədiyi üçün bu qərar `ctx.has("storybook")` ilə verilir.
+
+Yoxlama:
+
+- 6 kombinasiya smoke-dan keçib.
+- Hər birində `storybook build` uğurlu olub.
+- Brauzerdə story açılıb, sayğac artıb.
+- Build-dən sonra `lint` keçib.
+
+Solid (community `storybook-solidjs-vite`), Angular, Next, SvelteKit və Astro hələ yoxdur.
+
 ### 5.8.3 Deploy
 
 | Modul | SPA-lar (Vite, Angular) | SvelteKit, Astro (statik) | Next.js | Nuxt |

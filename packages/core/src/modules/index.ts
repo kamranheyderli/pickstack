@@ -42,6 +42,7 @@ import { reactI18next } from "./i18n/react-i18next";
 import { vueI18n } from "./i18n/vue-i18n";
 import { editorconfig } from "./tooling/editorconfig";
 import { pwa } from "./tooling/pwa";
+import { storybook } from "./tooling/storybook";
 import { githubActionsModule } from "./tooling/github-actions";
 import { license } from "./tooling/license";
 import { turborepo } from "./tooling/turborepo";
@@ -87,6 +88,7 @@ export const modules: readonly Module[] = [
   editorconfig,
   license,
   pwa,
+  storybook,
   tanstackForm,
   reactHookForm,
   reactI18next,

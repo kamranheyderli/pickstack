@@ -1388,3 +1388,47 @@ describe("i18n", () => {
     expect(singleSelectCategories.has("i18n")).toBe(true);
   });
 });
+
+describe("storybook", () => {
+  async function project(
+    framework: FrameworkId,
+    modules: string[],
+    language: "js" | "ts" = "ts",
+  ) {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language,
+      packageManager: "npm",
+      modules,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("wraps the React counter story in the store provider", async () => {
+    const files = await project("react", ["storybook", "redux-toolkit"]);
+    expect(files.get(".storybook/main.ts")).toContain(
+      'framework: "@storybook/react-vite"',
+    );
+    expect(files.get(".storybook/preview.ts")).toContain(
+      'import "../src/index.css";',
+    );
+    const story = files.get("src/components/Counter.stories.tsx") ?? "";
+    expect(story).toContain("<Provider store={store}>");
+    expect(story).toContain("satisfies Meta<typeof Counter>");
+  });
+
+  it("installs the Vue plugins the counter needs in the preview", async () => {
+    const files = await project("vue", ["storybook", "pinia"], "js");
+    const preview = files.get(".storybook/preview.js") ?? "";
+    expect(preview).toContain("app.use(createPinia());");
+    expect(files.has("src/components/CounterCard.stories.js")).toBe(true);
+  });
+
+  it("keeps ESLint out of the static build", async () => {
+    const files = await project("svelte", ["storybook", "eslint"]);
+    expect(files.get("eslint.config.js")).toContain('"storybook-static"');
+    expect(files.get(".gitignore")).toContain("storybook-static");
+  });
+});

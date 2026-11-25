@@ -61,11 +61,16 @@ function jsxBlock(ctx: Ctx, extendsList: string[], jsRules: boolean): string[] {
 }
 
 /** `defineConfig([...])` with `dist` ignored, the given blocks and Prettier last. */
+/** Build output ESLint must skip: the app's, plus Storybook's static build when present. */
+function outputDirs(ctx: Ctx, base: string[]): string[] {
+  return [...base, ...(ctx.has("storybook") ? ["storybook-static"] : [])];
+}
+
 function viteConfig(
   ctx: Ctx,
   imports: string[],
   blocks: string[],
-  ignores: string[] = ["dist"],
+  ignores: string[] = outputDirs(ctx, ["dist"]),
 ): string[] {
   const prettier = prettierParts(ctx);
   return [
@@ -156,7 +161,7 @@ function react(ctx: Ctx, model: ProjectModel): EslintSetup {
             ]
           : []),
       ],
-      ["dist", ...model.verbatim],
+      outputDirs(ctx, ["dist", ...model.verbatim]),
     ),
   };
 }
@@ -197,7 +202,7 @@ function solid(ctx: Ctx, model: ProjectModel): EslintSetup {
       ctx,
       [`import solid from "eslint-plugin-solid/configs/${config}";`],
       jsxBlock(ctx, [...tsExtends(ctx), "solid"], false),
-      ["dist", ...model.verbatim],
+      outputDirs(ctx, ["dist", ...model.verbatim]),
     ),
   };
 }
@@ -205,8 +210,9 @@ function solid(ctx: Ctx, model: ProjectModel): EslintSetup {
 /** create-vue's ESLint setup without its oxlint half. */
 function vue(ctx: Ctx): EslintSetup {
   const prettier = ctx.has("prettier");
-  const ignores =
-    '  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),';
+  const ignores = `  globalIgnores(${JSON.stringify(
+    outputDirs(ctx, ["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),
+  )}),`;
   // shadcn-vue's components are single-word (Button.vue, Card.vue).
   const shadcn = ctx.has("shadcn-vue")
     ? [
@@ -311,7 +317,7 @@ function svelte(ctx: Ctx, kit: boolean): EslintSetup {
       "export default defineConfig(",
       kit
         ? "  includeIgnoreFile(gitignorePath),"
-        : '  globalIgnores(["dist"]),',
+        : `  globalIgnores(${JSON.stringify(outputDirs(ctx, ["dist"]))}),`,
       "  js.configs.recommended,",
       ...(ctx.isTs ? ["  ts.configs.recommended,"] : []),
       "  svelte.configs.recommended,",

@@ -366,7 +366,7 @@ export function astroCounterTest(): string {
 }
 
 /** Combines harnesses; JSX wrappers nest with the first harness outermost. */
-function mergeHarness(
+export function mergeHarness(
   ...harnesses: (CounterTestHarness | undefined)[]
 ): CounterTestHarness | undefined {
   const present = harnesses.filter((h) => h !== undefined);

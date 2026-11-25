@@ -87,6 +87,7 @@ export const quickCombos: Combo[] = [
   ...pwaCombos(),
   ...playwrightCombos(),
   ...i18nCombos(),
+  ...storybookCombos(),
   ...presetCombos,
 ];
 
@@ -865,6 +866,35 @@ function i18nCombos(): Combo[] {
       framework: "vue",
       language: "js",
       modules: ["vue-i18n", "vuetify", "biome"],
+    },
+  ];
+}
+
+/** Storybook with the store and UI kit providers its counter story needs. */
+function storybookCombos(): Combo[] {
+  const checks = ["eslint", "prettier"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["storybook", "redux-toolkit", "tailwind", ...checks],
+    },
+    {
+      framework: "react",
+      language: "js",
+      modules: ["storybook", "mui", "biome"],
+    },
+    { framework: "preact", language: "ts", modules: ["storybook", ...checks] },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["storybook", "pinia", "vuetify", ...checks],
+    },
+    { framework: "vue", language: "js", modules: ["storybook", "biome"] },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["storybook", "tailwind", ...checks],
     },
   ];
 }
