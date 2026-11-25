@@ -15,6 +15,7 @@ import {
   type DemoClasses,
 } from "../shared/demo";
 import { jsxCounter, wrapProviders } from "../shared/jsx";
+import { writePostcssConfig } from "../shared/postcss";
 import { jsxCounterTest, testBlock } from "../shared/testing";
 
 const localCounter: CounterSpec = {
@@ -98,6 +99,7 @@ export const nextAdapter: FrameworkAdapter = {
   },
 
   render(model, ctx) {
+    writePostcssConfig(model);
     const cls = demoClasses(model);
     const x = ctx.ext.component;
     model.files.set(`app/globals.${styleExt(model)}`, globalCss(model));
@@ -107,7 +109,7 @@ export const nextAdapter: FrameworkAdapter = {
     model.files.set(
       `components/Counter.${x}`,
       // Hooks and onClick need a client component.
-      `"use client";\n\n${jsxCounter(model.demo.counter ?? localCounter, cls, "className")}`,
+      `"use client";\n\n${jsxCounter(model.demo.counter ?? localCounter, cls, "className", model.demo.view)}`,
     );
     if (model.testing) {
       model.files.set(
@@ -252,7 +254,10 @@ function layout(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
     "",
     `export default function RootLayout({ children }${ctx.isTs ? ': LayoutProps<"/">' : ""}) {`,
     "  return (",
-    '    <html lang="en">',
+    `    <html ${['lang="en"', ...model.entry.htmlAttrs].join(" ")}>`,
+    ...(model.entry.head.length
+      ? ["      <head>", ...indent(model.entry.head, 4), "      </head>"]
+      : []),
     "      <body>",
     ...indent(jsonLd, 4),
     ...indent(wrapProviders(model, content), 4),

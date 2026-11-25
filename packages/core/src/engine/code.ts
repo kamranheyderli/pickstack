@@ -42,7 +42,7 @@ export function renderImports(specs: ImportSpec[]): string[] {
             ? 0
             : 1;
   const ordered = [...merged.values()].sort(
-    (a, b) => rank(a) - rank(b) || a.from.localeCompare(b.from),
+    (a, b) => rank(a) - rank(b) || compareSources(a.from, b.from),
   );
 
   const lines: string[] = [];
@@ -67,8 +67,38 @@ export function renderImports(specs: ImportSpec[]): string[] {
   return lines;
 }
 
+/**
+ * Compares module paths as Biome does: segment by segment (`@mui/material/styles` sorts before
+ * `@mui/material-nextjs` because `material` is a prefix), and `../` paths before `./` ones.
+ */
+function compareSources(a: string, b: string): number {
+  // Relative paths: the farther a path climbs (`../`), the earlier it sorts.
+  const depth = (path: string) => (path.match(/\.\.\//g) ?? []).length;
+  const climb = depth(b) - depth(a);
+  if (climb !== 0) return climb;
+  const left = a.split("/");
+  const right = b.split("/");
+  for (let i = 0; i < Math.min(left.length, right.length); i++) {
+    const order = (left[i] as string).localeCompare(right[i] as string);
+    if (order !== 0) return order;
+  }
+  return left.length - right.length;
+}
+
+/**
+ * Orders imported names like Biome: letters compare case-insensitively, and where only the
+ * case differs the uppercase letter comes first (`MantineProvider` before `mantineHtmlProps`).
+ */
 function byName(a: string, b: string): number {
-  return a.localeCompare(b);
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const x = a[i] as string;
+    const y = b[i] as string;
+    if (x === y) continue;
+    const order = x.toLowerCase().localeCompare(y.toLowerCase());
+    if (order !== 0) return order;
+    return x === x.toUpperCase() ? -1 : 1;
+  }
+  return a.length - b.length;
 }
 
 export function unique<T>(items: T[]): T[] {

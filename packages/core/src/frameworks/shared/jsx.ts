@@ -1,6 +1,7 @@
 import { file, indent, renderImports } from "../../engine/code";
 import type {
   CounterSpec,
+  CounterView,
   Ctx,
   ImportSpec,
   ProjectModel,
@@ -15,7 +16,22 @@ export function jsxCounter(
   spec: CounterSpec,
   cls: DemoClasses,
   attr: ClassAttr,
+  view: CounterView | null = null,
 ): string {
+  if (view) {
+    const imports = [...view.imports, ...spec.imports];
+    return file([
+      ...renderImports(imports),
+      ...(imports.length ? [""] : []),
+      "export default function Counter() {",
+      ...indent(spec.setup),
+      ...(spec.setup.length ? [""] : []),
+      "  return (",
+      ...indent(view.markup(spec), 2),
+      "  );",
+      "}",
+    ]);
+  }
   return file([
     ...renderImports(spec.imports),
     ...(spec.imports.length ? [""] : []),
@@ -177,7 +193,12 @@ export function writeJsxDemo(
   const x = ctx.ext.component;
   model.files.set(
     `src/components/Counter.${x}`,
-    jsxCounter(model.demo.counter ?? fallbackCounter, cls, attr),
+    jsxCounter(
+      model.demo.counter ?? fallbackCounter,
+      cls,
+      attr,
+      model.demo.view,
+    ),
   );
   if (model.routing && model.routes.length) {
     for (const route of model.routes) {

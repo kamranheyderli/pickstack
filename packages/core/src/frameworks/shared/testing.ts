@@ -95,7 +95,11 @@ const jsxBindings: Record<JsxFamily, string> = {
 export function jsxCounterTest(model: ProjectModel, family: JsxFamily): string {
   const testing = model.testing;
   if (!testing) throw new Error("jsxCounterTest requires model.testing");
-  const harness = model.demo.counter?.testHarness;
+  // The UI kit's provider goes outside the store's.
+  const harness = mergeHarness(
+    model.demo.view?.testHarness,
+    model.demo.counter?.testHarness,
+  );
   const jsx = counterJsx(harness);
   const element = family === "solid" ? `() => ${jsx}` : jsx;
   const imports: ImportSpec[] = [
@@ -361,14 +365,27 @@ export function astroCounterTest(): string {
   ]);
 }
 
+/** Combines harnesses; JSX wrappers nest with the first harness outermost. */
 function mergeHarness(
   ...harnesses: (CounterTestHarness | undefined)[]
 ): CounterTestHarness | undefined {
   const present = harnesses.filter((h) => h !== undefined);
   if (!present.length) return undefined;
+  const wrappers = present.flatMap((h) => (h.wrapper ? [h.wrapper] : []));
   return {
     imports: present.flatMap((h) => h.imports),
     plugins: present.flatMap((h) => h.plugins ?? []),
     inlineDeps: present.flatMap((h) => h.inlineDeps ?? []),
+    ...(wrappers.length
+      ? {
+          wrapper: {
+            open: wrappers.map((w) => w.open).join(""),
+            close: [...wrappers]
+              .reverse()
+              .map((w) => w.close)
+              .join(""),
+          },
+        }
+      : {}),
   };
 }

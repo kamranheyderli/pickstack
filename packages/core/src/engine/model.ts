@@ -9,12 +9,21 @@ export function createModel(): ProjectModel {
       scripts: {},
       fields: {},
     },
-    entry: { imports: [], providers: [], appUses: [], setup: [], head: [] },
+    entry: {
+      imports: [],
+      providers: [],
+      appUses: [],
+      setup: [],
+      head: [],
+      htmlAttrs: [],
+    },
     bundler: {
       plugins: [],
       modules: [],
       config: {},
       configImports: [],
+      postcss: {},
+      srcAlias: null,
       integrations: [],
     },
     styles: {

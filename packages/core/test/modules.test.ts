@@ -832,3 +832,62 @@ describe("vue UI kits", () => {
     expect(rendered("vue", ["tailwind", "vuetify"]).warnings).toHaveLength(1);
   });
 });
+
+describe("react UI kits", () => {
+  function rendered(
+    frameworkId: FrameworkId,
+    ids: string[],
+    language: "js" | "ts" = "ts",
+  ): ProjectModel {
+    const ctx = ctxFor(language, ids, frameworkId);
+    const framework = getFramework(frameworkId);
+    if (!framework) throw new Error(`missing ${frameworkId}`);
+    const model = framework.base(ctx);
+    for (const id of ids) getModule(id)?.apply(model, ctx);
+    framework.render(model, ctx);
+    return model;
+  }
+
+  it("shadcn/ui gives Vite the @ alias and draws the counter with its components", () => {
+    const ts = rendered("react", ["tailwind", "shadcn"]);
+    expect(ts.files.get("tsconfig.json")).toContain('"@/*"');
+    expect(ts.files.get("vite.config.ts")).toContain("tsconfigPaths: true");
+    expect(ts.files.get("src/components/Counter.tsx")).toContain(
+      'import { Button } from "@/components/ui/button";',
+    );
+    const js = rendered("react", ["tailwind", "shadcn"], "js");
+    expect(js.files.get("jsconfig.json")).toContain('"@/*"');
+    expect(js.files.get("vite.config.js")).toContain("fileURLToPath");
+  });
+
+  it("MUI wraps the app in its theme and, on Next, the App Router cache", () => {
+    const layout = rendered("next", ["mui"]).files.get("app/layout.tsx") ?? "";
+    expect(layout).toContain("<AppRouterCacheProvider>");
+    expect(layout).toContain("<ThemeProvider theme={theme}>");
+    expect(rendered("next", ["mui"]).files.get("theme.ts")).toContain(
+      '"use client";',
+    );
+  });
+
+  it("Chakra UI avoids react-redux's Provider name and marks Next's html", () => {
+    const main =
+      rendered("react", ["chakra-ui", "redux-toolkit"]).files.get(
+        "src/main.tsx",
+      ) ?? "";
+    expect(main).toContain("Provider as ChakraUiProvider");
+    expect(
+      rendered("next", ["chakra-ui"]).files.get("app/layout.tsx"),
+    ).toContain("suppressHydrationWarning");
+  });
+
+  it("Mantine registers its PostCSS preset and color scheme script", () => {
+    const next = rendered("next", ["tailwind", "mantine"]);
+    const postcss = next.files.get("postcss.config.mjs") ?? "";
+    expect(postcss).toContain('"postcss-preset-mantine"');
+    expect(postcss).toContain('"@tailwindcss/postcss"');
+    expect(next.files.get("app/layout.tsx")).toContain("<ColorSchemeScript />");
+    expect(next.files.get("app/globals.css")).toContain(
+      '@import "@mantine/core/styles.layer.css";',
+    );
+  });
+});

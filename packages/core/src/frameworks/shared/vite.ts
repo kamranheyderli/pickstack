@@ -1,5 +1,5 @@
 import { file, indent, renderImports } from "../../engine/code";
-import type { Ctx, ProjectModel } from "../../types";
+import type { Ctx, ImportSpec, ProjectModel } from "../../types";
 import { testBlock, vitestReference } from "./testing";
 
 /**
@@ -10,6 +10,7 @@ export function plainViteConfig(
   model: ProjectModel,
   ctx: Ctx,
   extra: string[] = [],
+  extraImports: ImportSpec[] = [],
 ): string {
   const plugins = model.bundler.plugins;
   const testing = model.testing;
@@ -18,6 +19,7 @@ export function plainViteConfig(
     ...renderImports([
       { from: "vite", named: ["defineConfig"] },
       ...plugins.map((p) => p.import),
+      ...extraImports,
     ]),
     "",
     "export default defineConfig({",

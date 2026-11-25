@@ -1,4 +1,4 @@
-import { file, json } from "../../engine/code";
+import { json } from "../../engine/code";
 import type { Module } from "../../types";
 
 /**
@@ -20,18 +20,7 @@ export const tailwind: Module = {
     switch (ctx.selection.framework) {
       case "next":
         model.pkg.devDependencies.add("@tailwindcss/postcss").add("postcss");
-        model.files.set(
-          "postcss.config.mjs",
-          file([
-            "const config = {",
-            "  plugins: {",
-            '    "@tailwindcss/postcss": {},',
-            "  },",
-            "};",
-            "",
-            "export default config;",
-          ]),
-        );
+        model.bundler.postcss["@tailwindcss/postcss"] = {};
         break;
       case "angular":
         model.pkg.devDependencies.add("@tailwindcss/postcss").add("postcss");

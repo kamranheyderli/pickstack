@@ -1,5 +1,5 @@
 import type { FrameworkId, Module } from "../../types";
-import { addSetupFile } from "./vitest";
+import { addSetupFile, matchMediaMock } from "./vitest";
 
 const COMMON = [
   "@testing-library/dom",
@@ -76,6 +76,7 @@ export const testingLibrary: Module = {
             "});",
           ]),
     ]);
+    if (ctx.has("mantine")) addSetupFile(model, ctx, matchMediaMock(ctx));
     model.readme.stack.push("Testing Library");
   },
 };

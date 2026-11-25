@@ -17,6 +17,10 @@ import { zustand } from "./state/zustand";
 import { sass } from "./style/sass";
 import { tailwind } from "./style/tailwind";
 import { angularMaterial } from "./ui/angular-material";
+import { chakraUi } from "./ui/chakra-ui";
+import { mantine } from "./ui/mantine";
+import { mui } from "./ui/mui";
+import { shadcn } from "./ui/shadcn";
 import { primevue } from "./ui/primevue";
 import { shadcnSvelte } from "./ui/shadcn-svelte";
 import { shadcnVue } from "./ui/shadcn-vue";
@@ -29,6 +33,10 @@ import { vitest } from "./testing/vitest";
 export const modules: readonly Module[] = [
   tailwind,
   sass,
+  shadcn,
+  mui,
+  chakraUi,
+  mantine,
   shadcnVue,
   primevue,
   vuetify,

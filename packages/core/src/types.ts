@@ -213,8 +213,10 @@ export interface ProjectModel {
     providers: ProviderSpec[];
     appUses: string[];
     setup: string[];
-    /** Extra tags for the HTML document `<head>` (fonts a UI kit needs). */
+    /** Extra tags for the HTML document `<head>` (fonts a UI kit needs; JSX in Next). */
     head: string[];
+    /** Extra attributes on Next's `<html>` element, e.g. `suppressHydrationWarning`. */
+    htmlAttrs: string[];
   };
   bundler: {
     plugins: ImportedCall[];
@@ -227,6 +229,10 @@ export interface ProjectModel {
     config: Record<string, unknown>;
     /** Imports the config file needs for `raw()` values in `config`. */
     configImports: ImportSpec[];
+    /** PostCSS plugins and their options; rendered as `postcss.config.mjs` (React, Next). */
+    postcss: Record<string, unknown>;
+    /** Path alias for `src` (`@` → `./src`), e.g. for shadcn/ui; React (Vite) only. */
+    srcAlias: string | null;
     /** Integrations called in the config, e.g. Astro's `integrations: [sitemap()]`. */
     integrations: ImportedCall[];
   };

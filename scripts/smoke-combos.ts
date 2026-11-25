@@ -433,6 +433,37 @@ function uiCombos(): Combo[] {
       language: "ts",
       modules: ["primevue", "tailwind", "biome"],
     },
+    ...(["shadcn", "mui", "chakra-ui", "mantine"] as const).flatMap(
+      (kit): Combo[] => [
+        {
+          framework: "react",
+          language: "ts",
+          modules: [
+            kit,
+            "redux-toolkit",
+            "react-router",
+            "eslint",
+            "prettier",
+            "vitest",
+          ],
+        },
+        {
+          framework: "react",
+          language: "js",
+          modules: [kit, "eslint", "prettier", "testing-library"],
+        },
+        {
+          framework: "next",
+          language: "ts",
+          modules: [kit, "zustand", "eslint", "prettier", "vitest", "seo"],
+        },
+        {
+          framework: "next",
+          language: "ts",
+          modules: [kit, "tailwind", "biome"],
+        },
+      ],
+    ),
     {
       framework: "vue",
       language: "ts",

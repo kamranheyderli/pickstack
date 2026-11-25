@@ -16,6 +16,7 @@ import {
   remoteDeclarations,
 } from "../shared/federation";
 import { jsxCounterTest } from "../shared/testing";
+import { writePostcssConfig } from "../shared/postcss";
 import { plainViteConfig } from "../shared/vite";
 
 const localCounter: CounterSpec = {
@@ -53,7 +54,6 @@ export const reactAdapter: FrameworkAdapter = {
         .add("@types/react")
         .add("@types/react-dom");
       pkg.scripts["typecheck"] = "tsc --noEmit";
-      model.files.set("tsconfig.json", json(tsconfig()));
     }
 
     model.bundler.plugins.push({
@@ -78,6 +78,29 @@ export const reactAdapter: FrameworkAdapter = {
       "index.html",
       spaIndexHtml(model, ctx, "root", `main.${ctx.ext.component}`),
     );
+    writePostcssConfig(model);
+    // A `src` alias (shadcn/ui): Vite 8 reads tsconfig paths itself; jsconfig needs an alias.
+    const alias = model.bundler.srcAlias;
+    const paths = alias ? { [`${alias}/*`]: ["./src/*"] } : null;
+    if (ctx.isTs) {
+      model.files.set("tsconfig.json", json(tsconfig(paths)));
+    } else if (paths) {
+      model.files.set(
+        "jsconfig.json",
+        json({ compilerOptions: { paths }, include: ["src"] }),
+      );
+    }
+    const aliasOptions = !alias
+      ? []
+      : ctx.isTs
+        ? ["resolve: { tsconfigPaths: true },"]
+        : [
+            `resolve: { alias: { "${alias}": fileURLToPath(new URL("./src", import.meta.url)) } },`,
+          ];
+    const aliasImports =
+      alias && !ctx.isTs
+        ? [{ from: "node:url", named: ["fileURLToPath", "URL"] }]
+        : [];
     const federation = model.federation;
     if (federation) {
       model.bundler.plugins.push(hostFederationPlugin(federation));
@@ -88,7 +111,8 @@ export const reactAdapter: FrameworkAdapter = {
       plainViteConfig(
         model,
         ctx,
-        federation ? hostServerOptions(federation) : [],
+        [...aliasOptions, ...(federation ? hostServerOptions(federation) : [])],
+        aliasImports,
       ),
     );
     model.files.set(`src/main.${ctx.ext.component}`, mainEntry(model, ctx));
@@ -103,7 +127,7 @@ export const reactAdapter: FrameworkAdapter = {
   },
 };
 
-function tsconfig() {
+function tsconfig(paths: Record<string, string[]> | null) {
   return {
     compilerOptions: {
       target: "ES2022",
@@ -117,6 +141,7 @@ function tsconfig() {
       isolatedModules: true,
       verbatimModuleSyntax: true,
       types: ["vite/client"],
+      ...(paths ? { paths } : {}),
     },
     include: ["src", "vite.config.ts"],
   };

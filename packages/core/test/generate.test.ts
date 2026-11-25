@@ -121,15 +121,21 @@ describe("generate", () => {
   });
 
   for (const framework of frameworks) {
-    it(`gives every package a known-good version for every valid ${framework.id} combination`, async () => {
+    it(`gives every package a known-good version for ${framework.id} modules alone and in pairs`, async () => {
       const ids = modules
         .filter(
           (m) => m.frameworks === "all" || m.frameworks.includes(framework.id),
         )
         .map((m) => m.id);
+      // Every module alone and every pair: versions are looked up per package, and pairs
+      // cover dependencies one module adds because of another (e.g. tailwindcss-primeui).
+      const combos: string[][] = [
+        [],
+        ...ids.map((id) => [id]),
+        ...ids.flatMap((a, i) => ids.slice(i + 1).map((b) => [a, b])),
+      ];
       let generated = 0;
-      for (let mask = 0; mask < 1 << ids.length; mask++) {
-        const picked = ids.filter((_, i) => mask & (1 << i));
+      for (const picked of combos) {
         for (const language of framework.languages) {
           const result = await generate(
             selection({ framework: framework.id, language, modules: picked }),

@@ -90,6 +90,33 @@ const tsExtends = (ctx: Ctx) =>
     : ["js.configs.recommended"];
 
 /** create-vite's React template (last shipped with ESLint in create-vite 9.0). */
+/**
+ * Overrides for UI-kit files the kit's CLI writes into `components/ui`: shadcn/ui and Chakra
+ * export variants and hooks next to components (react-refresh), and Chakra's snippets declare
+ * empty interfaces that extend a props type.
+ */
+function uiKitBlocks(ctx: Ctx, dir: string, vite: boolean): string[] {
+  const exts = ctx.isTs ? "{ts,tsx}" : "{js,jsx}";
+  const rules = [
+    ...(vite && (ctx.has("shadcn") || ctx.has("chakra-ui"))
+      ? ['"react-refresh/only-export-components": "off",']
+      : []),
+    ...(ctx.isTs && ctx.has("chakra-ui")
+      ? ['"@typescript-eslint/no-empty-object-type": "off",']
+      : []),
+  ];
+  if (!rules.length) return [];
+  return [
+    "  {",
+    "    // Files written by the UI kit's CLI.",
+    `    files: ["${dir}/**/*.${exts}"],`,
+    "    rules: {",
+    ...rules.map((r) => `      ${r}`),
+    "    },",
+    "  },",
+  ];
+}
+
 function react(ctx: Ctx): EslintSetup {
   return {
     path: "eslint.config.js",
@@ -106,15 +133,18 @@ function react(ctx: Ctx): EslintSetup {
         'import reactHooks from "eslint-plugin-react-hooks";',
         'import reactRefresh from "eslint-plugin-react-refresh";',
       ],
-      jsxBlock(
-        ctx,
-        [
-          ...tsExtends(ctx),
-          "reactHooks.configs.flat.recommended",
-          "reactRefresh.configs.vite",
-        ],
-        true,
-      ),
+      [
+        ...jsxBlock(
+          ctx,
+          [
+            ...tsExtends(ctx),
+            "reactHooks.configs.flat.recommended",
+            "reactRefresh.configs.vite",
+          ],
+          true,
+        ),
+        ...uiKitBlocks(ctx, "src/components/ui", true),
+      ],
     ),
   };
 }
@@ -336,6 +366,7 @@ function next(ctx: Ctx): EslintSetup {
       "const eslintConfig = defineConfig([",
       "  ...nextVitals,",
       ...(ctx.isTs ? ["  ...nextTs,"] : []),
+      ...uiKitBlocks(ctx, "components/ui", false),
       ...(prettier ? ["  prettier,"] : []),
       "  // Override default ignores of eslint-config-next.",
       "  globalIgnores([",

@@ -76,6 +76,21 @@ const shared: VersionSet = {
   vuetify: "^4.3.4",
   "vite-plugin-vuetify": "^2.1.3",
   "@mdi/font": "^7.4.47",
+  shadcn: "^4.23.0",
+  "radix-ui": "^1.8.1",
+  "@mui/material": "^9.6.0",
+  "@mui/material-nextjs": "^9.6.0",
+  "@emotion/react": "^11.14.0",
+  "@emotion/styled": "^11.14.1",
+  "@emotion/cache": "^11.14.0",
+  "@chakra-ui/react": "^3.38.0",
+  "next-themes": "^0.4.6",
+  "react-icons": "^5.7.0",
+  // Mantine 9 peers on react ^19.2.
+  "@mantine/core": "^9.8.2",
+  "@mantine/hooks": "^9.8.2",
+  "postcss-preset-mantine": "^1.18.0",
+  "postcss-simple-vars": "^7.0.1",
 };
 
 const frameworks: Partial<Record<FrameworkId, VersionSet>> = {

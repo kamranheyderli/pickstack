@@ -93,9 +93,10 @@ Tailwind v4 Vite layihələrində `@tailwindcss/vite` plugini ilə, Next-də Pos
 
 | Modul | Uyğun | Tələb | Ziddiyyət |
 |---|---|---|---|
-| `shadcn` | R, N | `tailwind`, `ts` | digər UI kitləri |
-| `mantine` | R, N | | digər UI kitləri |
-| `mui` | R, N | | digər UI kitləri |
+| `shadcn` | R, N | `tailwind` (TS və JS) | digər UI kitləri |
+| `mantine` | R, N (v9) | | digər UI kitləri |
+| `mui` | R, N (v9) | | digər UI kitləri |
+| `chakra-ui` | R, N (v3) | | digər UI kitləri; `tailwind` ilə xəbərdarlıq |
 | `shadcn-vue` | V, Nu | `tailwind` (TS və JS) | digər UI kitləri |
 | `primevue` | V, Nu | (v4, MIT) | digər UI kitləri |
 | `vuetify` | V, Nu (v4) | | `tailwind` ilə xəbərdarlıq |
@@ -257,6 +258,14 @@ Vue UI kitləri (2026-11 yoxlanılıb):
 - shadcn-vue 2.9.0 (`reka-nova`): komponentlər `components/ui`-da vendored saxlanılır, `@/` alias-ı ilə. Vue root `tsconfig.json`-a `paths` əlavə olunur, çünki CLI alias-ı oradan oxuyur. Nuxt-da `shadcn-nuxt` modulu komponentləri auto-import edir. CLI-nin Google Fonts importu atılıb: "Geist" yükləyir, amma tema "Geist Variable" adını işlədir, ona görə şrift heç vaxt tətbiq olunmur. ESLint: `vue/multi-word-component-names` `src/components/ui`-da söndürülür.
 - PrimeVue **v4** (MIT, Aura preset). v5 və `@primeuix/themes` 3 PrimeUI lisenziyasına keçib (açar tələb edir). Tailwind ilə `tailwindcss-primeui` əlavə olunur və `cssLayer` (`theme, base, primevue`) qoyulur ki, Tailwind utility-ləri qalib gəlsin. Nuxt-da `@primevue/nuxt-module` işlədilir; config-dəki `preset: Aura` xam kod kimi yazılır (`raw()`).
 - Vuetify **v4**: `createVuetify` plugin-i, `vite-plugin-vuetify` auto-import, `@mdi/font`, tətbiq `<v-app><v-main>` içində (`CounterView.appShell`). Nuxt-da sənəddəki manual qurulum seçilib: `vuetify-nuxt-module` hələ RC-dir və hər build-də `useLayout` təkrar auto-import xəbərdarlığı verir. Testlərdə `createVuetify()` plugin-i quraşdırılır və `vuetify` Vitest-də inline olunur, çünki komponentləri CSS import edir. Tailwind ilə xəbərdarlıq verilir (layer-lər toqquşur).
+
+React UI kitləri (2026-11 yoxlanılıb):
+
+- shadcn/ui (`shadcn` 4.23, `radix-nova`): `init` + `add card` nəticəsi vendored saxlanılır. Komponentlər `cn`-i birbaşa `cn` paketindən alır. Vite-da `@` alias-ı əlavə olunur (`model.bundler.srcAlias`): TS-də tsconfig `paths` və Vite 8-in `resolve.tsconfigPaths`-i, JS-də jsconfig `paths` və `resolve.alias`, çünki `tsconfigPaths` jsconfig-i oxumur. Geist font override-ı atılıb, çünki Next onu build zamanı yükləyərdi. Vite-da `react-refresh/only-export-components` `src/components/ui`-da söndürülür.
+- MUI **v9** (SPEC v7 nəzərdə tuturdu): `createTheme({ cssVariables: true })`, `ThemeProvider` və `CssBaseline`. Next-də `@mui/material-nextjs/v16-appRouter` `AppRouterCacheProvider`, `theme.ts` isə `"use client"`. Tailwind ilə `mui` cascade layer-i (MUI-nin Tailwind v4 bələdçisi): Vite-da `StyledEngineProvider enableCssLayer`, Next-də `enableCssLayer` və `globals.css`-də layer sırası.
+- Chakra UI v3: CLI-nin `provider` və `color-mode` snippet-ləri (next-themes). Next-də `<html suppressHydrationWarning>` var. Redux ilə `Provider` adı toqquşur, ona görə Chakra-nınkı alias ilə import olunur. Testlər `ChakraProvider`-i birbaşa işlədir, çünki next-themes jsdom-da olmayan matchMedia istəyir. Tailwind ilə xəbərdarlıq verilir (Chakra sənədi bu birləşməni əhatə etmir).
+- Mantine **v9** (React ^19.2 peer): `MantineProvider`, core styles, `postcss-preset-mantine`. PostCSS konfiqi modeldən render olunur (`bundler.postcss`), ona görə Tailwind ilə birləşə bilir. Next-də `mantineHtmlProps` və `ColorSchemeScript` var. Tailwind ilə `styles.layer.css` və `mantine` layer-i işlədilir. Vitest setup-a matchMedia mock-u əlavə olunur.
+- Biome ilə uyğunluq üçün `renderImports` paket yollarını seqment-seqment müqayisə edir (`@mui/material/styles` `@mui/material-nextjs`-dən əvvəl). Adlar Biome kimi sıralanır: registrsiz müqayisə, yalnız registr fərqlənəndə böyük hərf əvvəl.
 
 Vitest (`vitest`, `testing-library` modulları, 2026-11 yoxlanılıb):
 

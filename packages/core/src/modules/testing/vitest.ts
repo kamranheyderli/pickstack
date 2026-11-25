@@ -31,7 +31,27 @@ export function setupFilePath(ctx: Ctx): string {
   }
 }
 
-/** Adds a Vitest setup file (or appends to the one another module started). */
+/** jsdom lacks matchMedia, which Mantine reads for the color scheme. */
+export function matchMediaMock(ctx: Ctx): string[] {
+  return [
+    "// Mantine reads the color scheme with matchMedia, which jsdom does not implement.",
+    'Object.defineProperty(window, "matchMedia", {',
+    "  writable: true,",
+    `  value: (query${ctx.isTs ? ": string" : ""}) => ({`,
+    "    matches: false,",
+    "    media: query,",
+    "    onchange: null,",
+    "    addListener: () => {},",
+    "    removeListener: () => {},",
+    "    addEventListener: () => {},",
+    "    removeEventListener: () => {},",
+    "    dispatchEvent: () => false,",
+    "  }),",
+    "});",
+  ];
+}
+
+/** Adds a Vitest setup file, or appends to the one another module started. */
 export function addSetupFile(
   model: ProjectModel,
   ctx: Ctx,
@@ -40,7 +60,8 @@ export function addSetupFile(
   const testing = model.testing;
   if (!testing) throw new Error("vitest must run before adding setup files");
   const path = setupFilePath(ctx);
-  model.files.set(path, file(lines));
+  const existing = model.files.get(path);
+  model.files.set(path, existing ? `${existing}\n${file(lines)}` : file(lines));
   if (!testing.setupFiles.includes(path)) testing.setupFiles.push(path);
 }
 
@@ -89,6 +110,10 @@ export const vitest: Module = {
         "// Lets React know this environment wraps updates in act().",
         "Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });",
       ]);
+    }
+    // Testing Library writes its imports first and adds the mock itself.
+    if (ctx.has("mantine") && !ctx.has("testing-library")) {
+      addSetupFile(model, ctx, matchMediaMock(ctx));
     }
     model.readme.stack.push("Vitest");
   },
