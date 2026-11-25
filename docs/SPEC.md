@@ -1,11 +1,11 @@
-# StackForge: frontend layihə generatoru
+# pickstack: frontend layihə generatoru
 
 > Layihə adı müvəqqətidir, istədiyin kimi dəyişə bilərsən.
 > İlkin prototip: `docs/reference/prototype.html` (yalnız React, tək HTML faylı). Bu sənəd həmin prototipi tam məhsula çevirmək üçün plandır.
 
 ## 1. Məqsəd
 
-İstifadəçi brauzerdə framework və alətləri seçir (React, Vue, Svelte, Next.js, Tailwind, Redux, Pinia, TanStack Query və s.), generator isə dərhal işləyən, build olunan layihə yaradır. Nəticə zip kimi yüklənir, sonrakı mərhələdə birbaşa GitHub repo kimi yaradılır, ən sonda isə eyni mühərrik `npx stackforge` CLI kimi də işləyir.
+İstifadəçi brauzerdə framework və alətləri seçir (React, Vue, Svelte, Next.js, Tailwind, Redux, Pinia, TanStack Query və s.), generator isə dərhal işləyən, build olunan layihə yaradır. Nəticə zip kimi yüklənir, sonrakı mərhələdə birbaşa GitHub repo kimi yaradılır, ən sonda isə eyni mühərrik `npm create pickstack` CLI kimi də işləyir.
 
 Əsas keyfiyyət tələbi: **yaradılan hər kombinasiya `install`, `build`, `typecheck` və `lint`-dən keçməlidir.** Keçməyən kombinasiyanı UI ümumiyyətlə seçməyə imkan verməməlidir.
 

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
 import { Burst } from "./components/Burst";
+import { Logo } from "./components/Logo";
 import { CommandPalette } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
@@ -210,11 +211,9 @@ export default function App() {
         <div className="mx-auto flex h-14 max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6">
           <a
             href="/"
-            className="flex items-center gap-2.5 font-semibold tracking-tight"
+            className="flex items-center gap-2.5 text-[1.05rem] font-bold tracking-[-0.03em]"
           >
-            <span className="grid size-7 place-items-center rounded-lg bg-linear-to-br from-accent to-accent-2 text-white shadow-sm">
-              <UiIcon name="sparkles" size={15} />
-            </span>
+            <Logo size={28} />
             {t("app.title")}
           </a>
           <div className="flex items-center gap-2 text-sm">

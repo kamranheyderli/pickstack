@@ -1,5 +1,5 @@
 {
-  "app.title": "StackForge",
+  "app.title": "pickstack",
   "app.tagline": "Pick a framework and tools, watch the files change, and download a ready-to-run project as a ZIP.",
   "app.options": "Project options",
   "field.name": "Project name",
