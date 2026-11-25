@@ -15,7 +15,7 @@ export const cloudflare: Module = {
   name: "Cloudflare",
   category: "deploy",
   description: {
-    az: "Cloudflare Workers-ə statik deploy (wrangler).",
+    az: "Cloudflare Workers-ə statik yayımlama (wrangler).",
     en: "Static deploy to Cloudflare Workers with wrangler.",
   },
   frameworks: [

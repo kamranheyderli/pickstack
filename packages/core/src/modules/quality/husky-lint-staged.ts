@@ -52,7 +52,7 @@ export const huskyLintStaged: Module = {
   name: "Husky + lint-staged",
   category: "quality",
   description: {
-    az: "Commit-dən əvvəl staged faylları lint və format edən git hook.",
+    az: "Commit-dən əvvəl indeksdəki (staged) faylları yoxlayan və formatlayan git hook.",
     en: "Git pre-commit hook that lints and formats staged files.",
   },
   frameworks: "all",

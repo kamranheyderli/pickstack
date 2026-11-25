@@ -10,7 +10,7 @@ export const reduxToolkit: Module = {
   name: "Redux Toolkit",
   category: "state",
   description: {
-    az: "Mərkəzi store, slice-lar və typed hook-lar.",
+    az: "Mərkəzi store, slice-lar və tipləşdirilmiş hook-lar.",
     en: "Central store with slices and typed hooks.",
   },
   frameworks: ["react", "next"],

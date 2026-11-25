@@ -6,7 +6,7 @@ export const pinia: Module = {
   name: "Pinia",
   category: "state",
   description: {
-    az: "Vue üçün rəsmi store; setup store sintaksisi.",
+    az: "Vue üçün rəsmi store, setup store sintaksisi ilə.",
     en: "The official Vue store, using setup-store syntax.",
   },
   frameworks: ["vue", "nuxt"],

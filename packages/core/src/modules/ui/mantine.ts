@@ -19,7 +19,7 @@ export const mantine: Module = {
   name: "Mantine",
   category: "ui",
   description: {
-    az: "100+ komponent və hook-lar (v9).",
+    az: "100+ komponent və hook (v9).",
     en: "100+ components and hooks (v9).",
   },
   frameworks: ["react", "next"],

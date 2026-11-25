@@ -11,7 +11,7 @@ export const vueI18n: Module = {
   name: "Vue I18n",
   category: "i18n",
   description: {
-    az: "Vue üçün tərcümələr və dil dəyişmə.",
+    az: "Vue üçün tərcümələr və dil dəyişdirmə.",
     en: "Translations and language switching for Vue.",
   },
   frameworks: ["vue"],

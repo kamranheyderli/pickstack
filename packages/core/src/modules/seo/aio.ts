@@ -9,7 +9,7 @@ export const aio: Module = {
   name: "AI visibility (AIO)",
   category: "seo",
   description: {
-    az: "llms.txt və AI crawler qaydaları: AI axtarışa icazə, təlimə qadağa.",
+    az: "llms.txt və AI crawler qaydaları: AI axtarışına icazə, model təliminə qadağa.",
     en: "llms.txt and AI crawler rules: allow AI search, opt out of training.",
   },
   frameworks: "all",

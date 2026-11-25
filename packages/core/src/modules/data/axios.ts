@@ -12,7 +12,7 @@ export const axios: Module = {
   name: "Axios",
   category: "data",
   description: {
-    az: "Hazır baseURL ilə HTTP klienti.",
+    az: "Əvvəlcədən qurulmuş baseURL ilə HTTP klienti.",
     en: "HTTP client with a preconfigured base URL.",
   },
   frameworks: "all",

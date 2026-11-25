@@ -48,7 +48,7 @@ export const pwa: Module = {
   name: "PWA",
   category: "tooling",
   description: {
-    az: "Quraşdırıla bilən tətbiq: manifest, ikon, offline keş.",
+    az: "Quraşdırıla bilən tətbiq: manifest, ikon və oflayn keş.",
     en: "Installable app: manifest, icon and offline cache.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact"],

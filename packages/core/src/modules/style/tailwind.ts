@@ -10,7 +10,7 @@ export const tailwind: Module = {
   name: "Tailwind CSS",
   category: "style",
   description: {
-    az: "Utility-first CSS (v4).",
+    az: "Utility-class əsaslı CSS (v4).",
     en: "Utility-first CSS (v4).",
   },
   frameworks: "all",

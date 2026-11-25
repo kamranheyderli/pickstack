@@ -12,7 +12,7 @@ export const shadcnVue: Module = {
   name: "shadcn-vue",
   category: "ui",
   description: {
-    az: "Layihəyə kopyalanan Tailwind komponentləri (Reka UI əsaslı).",
+    az: "Layihəyə kopyalanan, Reka UI əsaslı Tailwind komponentləri.",
     en: "Tailwind components copied into your project (built on Reka UI).",
   },
   frameworks: ["vue", "nuxt"],

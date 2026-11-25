@@ -24,7 +24,7 @@ export const turborepo: Module = {
   name: "Turborepo",
   category: "tooling",
   description: {
-    az: "Monorepo: tətbiq apps/web-də, turbo ilə keşlənən tapşırıqlar.",
+    az: "Monorepo: tətbiq apps/web qovluğunda, tapşırıqlar turbo ilə keşlənir.",
     en: "Monorepo: the app in apps/web, tasks cached by turbo.",
   },
   frameworks: "all",

@@ -11,7 +11,7 @@ export const copilot: Module = {
   name: "GitHub Copilot",
   category: "ai",
   description: {
-    az: "Copilot təlimatları və VS Code üçün MCP server-lər.",
+    az: "Copilot təlimatları və VS Code üçün MCP serverləri.",
     en: "Copilot instructions and MCP servers for VS Code.",
   },
   frameworks: "all",

@@ -11,7 +11,7 @@ export const reactHookForm: Module = {
   name: "React Hook Form",
   category: "forms",
   description: {
-    az: "Performanslı React formları, Zod validasiyası ilə.",
+    az: "Yüksək performanslı React formları, Zod validasiyası ilə.",
     en: "Performant React forms with Zod validation.",
   },
   frameworks: ["react"],

@@ -5,7 +5,7 @@ export const reactRouter: Module = {
   name: "React Router",
   category: "routing",
   description: {
-    az: "Deklarativ client-side routing.",
+    az: "Deklarativ, klient tərəfli marşrutlaşdırma.",
     en: "Declarative client-side routing.",
   },
   frameworks: ["react"],

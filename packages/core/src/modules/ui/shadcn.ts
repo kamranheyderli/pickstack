@@ -12,7 +12,7 @@ export const shadcn: Module = {
   name: "shadcn/ui",
   category: "ui",
   description: {
-    az: "Layihəyə kopyalanan Tailwind komponentləri (Radix əsaslı).",
+    az: "Layihəyə kopyalanan, Radix əsaslı Tailwind komponentləri.",
     en: "Tailwind components copied into your project (built on Radix).",
   },
   frameworks: ["react", "next"],

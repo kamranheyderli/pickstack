@@ -235,7 +235,7 @@ export const tanstackQuery: Module = {
   name: "TanStack Query",
   category: "data",
   description: {
-    az: "Server state: keşləmə, yenidən yükləmə, loading/error halları.",
+    az: "Server state: keşləmə, təkrar sorğular, yüklənmə və xəta halları.",
     en: "Server state: caching, refetching, loading and error states.",
   },
   frameworks: ["react", "solid", "vue", "svelte", "angular"],

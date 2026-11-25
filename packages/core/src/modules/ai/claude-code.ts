@@ -75,7 +75,7 @@ export const claudeCode: Module = {
   name: "Claude Code",
   category: "ai",
   description: {
-    az: "CLAUDE.md, icazələr, format hook-u və stack-ə uyğun MCP server-lər.",
+    az: "CLAUDE.md, icazələr, formatlama hook-u və stack-ə uyğun MCP serverləri.",
     en: "CLAUDE.md, permissions, a format hook and MCP servers for your stack.",
   },
   frameworks: "all",

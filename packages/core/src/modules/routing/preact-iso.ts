@@ -5,7 +5,7 @@ export const preactIso: Module = {
   name: "preact-iso",
   category: "routing",
   description: {
-    az: "Preact komandasının yüngül routeri; adi <a> linkləri ilə işləyir.",
+    az: "Preact komandasının yüngül router-i; adi <a> linkləri ilə işləyir.",
     en: "The Preact team's lightweight router; works with plain <a> links.",
   },
   frameworks: ["preact"],

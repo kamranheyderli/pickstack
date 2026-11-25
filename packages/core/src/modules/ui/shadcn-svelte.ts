@@ -20,7 +20,7 @@ export const shadcnSvelte: Module = {
   name: "shadcn-svelte",
   category: "ui",
   description: {
-    az: "Layihəyə kopyalanan Tailwind komponentləri (Bits UI əsaslı).",
+    az: "Layihəyə kopyalanan, Bits UI əsaslı Tailwind komponentləri.",
     en: "Tailwind components copied into your project (built on Bits UI).",
   },
   frameworks: ["svelte", "sveltekit"],

@@ -18,7 +18,7 @@ export const netlify: Module = {
   name: "Netlify",
   category: "deploy",
   description: {
-    az: "Netlify-a deploy: build əmri və yönləndirmələr hazır.",
+    az: "Netlify-a yayımlama: build əmri və yönləndirmələr hazırdır.",
     en: "Deploy to Netlify with the build command and redirects set.",
   },
   frameworks: "all",

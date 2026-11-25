@@ -25,7 +25,7 @@ export const cursor: Module = {
   name: "Cursor",
   category: "ai",
   description: {
-    az: "Cursor qaydası və stack-ə uyğun MCP server-lər.",
+    az: "Cursor layihə qaydası və stack-ə uyğun MCP serverləri.",
     en: "A Cursor project rule and MCP servers for your stack.",
   },
   frameworks: "all",

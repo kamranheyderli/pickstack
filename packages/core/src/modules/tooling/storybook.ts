@@ -186,7 +186,7 @@ export const storybook: Module = {
   name: "Storybook",
   category: "tooling",
   description: {
-    az: "Komponentləri ayrıca hazırlamaq və sənədləşdirmək üçün.",
+    az: "Komponentləri təcrid olunmuş mühitdə hazırlamaq və sənədləşdirmək üçün.",
     en: "Build and document components in isolation.",
   },
   frameworks: ["react", "preact", "vue", "svelte"],

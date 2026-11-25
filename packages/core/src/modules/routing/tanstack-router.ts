@@ -11,7 +11,7 @@ export const tanstackRouter: Module = {
   name: "TanStack Router",
   category: "routing",
   description: {
-    az: "Tip-təhlükəsiz, fayl əsaslı routing.",
+    az: "Tip-təhlükəsiz, fayl əsaslı marşrutlaşdırma.",
     en: "Type-safe, file-based routing.",
   },
   frameworks: ["react", "solid"],

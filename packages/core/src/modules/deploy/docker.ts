@@ -124,7 +124,7 @@ export const docker: Module = {
   name: "Docker",
   category: "deploy",
   description: {
-    az: "Multi-stage Dockerfile: statik saytlar nginx ilə, Next/Nuxt Node serveri ilə.",
+    az: "Multi-stage Dockerfile: statik saytlar nginx ilə, Next/Nuxt isə Node serveri ilə.",
     en: "Multi-stage Dockerfile: nginx for static sites, a Node server for Next/Nuxt.",
   },
   frameworks: "all",

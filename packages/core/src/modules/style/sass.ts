@@ -9,7 +9,7 @@ export const sass: Module = {
   name: "Sass",
   category: "style",
   description: {
-    az: "SCSS: dəyişənlər, nesting və mixin-lər.",
+    az: "SCSS: dəyişənlər, iç-içə qaydalar (nesting) və mixin-lər.",
     en: "SCSS stylesheets: variables, nesting and mixins.",
   },
   frameworks: "all",

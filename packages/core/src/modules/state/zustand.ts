@@ -6,7 +6,7 @@ export const zustand: Module = {
   name: "Zustand",
   category: "state",
   description: {
-    az: "Provider-siz, minimal hook əsaslı store.",
+    az: "Provider tələb etməyən, minimal hook əsaslı store.",
     en: "Minimal hook-based store, no provider needed.",
   },
   frameworks: ["react", "next"],

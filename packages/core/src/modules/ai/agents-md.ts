@@ -10,7 +10,7 @@ export const agentsMdModule: Module = {
   name: "AGENTS.md",
   category: "ai",
   description: {
-    az: "Bütün AI agentlərin oxuduğu layihə bələdçisi (əmrlər, struktur, qaydalar).",
+    az: "Bütün AI agentlərinin oxuduğu layihə bələdçisi (əmrlər, struktur, qaydalar).",
     en: "Project guide every AI coding agent reads (commands, structure, rules).",
   },
   frameworks: "all",

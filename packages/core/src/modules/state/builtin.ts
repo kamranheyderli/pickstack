@@ -10,7 +10,7 @@ export const builtin: Module = {
   name: "Built-in",
   category: "state",
   description: {
-    az: "Frameworkün öz reaktivliyi ilə paylaşılan store (runes / signals); paket yoxdur.",
+    az: "Framework-ün öz reaktivliyi (runes / signals) ilə paylaşılan store; əlavə paket lazım deyil.",
     en: "Shared store using the framework's own reactivity (runes / signals); no package.",
   },
   frameworks: ["svelte", "sveltekit", "solid", "angular"],

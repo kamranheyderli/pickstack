@@ -30,7 +30,7 @@ export const prettier: Module = {
   name: "Prettier",
   category: "quality",
   description: {
-    az: "Kod formatlayıcı.",
+    az: "Vahid üslublu kod formatlayıcısı.",
     en: "Opinionated code formatter.",
   },
   frameworks: "all",

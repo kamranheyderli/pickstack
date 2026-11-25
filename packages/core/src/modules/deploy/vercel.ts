@@ -13,7 +13,7 @@ export const vercel: Module = {
   name: "Vercel",
   category: "deploy",
   description: {
-    az: "Vercel-ə deploy: framework avtomatik tanınır.",
+    az: "Vercel-ə yayımlama: framework avtomatik tanınır.",
     en: "Deploy to Vercel; the framework is detected automatically.",
   },
   frameworks: "all",

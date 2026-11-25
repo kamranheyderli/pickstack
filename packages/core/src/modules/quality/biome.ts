@@ -70,7 +70,7 @@ export const biome: Module = {
   name: "Biome",
   category: "quality",
   description: {
-    az: "Linter və formatlayıcı bir alətdə (ESLint + Prettier əvəzi).",
+    az: "Linter və formatlayıcı bir alətdə (ESLint və Prettier əvəzinə).",
     en: "Linter and formatter in one tool (replaces ESLint + Prettier).",
   },
   frameworks: "all",

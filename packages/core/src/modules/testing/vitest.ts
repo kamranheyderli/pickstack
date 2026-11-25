@@ -75,7 +75,7 @@ export const vitest: Module = {
   name: "Vitest",
   category: "testing",
   description: {
-    az: "Vite əsaslı test runner, counter komponenti üçün nümunə testlə.",
+    az: "Vite əsaslı test runner; sayğac komponenti üçün nümunə testlə.",
     en: "Vite-native test runner, with a sample counter component test.",
   },
   frameworks: [

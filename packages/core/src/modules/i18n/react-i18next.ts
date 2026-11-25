@@ -11,7 +11,7 @@ export const reactI18next: Module = {
   name: "react-i18next",
   category: "i18n",
   description: {
-    az: "i18next ilə tərcümələr və dil dəyişmə.",
+    az: "i18next ilə tərcümələr və dil dəyişdirmə.",
     en: "Translations and language switching with i18next.",
   },
   frameworks: ["react"],

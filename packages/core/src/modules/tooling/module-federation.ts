@@ -15,7 +15,7 @@ export const moduleFederation: Module = {
   name: "Module Federation",
   category: "tooling",
   description: {
-    az: "Mikro-frontend: host və remote iki ayrı layihə, komponent runtime-da yüklənir.",
+    az: "Mikro-frontend: host və remote iki ayrı layihədir, komponent icra zamanı yüklənir.",
     en: "Micro-frontends: host and remote as separate projects, loaded at runtime.",
   },
   frameworks: ["react"],

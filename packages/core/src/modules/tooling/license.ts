@@ -7,7 +7,7 @@ export const license: Module = {
   name: "MIT License",
   category: "tooling",
   description: {
-    az: "MIT lisenziyası faylı və package.json-da `license`.",
+    az: "MIT lisenziya faylı və package.json-da `license` sahəsi.",
     en: "MIT license file and `license` in package.json.",
   },
   frameworks: "all",

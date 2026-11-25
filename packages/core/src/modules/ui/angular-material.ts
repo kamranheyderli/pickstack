@@ -67,7 +67,7 @@ export const angularMaterial: Module = {
   name: "Angular Material",
   category: "ui",
   description: {
-    az: "Material Design 3 komponentləri (Angular komandasından).",
+    az: "Angular komandasının Material Design 3 komponentləri.",
     en: "Material Design 3 components from the Angular team.",
   },
   frameworks: ["angular"],

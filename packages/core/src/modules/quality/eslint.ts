@@ -533,7 +533,7 @@ export const eslint: Module = {
   name: "ESLint",
   category: "quality",
   description: {
-    az: "Kod analizatoru (flat config).",
+    az: "Genişlənə bilən kod analizatoru (flat config).",
     en: "Pluggable linter (flat config).",
   },
   frameworks: "all",

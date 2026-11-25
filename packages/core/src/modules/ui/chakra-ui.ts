@@ -11,7 +11,7 @@ export const chakraUi: Module = {
   name: "Chakra UI",
   category: "ui",
   description: {
-    az: "Stil prop-ları ilə əlçatan komponentlər (v3).",
+    az: "Prop-larla stillənən, əlçatan komponentlər (v3).",
     en: "Accessible components styled with props (v3).",
   },
   frameworks: ["react", "next"],

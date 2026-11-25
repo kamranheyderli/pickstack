@@ -5,7 +5,7 @@ export const solidRouter: Module = {
   name: "Solid Router",
   category: "routing",
   description: {
-    az: "SolidJS üçün rəsmi router; App layout rolunu oynayır.",
+    az: "SolidJS üçün rəsmi router; App kök layout rolunu oynayır.",
     en: "The official SolidJS router; App acts as the root layout.",
   },
   frameworks: ["solid"],
