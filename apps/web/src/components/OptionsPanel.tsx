@@ -174,6 +174,12 @@ export function OptionsPanel({
         );
       })}
 
+      {selection.modules.includes("express") && (
+        <p className="m-0 rounded-xl border border-line bg-panel-2 px-3 py-2.5 text-sm text-muted">
+          {t("hint.serverLayout")}
+        </p>
+      )}
+
       {selection.framework === "svelte" && (
         <p className="m-0 rounded-xl border border-line bg-panel-2 px-3 py-2.5 text-sm text-muted">
           {t("hint.svelteRouting")}

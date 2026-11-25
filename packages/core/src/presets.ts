@@ -32,6 +32,23 @@ export const presets: readonly Preset[] = [
     ],
   },
   {
+    id: "react-fullstack",
+    name: "Full-stack: React + Express",
+    description: {
+      az: "React, Express 5 API və Mongoose ilə MongoDB; web/ və server/ ayrıca.",
+      en: "React, an Express 5 API and MongoDB with Mongoose; web/ and server/ side by side.",
+    },
+    framework: "react",
+    modules: [
+      "express",
+      "mongodb",
+      "tailwind",
+      "tanstack-query",
+      ...tests,
+      ...quality,
+    ],
+  },
+  {
     id: "next-shadcn",
     name: "Next.js + shadcn/ui",
     description: {

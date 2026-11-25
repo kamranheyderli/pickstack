@@ -72,6 +72,7 @@
   "framework.kind.meta": "Meta-framework",
   "reason.framework-soon": "{framework} support is planned for phase {phase}.",
   "preview.files": "{count} files",
+  "hint.serverLayout": "The project splits in two: the app in web/, the API in server/. Requests to /api are proxied from the dev server to the API.",
   "hint.svelteRouting": "Need routing? Choose SvelteKit: file-based routing is built in.",
   "reason.missing-one-of": "{module} needs one of these first: {options}.",
   "category.seo": "SEO & AI visibility",

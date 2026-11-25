@@ -72,6 +72,7 @@
   "framework.kind.meta": "Meta-framework",
   "reason.framework-soon": "{framework} dəstəyi planlaşdırılıb (mərhələ {phase}).",
   "preview.files": "{count} fayl",
+  "hint.serverLayout": "Layihə iki hissəyə bölünür: tətbiq web/, API isə server/ qovluğunda. /api sorğuları dev serverdən API-yə yönləndirilir.",
   "hint.svelteRouting": "Marşrutlaşdırma lazımdırsa, SvelteKit seç: orada fayl əsaslı marşrutlaşdırma hazırdır.",
   "reason.missing-one-of": "{module} üçün əvvəlcə bunlardan birini seç: {options}.",
   "category.seo": "SEO və AI görünürlüyü",
