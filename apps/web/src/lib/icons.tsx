@@ -184,7 +184,7 @@ const stroke = {
   strokeLinejoin: "round",
 } as const;
 
-type UiIconName =
+export type UiIconName =
   | "sun"
   | "moon"
   | "monitor"
@@ -198,7 +198,9 @@ type UiIconName =
   | "undo"
   | "copy"
   | "terminal"
-  | "link";
+  | "link"
+  | "lock"
+  | "search";
 
 const uiPaths: Record<UiIconName, string[]> = {
   sun: [
@@ -229,6 +231,11 @@ const uiPaths: Record<UiIconName, string[]> = {
     "M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2",
   ],
   terminal: ["m4 17 6-6-6-6", "M12 19h8"],
+  lock: [
+    "M7 11V7a5 5 0 0 1 10 0v4",
+    "M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z",
+  ],
+  search: ["m21 21-4.34-4.34", "M17 11a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"],
   link: [
     "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71",
     "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71",

@@ -3,11 +3,13 @@ import {
   getFramework,
   getModule,
   toProjectName,
+  type Category,
   type Language,
   type PackageManager,
   type Selection,
   type ValidationError,
 } from "@stackforge/core";
+import { useState } from "react";
 import { useLocale, useT, type Translate } from "../i18n";
 import {
   BrandIcon,
@@ -32,6 +34,9 @@ interface OptionsPanelProps {
   onBaseChange: (next: Selection) => void;
 }
 
+/** Open at first even without a pick: the choices most projects make. */
+const DEFAULT_OPEN: ReadonlySet<Category> = new Set(["style", "ui", "state"]);
+
 export function OptionsPanel({
   selection,
   autoAdded,
@@ -40,6 +45,10 @@ export function OptionsPanel({
 }: OptionsPanelProps) {
   const t = useT();
   const locale = useLocale();
+  // Categories the user opened or closed; the rest follow `defaultOpen`.
+  const [open, setOpen] = useState<Partial<Record<Category, boolean>>>({});
+  const isOpen = (category: Category, hasPick: boolean) =>
+    open[category] ?? (hasPick || DEFAULT_OPEN.has(category));
 
   return (
     <div className="flex flex-col gap-4">
@@ -102,6 +111,20 @@ export function OptionsPanel({
       </div>
 
       {groupOptions(selection).map((group) => {
+        const collapse = {
+          open: isOpen(
+            group.category,
+            group.options.some((o) => o.checked),
+          ),
+          onToggle: () =>
+            setOpen((prev) => ({
+              ...prev,
+              [group.category]: !isOpen(
+                group.category,
+                group.options.some((o) => o.checked),
+              ),
+            })),
+        };
         const items = group.options.map(({ module, checked, blocker }) => {
           const icon = moduleIcons[module.id];
           return {
@@ -127,6 +150,7 @@ export function OptionsPanel({
             name={group.category}
             type="checkbox"
             items={items}
+            collapse={collapse}
             onChange={(id) =>
               onChange(
                 chooseSingle(
@@ -144,6 +168,7 @@ export function OptionsPanel({
             name={group.category}
             type="checkbox"
             items={items}
+            collapse={collapse}
             onChange={(id) => onChange(toggleModule(selection, id))}
           />
         );
@@ -158,7 +183,7 @@ export function OptionsPanel({
   );
 }
 
-function reasonText(
+export function reasonText(
   error: ValidationError,
   selection: Selection,
   t: Translate,

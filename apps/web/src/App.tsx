@@ -10,6 +10,8 @@ import {
 import { useEffect, useState } from "react";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
+import { Burst } from "./components/Burst";
+import { CommandPalette } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { OptionsPanel } from "./components/OptionsPanel";
@@ -25,6 +27,7 @@ import {
 import { downloadZip } from "./lib/download";
 import { UiIcon } from "./lib/icons";
 import { readPref, writePref } from "./lib/storage";
+import { paletteCommands } from "./lib/paletteCommands";
 import { selectionFromQuery, selectionToQuery } from "./lib/url";
 import { useGenerated } from "./lib/useGenerated";
 import { useTheme } from "./lib/useTheme";
@@ -45,6 +48,9 @@ export default function App() {
       defaultSelection,
   );
   const [linkCopied, setLinkCopied] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  // Bumped after each download; a new key replays the confetti.
+  const [celebrations, setCelebrations] = useState(0);
   const [notice, setNotice] = useState("");
   const [current, setCurrent] = useState("src/App.tsx");
   const [busy, setBusy] = useState(false);
@@ -114,6 +120,25 @@ export default function App() {
     document.documentElement.lang = locale;
   }, [locale]);
 
+  // ⌘K / Ctrl+K anywhere, or "/" outside text fields, opens the command palette.
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      const typing =
+        e.target instanceof HTMLElement &&
+        (e.target.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName));
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      } else if (e.key === "/" && !typing) {
+        e.preventDefault();
+        setPaletteOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const changeLocale = (next: Locale) => {
     setLocale(next);
     writePref("locale", next);
@@ -137,6 +162,7 @@ export default function App() {
     setStatus(t("download.busy"));
     try {
       const file = await downloadZip(projectName, files);
+      setCelebrations((n) => n + 1);
       setStatus(
         t("download.done", {
           file,
@@ -158,6 +184,28 @@ export default function App() {
   return (
     <LocaleProvider locale={locale}>
       <Sky />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        commands={paletteCommands({
+          selection,
+          t,
+          locale,
+          onChange: (next) => {
+            setSelection(next);
+            setNotice("");
+          },
+          onBaseChange,
+          download: () => void onDownload(),
+          copyLink: () => void copyLink(),
+          copyCommand: () =>
+            void navigator.clipboard
+              .writeText(createCommand({ ...selection, name: projectName }))
+              .catch(() => undefined),
+          cycleTheme,
+          toggleLocale: () => changeLocale(locale === "az" ? "en" : "az"),
+        })}
+      />
       <header className="sticky top-0 z-20 border-b border-line/70 bg-bg/75 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6">
           <a
@@ -170,6 +218,17 @@ export default function App() {
             {t("app.title")}
           </a>
           <div className="flex items-center gap-2 text-sm">
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              className="hidden cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 py-1 pr-1.5 pl-2.5 text-xs text-muted transition hover:text-ink focus-visible:outline-2 focus-visible:outline-accent sm:inline-flex"
+            >
+              <UiIcon name="search" size={13} />
+              {t("palette.open")}
+              <kbd className="rounded border border-line bg-panel px-1 font-mono text-[0.65rem]">
+                ⌘K
+              </kbd>
+            </button>
             <div
               role="group"
               aria-label={t("settings.uiLanguage")}
@@ -341,10 +400,11 @@ export default function App() {
                   type="button"
                   disabled={!files || busy}
                   onClick={onDownload}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-bg shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
+                  className="relative inline-flex cursor-pointer items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-bg shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
                 >
                   <UiIcon name="download" />
                   {t("download.button")}
+                  {celebrations > 0 && <Burst key={celebrations} />}
                 </button>
               </span>
             </div>

@@ -19,16 +19,59 @@ interface ChipsProps {
   type: "radio" | "checkbox";
   items: ChipItem[];
   onChange: (value: string) => void;
+  /** Makes the group collapsible: the legend becomes a toggle with a selected count. */
+  collapse?: { open: boolean; onToggle: () => void };
 }
 
-export function Chips({ legend, name, type, items, onChange }: ChipsProps) {
+export function Chips({
+  legend,
+  name,
+  type,
+  items,
+  onChange,
+  collapse,
+}: ChipsProps) {
   const id = useId();
+  const open = collapse?.open ?? true;
+  const picked = items.filter((i) => i.checked);
   return (
     <fieldset className="min-w-0">
-      <legend className="mb-1.5 text-[0.7rem] font-medium tracking-wider text-muted uppercase">
-        {legend}
+      <legend className="mb-1.5 w-full text-[0.7rem] font-medium tracking-wider text-muted uppercase">
+        {collapse ? (
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={`${id}-options`}
+            onClick={collapse.onToggle}
+            className="-mx-1 flex w-[calc(100%+0.5rem)] cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 text-left tracking-wider uppercase transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <span
+              aria-hidden="true"
+              className={`inline-flex transition-transform motion-reduce:transition-none ${open ? "rotate-90" : ""}`}
+            >
+              <UiIcon name="chevron" size={11} />
+            </span>
+            {legend}
+            {picked.length > 0 && (
+              <span className="rounded-full bg-accent-soft px-1.5 text-[0.65rem] font-semibold text-accent normal-case">
+                {picked.length}
+              </span>
+            )}
+            {!open && picked.length > 0 && (
+              <span className="ml-auto truncate font-normal tracking-normal normal-case">
+                {picked.map((i) => i.label).join(", ")}
+              </span>
+            )}
+          </button>
+        ) : (
+          legend
+        )}
       </legend>
-      <div className="flex flex-wrap gap-1.5">
+      <div
+        id={`${id}-options`}
+        hidden={!open}
+        className="flex flex-wrap gap-1.5"
+      >
         {items.map((item) => {
           const reasonId = `${id}-${item.value}-reason`;
           return (
@@ -60,6 +103,11 @@ export function Chips({ legend, name, type, items, onChange }: ChipsProps) {
                 <span className="chip-check text-accent">
                   <UiIcon name="check" size={12} />
                 </span>
+                {item.disabled && (
+                  <span aria-hidden="true" className="text-muted">
+                    <UiIcon name="lock" size={11} />
+                  </span>
+                )}
               </span>
               {item.disabled && item.reason && (
                 <span id={reasonId} className="sr-only">

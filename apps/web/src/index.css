@@ -180,6 +180,45 @@ body::before {
   }
 }
 
+/* Confetti around the download button after a successful download (Burst.tsx). */
+.burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+}
+
+.burst > span {
+  position: absolute;
+}
+
+.burst > span > span {
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: burst 0.8s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@keyframes burst {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--burst-distance)) scale(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burst {
+    display: none;
+  }
+}
+
 /* Shiki renders its own <pre>; let the wrapper own spacing and background. */
 .code-html pre {
   margin: 0;
