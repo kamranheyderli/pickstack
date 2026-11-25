@@ -43,6 +43,31 @@ function diffBlock(path: string, diff: DiffLine[]) {
   return `<figure class="file"><figcaption>${escape(path)} <small>(changed)</small></figcaption><pre class="diff">${lines}</pre></figure>`;
 }
 
+/**
+ * How to start what was generated: one project, or (an API in `server/` next to `web/`,
+ * micro-frontends) each project in its folder. The CLI installs every one of them.
+ */
+function startSteps(files: string[]) {
+  const projects = files.includes("package.json")
+    ? ["."]
+    : files
+        .filter((f) => /^[^/]+\/package\.json$/.test(f))
+        .map((f) => f.slice(0, f.indexOf("/")))
+        .sort((a, b) => (a === "server" ? -1 : b === "server" ? 1 : 0));
+  return projects.map((project) => ({
+    "@type": "HowToStep",
+    name:
+      project === "."
+        ? "Start the dev server"
+        : project === "server"
+          ? "Start the API"
+          : project === "web"
+            ? "Start the app"
+            : `Start ${project}/`,
+    text: `cd my-app${project === "." ? "" : `/${project}`} && npm run dev`,
+  }));
+}
+
 function jsonLd(page: StackPage, site: string): string {
   const url = `${site}${page.path}`;
   const graph = [
@@ -58,11 +83,7 @@ function jsonLd(page: StackPage, site: string): string {
           name: "Create the project",
           text: page.command,
         },
-        {
-          "@type": "HowToStep",
-          name: "Start the dev server",
-          text: "cd my-app && npm run dev",
-        },
+        ...startSteps(page.files),
       ],
     },
     {
