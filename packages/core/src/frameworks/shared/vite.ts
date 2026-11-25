@@ -6,6 +6,13 @@ import { testBlock, vitestReference } from "./testing";
  * `vite.config` with the model's plugins, `extra` top-level options and, when the `vitest`
  * module is selected, the `test` block.
  */
+/** `server.proxy` sending `/api` to the backend in development, when there is one. */
+export function proxyBlock(model: ProjectModel): string[] {
+  return model.apiProxy
+    ? [`server: { proxy: { "/api": "${model.apiProxy}" } },`]
+    : [];
+}
+
 export function plainViteConfig(
   model: ProjectModel,
   ctx: Ctx,
@@ -25,6 +32,7 @@ export function plainViteConfig(
     "export default defineConfig({",
     `  plugins: [${plugins.map((p) => p.call).join(", ")}],`,
     ...indent(extra),
+    ...indent(proxyBlock(model)),
     ...(testing ? indent(testBlock(testing)) : []),
     "});",
   ]);

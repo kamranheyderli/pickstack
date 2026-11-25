@@ -1474,4 +1474,21 @@ describe("express", () => {
   it("is offered for the SPAs only", () => {
     expect(getModule("express")?.frameworks).not.toContain("next");
   });
+
+  it("proxies /api from the app and calls it from a widget", async () => {
+    const react = await project("ts");
+    expect(react.get("web/vite.config.ts")).toContain(
+      'server: { proxy: { "/api": "http://localhost:3001" } },',
+    );
+    expect(react.get("web/src/components/ApiGreeting.tsx")).toContain(
+      'fetch("/api/hello?name=acme")',
+    );
+    const angular = await project("ts", "angular");
+    expect(JSON.parse(angular.get("web/proxy.conf.json") ?? "")).toEqual({
+      "/api": { target: "http://localhost:3001", secure: false },
+    });
+    expect(angular.get("web/angular.json")).toContain(
+      '"proxyConfig": "proxy.conf.json"',
+    );
+  });
 });

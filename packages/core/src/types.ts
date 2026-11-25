@@ -301,6 +301,8 @@ export interface ProjectModel {
   monorepo: MonorepoSpec | null;
   federation: FederationSpec | null;
   server: ServerSpec | null;
+  /** Where the app's dev server sends `/api` requests (the backend), if anywhere. */
+  apiProxy: string | null;
   /**
    * Files that belong at the repository root (AI agent config): they stay at the root of a
    * Turborepo workspace instead of moving into `apps/web`.

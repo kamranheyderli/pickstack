@@ -16,6 +16,7 @@ import {
 } from "../shared/demo";
 import { viteEnv } from "../shared/env";
 import { spaIndexHtml } from "../shared/index-html";
+import { proxyBlock } from "../shared/vite";
 import { testBlock, vueCounterTest } from "../shared/testing";
 import { counterCard, localVueCounter, sfc, withAppShell } from "../shared/vue";
 
@@ -236,6 +237,7 @@ function viteConfig(model: ProjectModel): string {
     '      "@": fileURLToPath(new URL("./src", import.meta.url)),',
     "    },",
     "  },",
+    ...indent(proxyBlock(model)),
     "});",
   ]);
 }

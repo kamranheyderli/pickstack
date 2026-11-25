@@ -2,6 +2,7 @@ import { file, json, renderImports, sortRecord } from "../../engine/code";
 import { runCommand } from "../../engine/finalize";
 import { knownGoodVersion } from "../../versions/known-good";
 import type { Ctx, Module } from "../../types";
+import { API_WIDGET, apiWidget } from "./widget";
 
 /** The API's port; the app's dev server proxies `/api` here. */
 export const SERVER_PORT = 3001;
@@ -121,6 +122,11 @@ export const express: Module = {
       [".gitignore", file(["node_modules", "dist", ".env"])],
     ]);
     if (ctx.isTs) files.set("tsconfig.json", tsconfig);
+    // The app calls the API through its dev server, so no CORS setup is needed.
+    model.apiProxy = `http://localhost:${SERVER_PORT}`;
+    for (const [path, content] of apiWidget(model, ctx))
+      model.files.set(path, content);
+    model.demo.widgets.push(API_WIDGET);
     model.server = {
       port: SERVER_PORT,
       files,

@@ -42,6 +42,7 @@ export function createModel(): ProjectModel {
     monorepo: null,
     federation: null,
     server: null,
+    apiProxy: null,
     repoFiles: new Map(),
     gitignore: [],
     verbatim: new Set(),

@@ -4332,15 +4332,35 @@ git remote add origin https://github.com/<your-username>/my-app.git
 git push -u origin main
 \`\`\`
 ",
-  "web/src/App.tsx" => "import Counter from "./components/Counter";
+  "web/src/App.tsx" => "import ApiGreeting from "./components/ApiGreeting";
+import Counter from "./components/Counter";
 
 export default function App() {
   return (
     <main className="app">
       <h1 className="title">my-app</h1>
       <Counter />
+      <ApiGreeting />
     </main>
   );
+}
+",
+  "web/src/components/ApiGreeting.tsx" => "import { useEffect, useState } from "react";
+
+export default function ApiGreeting() {
+  const [message, setMessage] = useState("Calling the API…");
+
+  useEffect(() => {
+    fetch("/api/hello?name=my-app")
+      .then((response) => {
+        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+        return response.json();
+      })
+      .then((data) => setMessage(data.message))
+      .catch(() => setMessage("The API isn't running: start it in server/."));
+  }, []);
+
+  return <p className="text">{message}</p>;
 }
 ",
   "web/src/components/Counter.tsx" => "import { useState } from "react";
@@ -4494,6 +4514,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
+  server: { proxy: { "/api": "http://localhost:3001" } },
 });
 ",
 }

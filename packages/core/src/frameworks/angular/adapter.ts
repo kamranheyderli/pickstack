@@ -88,6 +88,12 @@ export const angularAdapter: FrameworkAdapter = {
   render(model, ctx) {
     const cls = demoClasses(model);
     model.files.set("angular.json", json(angularJson(model, ctx)));
+    if (model.apiProxy) {
+      model.files.set(
+        "proxy.conf.json",
+        json({ "/api": { target: model.apiProxy, secure: false } }),
+      );
+    }
     writeTsconfigs(model);
     model.files.set("src/index.html", indexHtml(model, ctx));
     model.files.set(`src/styles.${styleExt(model)}`, globalCss(model));
@@ -406,6 +412,10 @@ function angularJson(model: ProjectModel, ctx: Ctx) {
           },
           serve: {
             builder: "@angular/build:dev-server",
+            // Sends `/api` to the backend in development (proxy.conf.json).
+            ...(model.apiProxy
+              ? { options: { proxyConfig: "proxy.conf.json" } }
+              : {}),
             configurations: {
               production: { buildTarget: `${name}:build:production` },
               development: { buildTarget: `${name}:build:development` },
