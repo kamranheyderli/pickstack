@@ -61,6 +61,7 @@
   "reason.missing-one-of": "{module} needs one of these first: {options}.",
   "category.seo": "SEO & AI visibility",
   "category.tooling": "Tooling",
+  "category.deploy": "Deploy",
   "category.ai": "AI agents",
   "preview.edit": "Edit",
   "preview.reset": "Reset",

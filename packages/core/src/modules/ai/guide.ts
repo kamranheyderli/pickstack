@@ -9,6 +9,9 @@ import type { Ctx, FrameworkId, ProjectModel } from "../../types";
  * project rather than generic advice.
  */
 
+/** Scripts that publish the project somewhere; an agent asks before running them. */
+export const OUTWARD_SCRIPTS: ReadonlySet<string> = new Set(["deploy"]);
+
 /** Scripts that start long-running servers or run on install; agents shouldn't need them. */
 const SERVER_SCRIPTS = new Set([
   "dev",
@@ -30,6 +33,7 @@ const SCRIPT_PURPOSE: Record<string, string> = {
   "format:check": "check formatting",
   check: "lint, format and import-order check (Biome)",
   test: "run the tests once",
+  deploy: "build and publish the site (ask first)",
 };
 
 /** Framework layout and rules, with `x` the component extension and `s` the script one. */
@@ -199,7 +203,9 @@ export function checkScripts(model: ProjectModel): string[] {
 
 /** Scripts an agent may run without asking (no servers, no install hooks). */
 export function agentScripts(model: ProjectModel): string[] {
-  return Object.keys(model.pkg.scripts).filter((s) => !SERVER_SCRIPTS.has(s));
+  return Object.keys(model.pkg.scripts).filter(
+    (s) => !SERVER_SCRIPTS.has(s) && !OUTWARD_SCRIPTS.has(s),
+  );
 }
 
 export function agentsMd(model: ProjectModel, ctx: Ctx): string {

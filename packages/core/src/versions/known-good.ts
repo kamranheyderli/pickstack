@@ -56,6 +56,7 @@ const shared: VersionSet = {
   "lint-staged": "^17.6.2",
   sass: "^1.108.2",
   turbo: "^2.11.13",
+  wrangler: "^4.168.0",
   // shadcn-svelte's registry pins tailwind-variants 3 for its components.
   "shadcn-svelte": "^1.8.1",
   "tailwind-variants": "^3.3.0",
@@ -236,6 +237,16 @@ export function packageManagerRange(pm: PackageManager): string {
  * GitHub Actions used by the generated CI workflow, pinned to their current major (checked
  * against each action's releases). Node 24 is what setup-node's examples use.
  */
+/** Base images and settings for the Dockerfile and wrangler.json the deploy modules write. */
+export const deploy = {
+  node: "node:24-alpine",
+  nginx: "nginx:1.29-alpine",
+  bun: "oven/bun:1",
+  pnpm: "10",
+  /** Cloudflare's `compatibility_date`: the runtime behaviour the project was tested with. */
+  cloudflareCompatibilityDate: "2026-11-25",
+} as const;
+
 export const githubActions = {
   checkout: "actions/checkout@v7",
   setupNode: "actions/setup-node@v7",

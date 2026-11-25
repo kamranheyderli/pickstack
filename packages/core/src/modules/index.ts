@@ -32,6 +32,10 @@ import { shadcnSvelte } from "./ui/shadcn-svelte";
 import { shadcnVue } from "./ui/shadcn-vue";
 import { vuetify } from "./ui/vuetify";
 import { moduleFederation } from "./tooling/module-federation";
+import { cloudflare } from "./deploy/cloudflare";
+import { docker } from "./deploy/docker";
+import { netlify } from "./deploy/netlify";
+import { vercel } from "./deploy/vercel";
 import { editorconfig } from "./tooling/editorconfig";
 import { githubActionsModule } from "./tooling/github-actions";
 import { license } from "./tooling/license";
@@ -75,6 +79,10 @@ export const modules: readonly Module[] = [
   githubActionsModule,
   editorconfig,
   license,
+  vercel,
+  netlify,
+  cloudflare,
+  docker,
   agentsMdModule,
   claudeCode,
   cursor,

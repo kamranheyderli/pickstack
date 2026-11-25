@@ -181,6 +181,32 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 | `cursor` | hamısı | `agents-md` |
 | `copilot` | hamısı | `agents-md` |
 
+### 5.8.3 Deploy
+
+| Modul | SPA-lar (Vite, Angular) | SvelteKit, Astro (statik) | Next.js | Nuxt |
+| --- | --- | --- | --- | --- |
+| `vercel` | ✅ (`vercel.json` yalnız router olanda; Angular-da lazım deyil) | ✅ fayl yoxdur | ✅ fayl yoxdur | ✅ fayl yoxdur |
+| `netlify` | ✅ `netlify.toml` + SPA redirect | ✅ `netlify.toml` | ✅ fayl yoxdur (adapter avtomatik) | ✅ fayl yoxdur |
+| `cloudflare` | ✅ `wrangler.json`, `single-page-application` | ✅ `wrangler.json`, `404-page` | ❌ | ❌ |
+| `docker` | ✅ nginx | ✅ nginx (`$uri.html`) | ✅ `output: "standalone"` | ✅ Nitro node server |
+
+Qeydlər (2026-11, rəsmi sənədlər və real build ilə yoxlanılıb):
+
+- **Hamısı üçün:** deploy modulları `turborepo` və `module-federation` ilə konflikt edir, çünki fayllar `package.json`-ın yanında olmalıdır.
+- **Vercel:** Vite preset-i deep link-ləri `index.html`-ə yönləndirmir, ona görə router modulu olanda `vercel.json` rewrite-ı yazılır. Angular preset-ində bu fallback daxilidir. SvelteKit adapter-static üçün Vercel zero-config-dir.
+- **Cloudflare:**
+  - Workers static assets istifadə olunur, çünki Cloudflare onu Pages-in davamçısı kimi tövsiyə edir.
+  - `wrangler deploy --dry-run` və `wrangler dev` ilə yoxlanılıb.
+  - Fayl `.jsonc` yox, `wrangler.json`-dur. Prettier `.jsonc`-a sonda vergül əlavə edir, Biome isə etmir, ona görə iki formatter ziddiyyət yaradırdı.
+  - Next (OpenNext) və Nuxt (Nitro `cloudflare_module` preset-i) ayrıca server adapteri tələb edir, ona görə hələ təklif olunmur.
+- **Docker:**
+  - Lockfile tələb olunmur (`COPY package.json <lock>* ./`), çünki təzə layihədə lockfile hələ yoxdur.
+  - pnpm `npm i -g pnpm@10` ilə qurulur, corepack-dən asılı deyil. Bun-da build mərhələsi `oven/bun:1` image-ində gedir.
+  - Next-in runtime mərhələsi `public/`-i kopyalayır, ona görə build mərhələsində `mkdir -p public` var.
+  - 8 kombinasiya real `docker build` və `docker run` ilə yoxlanılıb: React/bun, Vue/npm, Angular/yarn, SvelteKit/pnpm, Astro, Next/pnpm (Husky ilə), Next/bun, Nuxt/npm. Hər birində `/` və `/about` 200 qaytarır.
+- **pnpm skriptləri:** `pnpm deploy` pnpm-in öz workspace əmridir, ona görə pnpm-in daxili əmrləri ilə eyni adlı skriptlər `pnpm run <script>` kimi çağırılır (`runCommand`).
+- **AI agentləri:** `deploy` skripti Claude Code-da avtomatik icazəli deyil; `ask` siyahısındadır. AGENTS.md-də "ask first" kimi qeyd olunur.
+
 ### 5.9 Ümumi seçimlər
 
 Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı. Lisenziya (`license`, MIT), `.editorconfig` (`editorconfig`) və GitHub Actions CI (`github-actions`) "Alətlər" kateqoriyasında modul kimi gəlir, ümumi seçim kimi yox: onları da digər modullar kimi seçib-çıxarmaq olur.

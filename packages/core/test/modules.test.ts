@@ -1115,3 +1115,104 @@ describe("repository files", () => {
     expect(files.get(".editorconfig")).toContain("indent_size = 2");
   });
 });
+
+describe("deploy", () => {
+  async function project(
+    framework: FrameworkId,
+    modules: string[],
+    packageManager: "npm" | "pnpm" | "yarn" | "bun" = "pnpm",
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language: "ts",
+      modules,
+      packageManager,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  }
+
+  it("Vercel needs a rewrite only for a Vite SPA with client-side routes", async () => {
+    expect((await project("react", ["vercel"])).has("vercel.json")).toBe(false);
+    const routed = await project("react", ["vercel", "react-router"]);
+    expect(JSON.parse(routed.get("vercel.json") ?? "")).toMatchObject({
+      rewrites: [{ source: "/(.*)", destination: "/index.html" }],
+    });
+    // Angular's and the meta-frameworks' presets handle routing themselves.
+    for (const fw of ["angular", "next", "sveltekit", "astro"] as const)
+      expect((await project(fw, ["vercel"])).has("vercel.json")).toBe(false);
+  });
+
+  it("Netlify builds with the package manager and publishes the right folder", async () => {
+    const angular = (await project("angular", ["netlify"], "bun")).get(
+      "netlify.toml",
+    );
+    expect(angular).toContain('command = "bun run build"');
+    expect(angular).toContain('publish = "dist/acme/browser"');
+    expect(angular).toContain('to = "/index.html"');
+    const kit = (await project("sveltekit", ["netlify"])).get("netlify.toml");
+    expect(kit).toContain('publish = "build"');
+    expect(kit).not.toContain("redirects");
+    expect((await project("next", ["netlify"])).has("netlify.toml")).toBe(
+      false,
+    );
+  });
+
+  it("Cloudflare serves the build as static assets", async () => {
+    const files = await project("vue", ["cloudflare"], "npm");
+    const config = JSON.parse(files.get("wrangler.json") ?? "");
+    expect(config).toMatchObject({
+      name: "acme",
+      assets: {
+        directory: "./dist/",
+        not_found_handling: "single-page-application",
+      },
+    });
+    const pkg = JSON.parse(files.get("package.json") ?? "");
+    expect(pkg.scripts.deploy).toBe("npm run build && wrangler deploy");
+    expect(pkg.devDependencies.wrangler).toBe(
+      knownGoodVersion("wrangler", "vue"),
+    );
+    expect(files.get(".gitignore")).toContain(".wrangler");
+    const astro = JSON.parse(
+      (await project("astro", ["cloudflare"])).get("wrangler.json") ?? "",
+    );
+    expect(astro.assets.not_found_handling).toBe("404-page");
+    expect(getModule("cloudflare")?.frameworks).not.toContain("next");
+  });
+
+  it("Docker serves static builds with nginx and runs Next standalone", async () => {
+    const react = await project("react", ["docker"], "yarn");
+    expect(react.get("Dockerfile")).toContain("RUN yarn install");
+    expect(react.get("Dockerfile")).toContain(
+      "COPY --from=build /app/dist /usr/share/nginx/html",
+    );
+    expect(react.get("nginx.conf")).toContain(
+      "try_files $uri $uri/ /index.html;",
+    );
+    const astro = await project("astro", ["docker"]);
+    expect(astro.get("nginx.conf")).toContain(
+      "try_files $uri $uri.html $uri/ =404;",
+    );
+
+    const next = await project("next", ["docker"], "bun");
+    expect(next.get("next.config.ts")).toContain('output: "standalone"');
+    expect(next.get("Dockerfile")).toContain("FROM oven/bun:1 AS build");
+    expect(next.get("Dockerfile")).toContain('CMD ["node", "server.js"]');
+    expect(next.has("nginx.conf")).toBe(false);
+  });
+
+  it("can't be combined with a workspace or micro-frontends", async () => {
+    for (const id of ["vercel", "netlify", "cloudflare", "docker"]) {
+      const result = await generate({
+        name: "acme",
+        framework: "react",
+        language: "ts",
+        packageManager: "pnpm",
+        modules: [id, "turborepo"],
+      });
+      expect(result.ok).toBe(false);
+    }
+  });
+});

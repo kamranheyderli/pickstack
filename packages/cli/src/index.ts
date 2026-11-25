@@ -39,6 +39,7 @@ const categoryLabels: Record<Category, string> = {
   quality: "Code quality",
   seo: "SEO & AI visibility",
   tooling: "Tooling",
+  deploy: "Deploy",
   ai: "AI agents",
 };
 

@@ -24,6 +24,7 @@ export type Category =
   | "quality"
   | "seo"
   | "tooling"
+  | "deploy"
   | "ai";
 
 export interface Selection {

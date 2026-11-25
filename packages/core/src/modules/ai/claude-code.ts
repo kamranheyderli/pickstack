@@ -1,7 +1,12 @@
 import { file, json } from "../../engine/code";
 import { installCommand, runCommand } from "../../engine/finalize";
 import type { Ctx, Module, ProjectModel } from "../../types";
-import { agentScripts, checkScripts, mcpServers } from "./guide";
+import {
+  OUTWARD_SCRIPTS,
+  agentScripts,
+  checkScripts,
+  mcpServers,
+} from "./guide";
 
 /** Prefix rules for a command (`Bash(pnpm test *)` also matches bare `pnpm test`). */
 function commandRules(ctx: Ctx, model: ProjectModel): string[] {
@@ -114,7 +119,15 @@ export const claudeCode: Module = {
         $schema: "https://json.schemastore.org/claude-code-settings.json",
         permissions: {
           allow: commandRules(ctx, model),
-          ask: ["Bash(git push *)"],
+          // Pushing and deploying reach outside the machine, so Claude asks first.
+          ask: [
+            "Bash(git push *)",
+            ...Object.keys(model.pkg.scripts)
+              .filter((s) => OUTWARD_SCRIPTS.has(s))
+              .map(
+                (s) => `Bash(${runCommand(ctx.selection.packageManager, s)} *)`,
+              ),
+          ],
           deny: ["Read(./.env)", "Read(./.env.local)", "Read(./.env.*.local)"],
         },
         ...(formatter

@@ -82,6 +82,7 @@ export const quickCombos: Combo[] = [
   ...aiCombos(),
   ...tanstackCombos(),
   ...projectFileCombos(),
+  ...deployCombos(),
   ...presetCombos,
 ];
 
@@ -650,5 +651,43 @@ function projectFileCombos(): Combo[] {
       language: "ts",
       modules: [...files, "turborepo", "eslint", "prettier"],
     },
+  ];
+}
+
+/** Deploy files next to each linter/formatter, so their formatting is checked too. */
+function deployCombos(): Combo[] {
+  const all = ["vercel", "netlify", "docker"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: [...all, "cloudflare", "react-router", "eslint", "prettier"],
+    },
+    {
+      framework: "vue",
+      language: "js",
+      modules: [...all, "cloudflare", "vue-router", "biome"],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: [...all, "cloudflare", "prettier"],
+    },
+    {
+      framework: "sveltekit",
+      language: "ts",
+      modules: [...all, "cloudflare", "eslint", "prettier"],
+    },
+    {
+      framework: "astro",
+      language: "ts",
+      modules: [...all, "cloudflare", "biome"],
+    },
+    {
+      framework: "next",
+      language: "ts",
+      modules: [...all, "eslint", "prettier"],
+    },
+    { framework: "nuxt", language: "js", modules: [...all, "prettier"] },
   ];
 }

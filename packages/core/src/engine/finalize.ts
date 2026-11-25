@@ -8,12 +8,19 @@ import type {
 import { file, json, sortRecord } from "./code";
 import { APP_NAME, writeTurborepo } from "./monorepo";
 
+/** Built-in pnpm commands that shadow scripts with the same name. */
+const PNPM_COMMANDS = new Set(["deploy", "publish", "pack", "link", "update"]);
+
 const commands: Record<
   PackageManager,
   { install: string; run: (script: string) => string }
 > = {
   npm: { install: "npm install", run: (s) => `npm run ${s}` },
-  pnpm: { install: "pnpm install", run: (s) => `pnpm ${s}` },
+  // pnpm's own commands win over scripts of the same name (`pnpm deploy` is a workspace command).
+  pnpm: {
+    install: "pnpm install",
+    run: (s) => (PNPM_COMMANDS.has(s) ? `pnpm run ${s}` : `pnpm ${s}`),
+  },
   yarn: { install: "yarn", run: (s) => `yarn ${s}` },
   bun: { install: "bun install", run: (s) => `bun run ${s}` },
 };

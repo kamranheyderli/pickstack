@@ -1,4 +1,10 @@
-import { file, indent, json, renderImports } from "../../engine/code";
+import {
+  file,
+  indent,
+  json,
+  jsLiteral,
+  renderImports,
+} from "../../engine/code";
 import { createModel } from "../../engine/model";
 import type {
   CounterSpec,
@@ -65,29 +71,10 @@ export const nextAdapter: FrameworkAdapter = {
       // `next typegen` writes next-env.d.ts and the route types used by `LayoutProps`.
       pkg.scripts["typecheck"] = "next typegen && tsc --noEmit";
       model.files.set("tsconfig.json", json(tsconfig()));
-      model.files.set(
-        "next.config.ts",
-        file([
-          'import type { NextConfig } from "next";',
-          "",
-          "const nextConfig: NextConfig = {};",
-          "",
-          "export default nextConfig;",
-        ]),
-      );
     } else {
       model.files.set(
         "jsconfig.json",
         json({ compilerOptions: { paths: { "@/*": ["./*"] } } }),
-      );
-      model.files.set(
-        "next.config.mjs",
-        file([
-          '/** @type {import("next").NextConfig} */',
-          "const nextConfig = {};",
-          "",
-          "export default nextConfig;",
-        ]),
       );
     }
     model.readme.stack.push(
@@ -100,6 +87,10 @@ export const nextAdapter: FrameworkAdapter = {
 
   render(model, ctx) {
     writePostcssConfig(model);
+    model.files.set(
+      ctx.isTs ? "next.config.ts" : "next.config.mjs",
+      nextConfig(model, ctx),
+    );
     const cls = demoClasses(model);
     const x = ctx.ext.component;
     model.files.set(`app/globals.${styleExt(model)}`, globalCss(model));
@@ -304,5 +295,24 @@ function aboutPage(model: ProjectModel, ctx: Ctx, cls: DemoClasses): string {
     "    </section>",
     "  );",
     "}",
+  ]);
+}
+
+/** next.config with the keys modules asked for (e.g. `output: "standalone"` for Docker). */
+function nextConfig(model: ProjectModel, ctx: Ctx): string {
+  const value = jsLiteral(model.bundler.config);
+  return file([
+    ...(ctx.isTs
+      ? [
+          'import type { NextConfig } from "next";',
+          "",
+          `const nextConfig: NextConfig = ${value};`,
+        ]
+      : [
+          '/** @type {import("next").NextConfig} */',
+          `const nextConfig = ${value};`,
+        ]),
+    "",
+    "export default nextConfig;",
   ]);
 }
