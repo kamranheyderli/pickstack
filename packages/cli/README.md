@@ -1,12 +1,23 @@
 # create-pickstack
 
-Create a frontend project with the stack you pick: framework, UI kit, state, routing, data fetching, testing, linting, SEO and AI agent configs. Every combination it offers is checked with a real install, build, lint and test.
+Create a web project with the stack you pick: framework, UI kit, state, routing, data fetching, testing, linting, SEO, AI agent configs, and optionally a Node.js API (Express or NestJS) with a database (PostgreSQL with Drizzle, or MongoDB). Every combination it offers is checked with a real install, build, lint and test.
 
 ```bash
 npm create pickstack@latest
 pnpm create pickstack
 yarn create pickstack
 bun create pickstack
+```
+
+> There is nothing to install: `npm create pickstack@latest` downloads and runs this package in one step. (`npm i create-pickstack`, which npm shows for every package, only adds it to `node_modules`.)
+
+## Full-stack
+
+For React, Vue, Svelte, Solid, Preact and Angular, pick a backend and a database: the app goes to `web/`, the API to `server/`, and `docker-compose.yml` runs the database locally. Next.js, Nuxt and SvelteKit use their own server, so they only ask for the database.
+
+```bash
+npm create pickstack@latest my-app -- --preset react-fullstack
+npm create pickstack@latest my-app -- --framework react --modules nestjs,drizzle --yes
 ```
 
 It asks for the project name, framework, language and the modules for each category. The modules shown are only those that work with your framework, and options that conflict with your earlier picks are shown with the reason.
