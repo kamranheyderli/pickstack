@@ -192,9 +192,9 @@ function storeProvider(ctx: Ctx): string {
     "",
     ...(ctx.isTs
       ? [
-          'import { useState, type ReactNode } from "react";',
+          'import { type ReactNode, useState } from "react";',
           'import { Provider } from "react-redux";',
-          'import { makeStore, type AppStore } from "../lib/store";',
+          'import { type AppStore, makeStore } from "../lib/store";',
           "",
           "export default function StoreProvider({ children }: { children: ReactNode }) {",
           "  const [store] = useState<AppStore>(makeStore);",
