@@ -35,6 +35,8 @@ export interface Selection {
   siteUrl?: string;
   /** Module ids picked by the user. Required modules are added by `resolve`. */
   modules: string[];
+  /** Copyright year for the license file (default: the current year). */
+  year?: number;
 }
 
 /** A public (client-exposed) environment variable: the `.env` key and the code that reads it. */

@@ -32,6 +32,9 @@ import { shadcnSvelte } from "./ui/shadcn-svelte";
 import { shadcnVue } from "./ui/shadcn-vue";
 import { vuetify } from "./ui/vuetify";
 import { moduleFederation } from "./tooling/module-federation";
+import { editorconfig } from "./tooling/editorconfig";
+import { githubActionsModule } from "./tooling/github-actions";
+import { license } from "./tooling/license";
 import { turborepo } from "./tooling/turborepo";
 import { testingLibrary } from "./testing/testing-library";
 import { vitest } from "./testing/vitest";
@@ -69,6 +72,9 @@ export const modules: readonly Module[] = [
   aio,
   turborepo,
   moduleFederation,
+  githubActionsModule,
+  editorconfig,
+  license,
   agentsMdModule,
   claudeCode,
   cursor,

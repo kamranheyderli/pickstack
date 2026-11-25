@@ -183,7 +183,10 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 
 ### 5.9 Ümumi seçimlər
 
-Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı, lisenziya faylı (MIT və ya yox), `.editorconfig`, GitHub Actions CI faylı (lint + build).
+Dil (JS/TS), paket meneceri (npm, pnpm, yarn, bun), layihə adı. Lisenziya (`license`, MIT), `.editorconfig` (`editorconfig`) və GitHub Actions CI (`github-actions`) "Alətlər" kateqoriyasında modul kimi gəlir, ümumi seçim kimi yox: onları da digər modullar kimi seçib-çıxarmaq olur.
+
+- CI (2026-11 yoxlanılıb): `actions/checkout@v7`, `actions/setup-node@v7` (Node 24), pnpm üçün `pnpm/action-setup@v6` (`version: 10`, çünki `package.json`-da `packageManager` yoxdur), bun üçün `oven-sh/setup-bun@v2`. Versiyalar `known-good.ts`-dədir (`githubActions`). Addımlar layihənin real skriptlərindən qurulur: lint, check, format:check, typecheck, test, build. Turborepo-da yalnız kökün turbo tapşırıqları işlədilir. Keş qoşulmayıb, çünki `setup-node`-un `cache` seçimi lockfile tələb edir və təzə layihədə lockfile yoxdur; faylda bunu necə əlavə etmək barədə şərh var.
+- LICENSE ili `Selection.year`-dən (default cari il) götürülür, ona görə testlər deterministik qalır. `.editorconfig` dəyərləri Prettier və Biome default-ları ilə eynidir, formatlamanı dəyişmir.
 
 ### 5.10 Framework qeydləri (2026-11, rəsmi scaffold-lardan yoxlanılıb)
 

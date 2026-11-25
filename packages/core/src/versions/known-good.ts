@@ -231,3 +231,16 @@ const packageManagerRanges: Record<PackageManager, string> = {
 export function packageManagerRange(pm: PackageManager): string {
   return packageManagerRanges[pm];
 }
+
+/**
+ * GitHub Actions used by the generated CI workflow, pinned to their current major (checked
+ * against each action's releases). Node 24 is what setup-node's examples use.
+ */
+export const githubActions = {
+  checkout: "actions/checkout@v7",
+  setupNode: "actions/setup-node@v7",
+  setupPnpm: "pnpm/action-setup@v6",
+  setupBun: "oven-sh/setup-bun@v2",
+  node: "24",
+  pnpm: "10",
+} as const;

@@ -74,6 +74,7 @@ export const quickCombos: Combo[] = [
   ...uiCombos(),
   ...aiCombos(),
   ...tanstackCombos(),
+  ...projectFileCombos(),
 ];
 
 /** Minimal and "everything" in both languages. */
@@ -618,6 +619,28 @@ function tanstackCombos(): Combo[] {
       framework: "angular",
       language: "ts",
       modules: ["tanstack-query", "biome", "vitest"],
+    },
+  ];
+}
+
+/**
+ * Repository files (.editorconfig, LICENSE, CI workflow) must pass the project's own format
+ * checks; Prettier also parses the workflow YAML.
+ */
+function projectFileCombos(): Combo[] {
+  const files = ["github-actions", "editorconfig", "license"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: [...files, "eslint", "prettier", "vitest"],
+    },
+    { framework: "vue", language: "js", modules: [...files, "biome"] },
+    { framework: "angular", language: "ts", modules: [...files, "prettier"] },
+    {
+      framework: "next",
+      language: "ts",
+      modules: [...files, "turborepo", "eslint", "prettier"],
     },
   ];
 }

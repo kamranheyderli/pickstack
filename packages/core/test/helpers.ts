@@ -8,6 +8,8 @@ export function selection(overrides: Partial<Selection> = {}): Selection {
     language: "ts",
     packageManager: "npm",
     modules: [],
+    // Fixed so snapshots don't change with the calendar.
+    year: 2026,
     ...overrides,
   };
 }

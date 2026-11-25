@@ -88,9 +88,49 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -148,7 +188,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -196,9 +236,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (angular-cli); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material, Angular signals service, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -226,6 +288,10 @@ Set \`apiUrl\` in \`src/environments/environment.ts\`. Import the client from \`
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -387,6 +453,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,html})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",
@@ -489,7 +556,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/app/api/client.ts": "import axios from "axios";
@@ -644,7 +712,7 @@ export class StackList {
   <p class="max-w-md text-center text-slate-600">
     Built with Angular 22, TypeScript, Sass, Tailwind CSS, Angular Material,
     Angular signals service, Axios, TanStack Query, Vitest, Testing Library,
-    ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+    ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
   </p>
 </section>
 ",
@@ -1306,11 +1374,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "PUBLIC_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -1362,7 +1469,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -1404,9 +1511,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - MCP servers for this stack are in \`.mcp.json\` (astro-docs); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -1433,6 +1562,10 @@ Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client 
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -1499,6 +1632,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,astro})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -1646,7 +1780,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+      Built with Astro, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </Layout>
@@ -1803,11 +1937,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "PUBLIC_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -1859,7 +2033,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -1903,9 +2077,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (astro-docs); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -1933,6 +2129,10 @@ Copy \`.env.example\` to \`.env\` and set \`PUBLIC_API_URL\`. Import the client 
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -2001,6 +2201,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,astro})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -2156,7 +2357,7 @@ import Layout from "../layouts/Layout.astro";
   <section class="flex flex-col items-center gap-6">
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
-      Built with Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+      Built with Astro, TypeScript, Sass, Tailwind CSS, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </Layout>
@@ -3947,11 +4148,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -4009,7 +4249,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -4055,9 +4295,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - MCP servers for this stack are in \`.mcp.json\` (next-devtools, shadcn); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -4087,6 +4349,10 @@ Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the cl
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -4140,7 +4406,7 @@ export default function About() {
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, Sass, Tailwind CSS,
         shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt.
+        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -4714,6 +4980,7 @@ export default nextConfig;
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -4885,11 +5152,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "NEXT_PUBLIC_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -4947,7 +5254,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -4995,9 +5302,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (next-devtools, shadcn); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Next.js (App Router), React 19, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -5028,6 +5357,10 @@ Copy \`.env.example\` to \`.env\` and set \`NEXT_PUBLIC_API_URL\`. Import the cl
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -5083,7 +5416,7 @@ export default function About() {
       <p className="max-w-md text-center text-slate-600">
         Built with Next.js (App Router), React 19, TypeScript, Sass, Tailwind
         CSS, shadcn/ui, Redux Toolkit, Axios, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt.
+        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -5678,6 +6011,7 @@ export default nextConfig;
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -6406,11 +6740,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "NUXT_PUBLIC_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -6460,7 +6833,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -6507,9 +6880,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - MCP servers for this stack are in \`.mcp.json\` (nuxt); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -6541,6 +6936,10 @@ Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const {
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -7019,7 +7418,7 @@ useSeoMeta({ title: "About" });
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios,
       Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-      llms.txt.
+      llms.txt, GitHub Actions.
     </p>
   </section>
 </template>
@@ -7122,6 +7521,7 @@ export default defineNuxtConfig({
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -7361,11 +7761,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "NUXT_PUBLIC_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -7415,7 +7855,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -7464,9 +7904,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (nuxt); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -7499,6 +7961,10 @@ Set \`NUXT_PUBLIC_API_URL\` (see \`.env.example\`). Use the client via \`const {
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -7967,7 +8433,7 @@ useSeoMeta({ title: "About" });
     <p class="max-w-md text-center text-slate-600">
       Built with Nuxt 4, Vue 3, TypeScript, Sass, Tailwind CSS, shadcn-vue,
       Pinia, Axios, Vitest, Testing Library, ESLint, Prettier, Husky,
-      lint-staged, SEO, llms.txt.
+      lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </template>
@@ -8070,6 +8536,7 @@ export default defineNuxtConfig({
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -8756,11 +9223,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -8782,7 +9288,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -8824,9 +9330,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - Edited files are formatted automatically by a hook; don't reformat by hand.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -8852,6 +9380,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -8939,6 +9471,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -9110,7 +9643,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Vitest,
-        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
+        GitHub Actions.
       </p>
     </section>
   );
@@ -9227,11 +9761,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -9253,7 +9827,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -9297,9 +9871,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - Edited files are formatted automatically by a hook; don't reformat by hand.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -9326,6 +9922,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -9412,6 +10012,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -9588,7 +10189,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso,
         Axios, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
-        SEO, llms.txt.
+        SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -10292,11 +10893,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -10337,7 +10977,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -10383,9 +11023,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - MCP servers for this stack are in \`.mcp.json\` (shadcn); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -10415,6 +11077,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -10545,6 +11211,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10648,7 +11315,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.jsx": "import { Link, Route, Routes } from "react-router";
@@ -11082,7 +11750,7 @@ createRoot(document.getElementById("root")).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
         React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt.
+        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -11242,11 +11910,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -11287,7 +11995,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -11335,9 +12043,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (shadcn); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -11368,6 +12098,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -11485,6 +12219,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -11594,7 +12329,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.tsx": "import { Link, Route, Routes } from "react-router";
@@ -12037,7 +12773,8 @@ createRoot(document.getElementById("root")!).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
         Redux Toolkit, React Router, Axios, TanStack Query, Vitest, Testing
-        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+        Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub
+        Actions.
       </p>
     </section>
   );
@@ -13328,11 +14065,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -13354,7 +14130,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -13397,9 +14173,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - Edited files are formatted automatically by a hook; don't reformat by hand.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -13425,6 +14223,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -13506,6 +14308,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13599,7 +14402,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.jsx": "import { A } from "@solidjs/router";
@@ -13730,7 +14534,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
         Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
-        Prettier, Husky, lint-staged, SEO, llms.txt.
+        Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -13863,11 +14667,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -13889,7 +14733,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -13934,9 +14778,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - Edited files are formatted automatically by a hook; don't reformat by hand.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -13963,6 +14829,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -14045,6 +14915,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -14143,7 +15014,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.tsx": "import type { RouteSectionProps } from "@solidjs/router";
@@ -14275,7 +15147,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
         store, Solid Router, Axios, TanStack Query, Vitest, Testing Library,
-        ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+        ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
       </p>
     </section>
   );
@@ -14968,11 +15840,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -15023,7 +15934,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -15066,9 +15977,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -15098,6 +16031,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -15221,6 +16158,7 @@ export default defineConfig(
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15315,7 +16253,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.svelte": "<script>
@@ -15942,11 +16881,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -15997,7 +16976,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -16042,9 +17021,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Svelte 5, Vite, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -16075,6 +17076,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -16195,6 +17200,7 @@ export default defineConfig(
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -16296,7 +17302,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.svelte": "<script lang="ts">
@@ -17487,11 +18494,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -17546,7 +18592,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -17590,9 +18636,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -17622,6 +18690,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -17716,6 +18788,7 @@ export default defineConfig(
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -18182,7 +19255,7 @@ export function decrement() {
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, Sass, Tailwind CSS, shadcn-svelte, Svelte
     runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO,
-    llms.txt.
+    llms.txt, GitHub Actions.
   </p>
 </section>
 ",
@@ -18510,11 +19583,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -18569,7 +19682,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -18615,9 +19728,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - MCP servers for this stack are in \`.mcp.json\` (svelte); prefer them over guessing APIs.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS, shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -18648,6 +19783,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -18748,6 +19887,7 @@ export default defineConfig(
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,svelte})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -19275,7 +20415,7 @@ export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & {
   <p class="max-w-md text-center text-slate-600">
     Built with SvelteKit, Svelte 5, TypeScript, Sass, Tailwind CSS,
     shadcn-svelte, Svelte runes store, Axios, Vitest, ESLint, Prettier, Husky,
-    lint-staged, SEO, llms.txt.
+    lint-staged, SEO, llms.txt, GitHub Actions.
   </p>
 </section>
 ",
@@ -21592,11 +22732,50 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -21618,7 +22797,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -21663,9 +22842,31 @@ Run \`npm run lint\`, \`npm run test\` and fix what they report.
 - Edited files are formatted automatically by a hook; don't reformat by hand.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -21695,6 +22896,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -21811,6 +23016,7 @@ export default defineConfig([
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -21914,7 +23120,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.vue": "<script setup>
@@ -22464,7 +23671,7 @@ afterEach(() => {
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
       Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky,
-      lint-staged, SEO, llms.txt.
+      lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </template>
@@ -22592,11 +23799,51 @@ alwaysApply: false
 
 Follow the structure, conventions and checks in AGENTS.md at the repository root.
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+",
   ".env.example": "VITE_API_URL=http://localhost:3000
 ",
   ".github/copilot-instructions.md": "# my-app
 
 Follow the commands, structure, conventions and checks in AGENTS.md at the repository root.
+",
+  ".github/workflows/ci.yml": "name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          # Once the lockfile is committed, add \`cache: npm\` to cache dependencies.
+      - run: npm install
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ",
   ".gitignore": "node_modules
 dist
@@ -22618,7 +23865,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Commands
 
@@ -22665,9 +23912,31 @@ Run \`npm run lint\`, \`npm run typecheck\`, \`npm run test\` and fix what they 
 - Edited files are formatted automatically by a hook; don't reformat by hand.
 - Keep secrets in \`.env.local\`; Claude is not allowed to read \`.env\` files.
 ",
+  "LICENSE": "MIT License
+
+Copyright (c) 2026 my-app authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
 
 ## Getting started
 
@@ -22698,6 +23967,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Git hooks
 
 The pre-commit hook runs lint-staged on staged files (lint-staged needs Node.js 22.22.1 or newer). Hooks are installed by \`prepare\` during install, which needs a git repository: after \`git init\`, run the install once more.
+
+## License
+
+MIT, see \`LICENSE\`.
 
 ## Claude Code
 
@@ -22808,6 +24081,7 @@ export default defineConfigWithVueTs(
     ],
     "!(*.{js,jsx,ts,tsx,mjs,cjs,vue})": "prettier --ignore-unknown --write"
   },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --build && vite build",
@@ -22919,7 +24193,8 @@ Sitemap: https://example.com/sitemap.xml
   "Husky",
   "lint-staged",
   "SEO",
-  "llms.txt"
+  "llms.txt",
+  "GitHub Actions"
 ]
 ",
   "src/App.vue": "<script setup lang="ts">
@@ -23459,7 +24734,7 @@ afterEach(() => {
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
       Vue Router, Axios, TanStack Query, Vitest, Testing Library, ESLint,
-      Prettier, Husky, lint-staged, SEO, llms.txt.
+      Prettier, Husky, lint-staged, SEO, llms.txt, GitHub Actions.
     </p>
   </section>
 </template>

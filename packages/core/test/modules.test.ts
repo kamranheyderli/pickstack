@@ -1066,3 +1066,52 @@ describe("tanstack-query", () => {
     );
   });
 });
+
+describe("repository files", () => {
+  async function project(
+    modules: string[],
+    packageManager: "npm" | "pnpm" | "bun" = "pnpm",
+  ): Promise<Map<string, string>> {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      modules,
+      packageManager,
+      year: 2030,
+    });
+    if (!result.ok) throw new Error("generation failed");
+    return result.files;
+  }
+
+  it("CI runs the project's own checks with the chosen package manager", async () => {
+    const ci =
+      (await project(["github-actions", "eslint", "vitest"])).get(
+        ".github/workflows/ci.yml",
+      ) ?? "";
+    expect(ci).toContain("uses: pnpm/action-setup@v6");
+    expect(ci).toContain("- run: pnpm lint");
+    expect(ci).toContain("- run: pnpm test");
+    expect(ci.indexOf("pnpm lint")).toBeLessThan(ci.indexOf("pnpm build"));
+    const bun = (await project(["github-actions"], "bun")).get(
+      ".github/workflows/ci.yml",
+    );
+    expect(bun).toContain("oven-sh/setup-bun@v2");
+    expect(bun).toContain("- run: bun install");
+  });
+
+  it("CI in a Turborepo runs only the tasks the root exposes", async () => {
+    const files = await project(["github-actions", "turborepo", "prettier"]);
+    const ci = files.get(".github/workflows/ci.yml") ?? "";
+    expect(ci).toContain("- run: pnpm build");
+    expect(ci).not.toContain("format:check");
+    expect(files.has("apps/web/.github/workflows/ci.yml")).toBe(false);
+  });
+
+  it("writes the MIT license and .editorconfig", async () => {
+    const files = await project(["license", "editorconfig"]);
+    expect(files.get("LICENSE")).toContain("Copyright (c) 2030 acme authors");
+    expect(JSON.parse(files.get("package.json") ?? "{}").license).toBe("MIT");
+    expect(files.get(".editorconfig")).toContain("indent_size = 2");
+  });
+});
