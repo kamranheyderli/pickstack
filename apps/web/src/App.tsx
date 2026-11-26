@@ -7,7 +7,7 @@ import {
   toProjectName,
   type Selection,
 } from "@stackforge/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
 import { Burst } from "./components/Burst";
@@ -15,6 +15,7 @@ import { Logo } from "./components/Logo";
 import { CommandPalette } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
+import { GitHubDialog } from "./components/GitHubDialog";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
 import { QuickStart } from "./components/QuickStart";
@@ -27,7 +28,13 @@ import {
   type MessageKey,
 } from "./i18n";
 import { downloadZip } from "./lib/download";
-import { UiIcon } from "./lib/icons";
+import {
+  createRepository,
+  GitHubError,
+  startGitHubCreate,
+  takeGitHubReturn,
+} from "./lib/github";
+import { GitHubMark, UiIcon } from "./lib/icons";
 import { readPref, writePref } from "./lib/storage";
 import { paletteCommands } from "./lib/paletteCommands";
 import { selectionFromQuery, selectionToQuery } from "./lib/url";
@@ -36,6 +43,12 @@ import { useTheme } from "./lib/useTheme";
 import { defaultSelection, pruneIncompatible } from "./state/selection";
 
 const locales = ["az", "en"] as const;
+
+// Read once, before React renders: StrictMode runs state initializers twice, and the first
+// read clears the token from the address bar.
+const githubReturn = takeGitHubReturn();
+const githubPending =
+  githubReturn && "token" in githubReturn ? githubReturn.pending : null;
 const themeIcon = { system: "monitor", light: "sun", dark: "moon" } as const;
 
 export default function App() {
@@ -56,10 +69,22 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [current, setCurrent] = useState("src/App.tsx");
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(() => {
+    if (!githubReturn || !("error" in githubReturn)) return null;
+    return githubReturn.error === "access_denied"
+      ? translate(readPref("locale", locales, "az"), "github.denied")
+      : translate(readPref("locale", locales, "az"), "github.error", {
+          error: githubReturn.error,
+        });
+  });
+  const [githubOpen, setGithubOpen] = useState(false);
+  const [repoUrl, setRepoUrl] = useState<string | null>(null);
+  const githubStarted = useRef(false);
   const [generation, setGeneration] = useState(0);
   // Files the user edited in the preview; they win over generated content.
-  const [edits, setEdits] = useState<Map<string, string>>(() => new Map());
+  const [edits, setEdits] = useState<Map<string, string>>(
+    () => new Map(githubPending?.edits ?? []),
+  );
   const generated = useGenerated(selection);
   const [seen, setSeen] = useState(generated.result);
 
@@ -183,8 +208,49 @@ export default function App() {
     }
   };
 
+  // Back from GitHub's consent screen: create the repository once the files are generated.
+  useEffect(() => {
+    if (!files || githubStarted.current) return;
+    if (!githubReturn || !("token" in githubReturn)) return;
+    githubStarted.current = true;
+    const name = githubPending?.name ?? projectName;
+    setBusy(true);
+    setRepoUrl(null);
+    setStatus(t("github.busy", { name }));
+    createRepository(
+      githubReturn.token,
+      {
+        name,
+        private: githubPending?.private ?? false,
+        description: `Created with pickstack: ${window.location.origin}`,
+      },
+      files,
+    )
+      .then((url) => {
+        setRepoUrl(url);
+        setCelebrations((n) => n + 1);
+        setStatus(t("github.done", { name }));
+      })
+      .catch((error: unknown) => {
+        setStatus(
+          error instanceof GitHubError && error.status === 422
+            ? t("github.exists", { name })
+            : t("github.error", {
+                error: error instanceof Error ? error.message : String(error),
+              }),
+        );
+      })
+      .finally(() => setBusy(false));
+  });
+
   return (
     <LocaleProvider locale={locale}>
+      <GitHubDialog
+        open={githubOpen}
+        defaultName={projectName}
+        onClose={() => setGithubOpen(false)}
+        onContinue={(repo) => startGitHubCreate({ ...repo, edits: [...edits] })}
+      />
       <Sky />
       <CommandPalette
         open={paletteOpen}
@@ -400,6 +466,15 @@ export default function App() {
                 <button
                   type="button"
                   disabled={!files || busy}
+                  onClick={() => setGithubOpen(true)}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
+                >
+                  <GitHubMark />
+                  <span className="hidden sm:inline">{t("github.button")}</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={!files || busy}
                   onClick={onDownload}
                   className="relative inline-flex cursor-pointer items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-bg shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
                 >
@@ -469,6 +544,19 @@ export default function App() {
               aria-live="polite"
             >
               {status ?? t("download.hint")}
+              {repoUrl && (
+                <>
+                  {" "}
+                  <a
+                    href={repoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-semibold text-ink underline underline-offset-2"
+                  >
+                    {t("github.open")}
+                  </a>
+                </>
+              )}
             </p>
           </section>
         </div>

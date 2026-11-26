@@ -5,6 +5,7 @@ import {
   siAxios,
   siBiome,
   siBun,
+  siGithub,
   siClaude,
   siCursor,
   siChakraui,
@@ -161,6 +162,21 @@ export function BrandIcon({
       fill={brandColor(icon)}
     >
       <path d={icon.path} />
+    </svg>
+  );
+}
+
+/** GitHub's mark in the text colour, so it reads on light and dark buttons. */
+export function GitHubMark({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="currentColor"
+    >
+      <path d={siGithub.path} />
     </svg>
   );
 }

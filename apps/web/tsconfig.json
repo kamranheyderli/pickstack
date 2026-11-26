@@ -10,6 +10,7 @@
     "src",
     "test",
     "seo",
+    "api",
     "vite.config.ts",
     "../../packages/core/src/**/*.d.ts"
   ]
