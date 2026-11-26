@@ -41,6 +41,7 @@
   "github.cancel": "Ləğv et",
   "github.note": "GitHub pickstack-a repo yaratmaq icazəsi istəyəcək. Token yalnız bu səhifədə istifadə olunur, heç yerdə saxlanmır.",
   "github.busy": "{name} GitHub-da yaradılır…",
+  "github.redirecting": "GitHub-a yönləndirilir…",
   "github.done": "{name} GitHub-da yaradıldı.",
   "github.open": "Repo-nu aç",
   "github.close": "Bağla",

@@ -41,6 +41,7 @@
   "github.cancel": "Cancel",
   "github.note": "GitHub will ask you to let pickstack create repositories. The token is used on this page only and never stored.",
   "github.busy": "Creating {name} on GitHub…",
+  "github.redirecting": "Taking you to GitHub…",
   "github.done": "Created {name} on GitHub.",
   "github.open": "Open the repository",
   "github.close": "Close",

@@ -7,16 +7,15 @@ import {
   toProjectName,
   type Selection,
 } from "@stackforge/core";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
 import { Burst } from "./components/Burst";
 import { Logo } from "./components/Logo";
-import { Toast } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
-import { GitHubDialog } from "./components/GitHubDialog";
+import { GitHubDialog, type GitHubStep } from "./components/GitHubDialog";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
 import { QuickStart } from "./components/QuickStart";
@@ -70,20 +69,42 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [current, setCurrent] = useState("src/App.tsx");
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<string | null>(() => {
-    if (!githubReturn || !("error" in githubReturn)) return null;
-    return githubReturn.error === "access_denied"
-      ? translate(readPref("locale", locales, "az"), "github.denied")
-      : translate(readPref("locale", locales, "az"), "github.error", {
-          error: githubReturn.error,
-        });
+  const [status, setStatus] = useState<string | null>(null);
+  // The whole "Create on GitHub" flow runs in its dialog, which reopens after GitHub's consent screen.
+  const [githubOpen, setGithubOpen] = useState(githubReturn !== null);
+  const [githubStep, setGithubStep] = useState<GitHubStep>(() => {
+    if (!githubReturn) return { step: "form" };
+    if ("token" in githubReturn) {
+      const name = githubPending?.name ?? "";
+      return {
+        step: "busy",
+        text: translate(readPref("locale", locales, "az"), "github.busy", {
+          name,
+        }),
+      };
+    }
+    return {
+      step: "form",
+      error:
+        githubReturn.error === "access_denied"
+          ? translate(readPref("locale", locales, "az"), "github.denied")
+          : translate(readPref("locale", locales, "az"), "github.error", {
+              error: githubReturn.error,
+            }),
+    };
   });
-  const [githubOpen, setGithubOpen] = useState(false);
-  // How creating the GitHub repository ended, shown in a toast until it is closed.
-  const [githubResult, setGithubResult] = useState<
-    { ok: true; text: string; url: string } | { ok: false; text: string } | null
-  >(null);
-  const closeToast = useCallback(() => setGithubResult(null), []);
+  // What the dialog starts with: the repository asked for before the round trip through GitHub.
+  const [githubDraft, setGithubDraft] = useState<{
+    name: string | null;
+    private: boolean;
+  }>({
+    name: githubPending?.name ?? null,
+    private: githubPending?.private ?? false,
+  });
+  // Kept in memory only, so a retry (say, after a taken name) needs no second sign-in.
+  const githubToken = useRef(
+    githubReturn && "token" in githubReturn ? githubReturn.token : null,
+  );
   const githubStarted = useRef(false);
   const [generation, setGeneration] = useState(0);
   // Files the user edited in the preview; they win over generated content.
@@ -213,76 +234,82 @@ export default function App() {
     }
   };
 
-  // Back from GitHub's consent screen: create the repository once the files are generated.
-  useEffect(() => {
-    if (!files || githubStarted.current) return;
-    if (!githubReturn || !("token" in githubReturn)) return;
-    githubStarted.current = true;
-    const name = githubPending?.name ?? projectName;
-    setBusy(true);
-    setGithubResult(null);
-    setStatus(t("github.busy", { name }));
+  const createOnGitHub = (
+    token: string,
+    repo: { name: string; private: boolean },
+    projectFiles: Map<string, string>,
+  ) => {
+    setGithubStep({
+      step: "busy",
+      text: t("github.busy", { name: repo.name }),
+    });
     createRepository(
-      githubReturn.token,
+      token,
       {
-        name,
-        private: githubPending?.private ?? false,
+        ...repo,
         description: `Created with pickstack: ${window.location.origin}`,
       },
-      files,
+      projectFiles,
     )
       .then((url) => {
-        setGithubResult({ ok: true, text: t("github.done", { name }), url });
+        setGithubStep({ step: "done", name: repo.name, url });
         setCelebrations((n) => n + 1);
-        setStatus(null);
       })
       .catch((error: unknown) => {
-        const text =
-          error instanceof GitHubError && error.status === 422
-            ? t("github.exists", { name })
-            : t("github.error", {
-                error: error instanceof Error ? error.message : String(error),
-              });
-        setStatus(text);
-        setGithubResult({ ok: false, text });
-      })
-      .finally(() => setBusy(false));
+        setGithubStep({
+          step: "form",
+          error:
+            error instanceof GitHubError && error.status === 422
+              ? t("github.exists", { name: repo.name })
+              : t("github.error", {
+                  error: error instanceof Error ? error.message : String(error),
+                }),
+        });
+      });
+  };
+
+  // Back from GitHub's consent screen: create the repository once the files are generated.
+  useEffect(() => {
+    if (!files || githubStarted.current || !githubToken.current) return;
+    if (!githubReturn || !("token" in githubReturn)) return;
+    githubStarted.current = true;
+    createOnGitHub(
+      githubToken.current,
+      {
+        name: githubPending?.name ?? projectName,
+        private: githubPending?.private ?? false,
+      },
+      files,
+    );
   });
 
   return (
     <LocaleProvider locale={locale}>
       <GitHubDialog
         open={githubOpen}
-        defaultName={projectName}
-        onClose={() => setGithubOpen(false)}
+        state={githubStep}
+        defaultName={githubDraft.name ?? projectName}
+        defaultPrivate={githubDraft.private}
+        onClose={() => {
+          setGithubOpen(false);
+          setGithubStep({ step: "form" });
+          setGithubDraft({ name: null, private: false });
+        }}
         onContinue={(repo) => {
-          // Sign-in runs in Vercel functions; Vite's dev server has no /api.
-          if (import.meta.env.DEV) {
-            setGithubOpen(false);
-            setStatus(t("github.devOnly"));
+          // Signed in already (back from GitHub): create it straight away.
+          if (githubToken.current && files) {
+            createOnGitHub(githubToken.current, repo, files);
             return;
           }
+          // Sign-in runs in Vercel functions; Vite's dev server has no /api.
+          if (import.meta.env.DEV) {
+            setGithubStep({ step: "form", error: t("github.devOnly") });
+            return;
+          }
+          setGithubStep({ step: "busy", text: t("github.redirecting") });
           startGitHubCreate({ ...repo, edits: [...edits] });
         }}
       />
-      {githubResult && (
-        <Toast
-          onClose={closeToast}
-          tone={githubResult.ok ? "success" : "error"}
-        >
-          <p className="m-0 font-semibold">{githubResult.text}</p>
-          {githubResult.ok && (
-            <a
-              href={githubResult.url}
-              target="_blank"
-              rel="noreferrer"
-              className="text-muted underline underline-offset-2 hover:text-ink"
-            >
-              {t("github.open")}
-            </a>
-          )}
-        </Toast>
-      )}
       <Sky />
       <CommandPalette
         open={paletteOpen}
