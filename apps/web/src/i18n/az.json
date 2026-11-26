@@ -111,5 +111,6 @@
   "footer.templates": "Hazır şablonlar",
   "quickstart.hint": "Terminalda işə salın: framework və alətləri soruşur, sonra layihəni yaradır.",
   "category.backend": "Backend",
-  "category.database": "Verilənlər bazası"
+  "category.database": "Verilənlər bazası",
+  "category.auth": "Autentifikasiya"
 }

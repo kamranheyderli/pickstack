@@ -216,6 +216,21 @@ Qeydlər (2026-11, yoxlanılıb):
   - `turborepo` və `module-federation` ilə konflikt edir.
   - GitHub Actions workflow-u hələ `web/` içində qalır, ona görə GitHub onu oxumur. Bu, sonrakı addımdır.
 - **Növbəti:** NestJS, sonra PostgreSQL ilə Prisma və ya Drizzle.
+- **`.env`:** Express serverinin `dev`/`start` skriptləri `.env`-i Node-un öz `--env-file-if-exists=.env` bayrağı ilə oxuyur (Node 22.9+, `tsx` də ötürür), ona görə `dotenv` lazım deyil. Fayl yoxdursa, koddakı default-lar işləyir.
+
+### 5.6.3 Autentifikasiya (tək seçim)
+
+| Modul | Uyğun | Tələb |
+|---|---|---|
+| `better-auth` | R, V, S, So, P, A | `mongodb` (avtomatik), `express`; `nestjs` ilə konflikt |
+
+- **Better Auth 1.7** ([sənəd](https://www.better-auth.com/docs/integrations/express)), email və şifrə ilə. 1-ci addım yalnız server tərəfidir; frontend formaları növbəti addımdır.
+- `server/src/auth`: `betterAuth({ baseURL, database: mongodbAdapter(client.db()), emailAndPassword })`. Adapter `better-auth/adapters/mongodb`-dən gəlir (paket özündə gətirir), `mongodb` drayveri ayrıca asılılıqdır (mongoose 9.13 ilə eyni 7.9 xətti). MongoDB üçün migrasiya lazım deyil.
+- docker-compose-dakı MongoDB tək serverdir və transaction-ı yoxdur, ona görə adapterə `client` verilmir (sənəddəki "standalone" variantı).
+- Handler `app.all("/api/auth/{*any}", toNodeHandler(auth))` `express.json()`-dan **əvvəl** qoşulur (`ServerSpec.beforeBody`), çünki body parser sorğu axınını oxuyub bitirir. `/api/me` `auth.api.getSession` nümunəsidir.
+- **Origin:** brauzer API-yə app-in dev server proxy-si ilə gəlir, ona görə `BETTER_AUTH_URL` app-in öz origin-idir (`devPorts`: Vite 5173, Angular 4200). Better Auth `baseURL`-a default olaraq güvənir; başqa origin-lər `403 INVALID_ORIGIN` alır. Hamısı real işə salınıb yoxlanılıb (qeydiyyat, sessiya, çıxış, giriş).
+- `BETTER_AUTH_SECRET` `.env.example`-də boşdur; README `openssl rand -base64 32` ilə doldurmağı deyir. Dev-də secret olmadan da işləyir, production-da Better Auth onu tələb edir.
+- **Növbəti addımlar:** frontend formaları (`better-auth/react`, `/vue`, `/svelte`, `/solid`, vanilla), sonra NestJS (`@thallesp/nestjs-better-auth`, icma paketi) və Drizzle/PostgreSQL adapteri.
 
 ### 5.7 Test
 

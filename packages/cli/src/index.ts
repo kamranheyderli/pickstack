@@ -38,6 +38,7 @@ const categoryLabels: Record<Category, string> = {
   i18n: "Internationalization",
   backend: "Backend",
   database: "Database",
+  auth: "Authentication",
   testing: "Testing",
   quality: "Code quality",
   seo: "SEO & AI visibility",

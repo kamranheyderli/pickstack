@@ -49,6 +49,7 @@ function everything(framework: FrameworkId): string[] {
           "nestjs",
           "mongodb",
           "drizzle",
+          "better-auth",
         ].includes(m.id),
     )
     .filter((m) => {
@@ -83,6 +84,12 @@ for (const framework of frameworks) {
 describe("express snapshot", () => {
   it("puts the app in web/ and the API in server/ (ts)", async () => {
     expect(await files("ts", ["express"])).toMatchSnapshot();
+  });
+});
+
+describe("better-auth snapshot", () => {
+  it("adds Better Auth to the Express API (ts)", async () => {
+    expect(await files("ts", ["express", "better-auth"])).toMatchSnapshot();
   });
 });
 

@@ -1,20 +1,7 @@
 import { file, renderImports } from "../../engine/code";
 import { runCommand } from "../../engine/finalize";
+import { devPorts } from "../../frameworks/catalog";
 import type { Ctx, FrameworkId, Module, ProjectModel } from "../../types";
-
-/** Where each framework's dev server listens by default. */
-const devPorts: Record<FrameworkId, number> = {
-  react: 5173,
-  vue: 5173,
-  svelte: 5173,
-  solid: 5173,
-  preact: 5173,
-  sveltekit: 5173,
-  angular: 4200,
-  next: 3000,
-  nuxt: 3000,
-  astro: 4321,
-};
 
 /** Frameworks whose demo always has an About page; SPAs get one from a router module. */
 const ALWAYS_ROUTED: ReadonlySet<FrameworkId> = new Set([

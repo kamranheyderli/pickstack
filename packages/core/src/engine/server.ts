@@ -52,14 +52,19 @@ function scripts(spec: ServerSpec, ctx: Ctx): Record<string, string> {
       typecheck: "tsc --noEmit",
     };
   }
+  // Node reads `.env` itself (`--env-file-if-exists`, Node 22.9+), so no dotenv is needed.
+  const env = "--env-file-if-exists=.env";
   return ctx.isTs
     ? {
-        dev: "tsx watch src/index.ts",
+        dev: `tsx watch ${env} src/index.ts`,
         build: "tsc",
-        start: "node dist/index.js",
+        start: `node ${env} dist/index.js`,
         typecheck: "tsc --noEmit",
       }
-    : { dev: "node --watch src/index.js", start: "node src/index.js" };
+    : {
+        dev: `node --watch ${env} src/index.js`,
+        start: `node ${env} src/index.js`,
+      };
 }
 
 /** The server's package.json scripts: the framework's own plus the modules' (e.g. `db:push`). */
@@ -102,6 +107,7 @@ const appFile = (spec: ServerSpec) =>
     "",
     "export const app = express();",
     "",
+    ...(spec.beforeBody.length ? [...spec.beforeBody, ""] : []),
     "app.use(express.json());",
     "",
     ...spec.routes,

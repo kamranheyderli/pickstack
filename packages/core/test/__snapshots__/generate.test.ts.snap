@@ -3468,6 +3468,474 @@ body {
 }
 `;
 
+exports[`better-auth snapshot > adds Better Auth to the Express API (ts) 1`] = `
+Map {
+  "docker-compose.yml" => "# Local MongoDB for development: docker compose up -d
+services:
+  mongo:
+    image: mongo:8
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+",
+  "README.md" => "# my-app
+
+A web app and its API, as two projects:
+
+- \`web/\`: the app. In development its dev server proxies \`/api\` to the API.
+- \`server/\`: Express 5 API on port 3001, with MongoDB (Mongoose), with Better Auth.
+
+## Getting started
+
+Start MongoDB (needs Docker), or point \`MONGODB_URI\` in \`server/.env\` at your own instance:
+
+\`\`\`bash
+docker compose up -d
+\`\`\`
+
+Give Better Auth a secret: copy \`server/.env.example\` to \`server/.env\` and set \`BETTER_AUTH_SECRET\`, e.g. to the output of:
+
+\`\`\`bash
+openssl rand -base64 32
+\`\`\`
+
+Start the API, then the app, in two terminals:
+
+\`\`\`bash
+cd server && npm install && npm run dev
+\`\`\`
+
+\`\`\`bash
+cd web && npm install && npm run dev
+\`\`\`
+",
+  "server/.env.example" => "PORT=3001
+MONGODB_URI=mongodb://localhost:27017/my-app
+BETTER_AUTH_URL=http://localhost:5173
+BETTER_AUTH_SECRET=
+",
+  "server/.gitignore" => "node_modules
+dist
+.env
+",
+  "server/package.json" => "{
+  "name": "my-app-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file-if-exists=.env dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "better-auth": "^1.7.28",
+    "express": "^5.3.0",
+    "mongodb": "^7.9.1",
+    "mongoose": "^9.13.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.2",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
+",
+  "server/README.md" => "# my-app-server
+
+Express 5 API on port 3001, with MongoDB (Mongoose), with Better Auth. Copy \`.env.example\` to \`.env\` to change settings.
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+",
+  "server/src/app.ts" => "import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import express from "express";
+import { auth } from "./auth.js";
+import { Todo } from "./models/todo.js";
+
+export const app = express();
+
+// Better Auth reads its own request bodies, so it goes before express.json().
+app.all("/api/auth/{*any}", toNodeHandler(auth));
+
+app.use(express.json());
+
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true });
+});
+
+app.get("/api/hello", (req, res) => {
+  const name = typeof req.query.name === "string" ? req.query.name : "world";
+  res.json({ message: \`Hello, \${name}!\` });
+});
+
+app.get("/api/todos", async (_req, res) => {
+  const todos = await Todo.find().sort({ createdAt: -1 }).limit(100);
+  res.json(todos);
+});
+
+app.post("/api/todos", async (req, res) => {
+  const title =
+    typeof req.body?.title === "string" ? req.body.title.trim() : "";
+  if (!title) {
+    res.status(400).json({ error: "title is required" });
+    return;
+  }
+  const todo = await Todo.create({ title });
+  res.status(201).json(todo);
+});
+
+app.get("/api/me", async (req, res) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+  if (!session) {
+    res.status(401).json({ error: "Not signed in" });
+    return;
+  }
+  res.json(session.user);
+});
+",
+  "server/src/auth.ts" => "import { betterAuth } from "better-auth";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { MongoClient } from "mongodb";
+
+const client = new MongoClient(
+  process.env.MONGODB_URI ?? "mongodb://localhost:27017/my-app",
+);
+
+export const auth = betterAuth({
+  // The app's origin: its dev server proxies /api/auth here, so the browser sees one site.
+  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:5173",
+  // The local docker-compose MongoDB is a single server, which has no transactions.
+  database: mongodbAdapter(client.db()),
+  emailAndPassword: { enabled: true },
+});
+",
+  "server/src/db.ts" => "import mongoose from "mongoose";
+
+/** Opens the connection Mongoose models use; call it once, before serving requests. */
+export async function connectDb(uri: string) {
+  await mongoose.connect(uri);
+  console.log(\`Connected to \${mongoose.connection.name}\`);
+}
+",
+  "server/src/index.ts" => "import process from "node:process";
+import { app } from "./app.js";
+import { connectDb } from "./db.js";
+
+const port = Number(process.env.PORT ?? 3001);
+
+await connectDb(process.env.MONGODB_URI ?? "mongodb://localhost:27017/my-app");
+
+app.listen(port, () => {
+  console.log(\`API listening on http://localhost:\${port}\`);
+});
+",
+  "server/src/models/todo.ts" => "import { model, Schema } from "mongoose";
+
+const todoSchema = new Schema(
+  {
+    title: { type: String, required: true, trim: true, maxlength: 200 },
+    done: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
+export const Todo = model("Todo", todoSchema);
+",
+  "server/tsconfig.json" => "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
+  },
+  "include": ["src"]
+}
+",
+  "web/.gitignore" => "node_modules
+dist
+.env
+.env.local
+.DS_Store
+",
+  "web/index.html" => "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+",
+  "web/package.json" => "{
+  "name": "my-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8"
+  }
+}
+",
+  "web/README.md" => "# my-app
+
+Stack: React 19, Vite, TypeScript, Express, MongoDB, Better Auth.
+
+## Getting started
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Scripts
+
+- \`npm run build\`
+- \`npm run preview\`
+- \`npm run typecheck\`
+
+## API
+
+The API lives in \`../server\` (Express). Start it with \`npm run dev\` there; requests to \`/api\` from this app are proxied to it in development.
+
+## Push to GitHub
+
+Create an empty repository on GitHub, then:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/my-app.git
+git push -u origin main
+\`\`\`
+",
+  "web/src/App.tsx" => "import ApiGreeting from "./components/ApiGreeting";
+import Counter from "./components/Counter";
+
+export default function App() {
+  return (
+    <main className="app">
+      <h1 className="title">my-app</h1>
+      <Counter />
+      <ApiGreeting />
+    </main>
+  );
+}
+",
+  "web/src/components/ApiGreeting.tsx" => "import { useEffect, useState } from "react";
+
+export default function ApiGreeting() {
+  const [message, setMessage] = useState("Calling the API…");
+
+  useEffect(() => {
+    fetch("/api/hello?name=my-app")
+      .then((response) => {
+        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+        return response.json();
+      })
+      .then((data) => setMessage(data.message))
+      .catch(() => setMessage("The API isn't running: start it in server/."));
+  }, []);
+
+  return <p className="text">{message}</p>;
+}
+",
+  "web/src/components/Counter.tsx" => "import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="card">
+      <p className="count">{count}</p>
+      <div className="row">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n - 1)}
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setCount((n) => n + 1)}
+        >
+          +1
+        </button>
+      </div>
+    </div>
+  );
+}
+",
+  "web/src/index.css" => ":root {
+  font-family: system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.875rem;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #0f172a;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.text {
+  max-width: 28rem;
+  text-align: center;
+  color: #475569;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.count {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  background: #0f172a;
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #334155;
+}
+",
+  "web/src/main.tsx" => "import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+",
+  "web/tsconfig.json" => "{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
+",
+  "web/vite.config.ts" => "import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [react()],
+  server: { proxy: { "/api": "http://localhost:3001" } },
+});
+",
+}
+`;
+
 exports[`biome snapshots > astro with biome and tailwind (ts) 1`] = `
 {
   ".gitignore": "node_modules
@@ -4540,9 +5008,9 @@ dist
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node --env-file-if-exists=.env dist/index.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

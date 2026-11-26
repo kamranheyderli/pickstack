@@ -1455,7 +1455,12 @@ describe("express", () => {
     expect(files.has("package.json")).toBe(false);
     const pkg = JSON.parse(files.get("server/package.json") ?? "");
     expect(pkg.name).toBe("acme-server");
-    expect(pkg.scripts.dev).toBe("tsx watch src/index.ts");
+    expect(pkg.scripts.dev).toBe(
+      "tsx watch --env-file-if-exists=.env src/index.ts",
+    );
+    expect(pkg.scripts.start).toBe(
+      "node --env-file-if-exists=.env dist/index.js",
+    );
     expect(pkg.dependencies.express).toBe(knownGoodVersion("express", "react"));
     expect(files.get("server/src/index.ts")).toContain('from "./app.js"');
     expect(files.get("README.md")).toContain(
@@ -1466,7 +1471,9 @@ describe("express", () => {
   it("runs plain Node with --watch in JS", async () => {
     const files = await project("js", "vue");
     const pkg = JSON.parse(files.get("server/package.json") ?? "");
-    expect(pkg.scripts.dev).toBe("node --watch src/index.js");
+    expect(pkg.scripts.dev).toBe(
+      "node --watch --env-file-if-exists=.env src/index.js",
+    );
     expect(pkg.devDependencies).toBeUndefined();
     expect(files.has("server/tsconfig.json")).toBe(false);
   });
@@ -1742,6 +1749,83 @@ describe("drizzle", () => {
     expect(env).toContain("DATABASE_URL=");
     expect(env).toContain("NEXT_PUBLIC_API_URL=");
     expect(files.has("app/todos/page.jsx")).toBe(true);
+  });
+});
+
+describe("better-auth", () => {
+  const generateAuth = async (
+    modules: string[],
+    framework: FrameworkId = "react",
+    language: "ts" | "js" = "ts",
+  ) =>
+    generate({
+      name: "acme",
+      framework,
+      language,
+      packageManager: "npm",
+      modules,
+    });
+
+  it("mounts Better Auth before express.json() and stores users in MongoDB", async () => {
+    const result = await generateAuth(["express", "better-auth"]);
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    // MongoDB comes along: Better Auth needs a database.
+    expect(files.has("server/src/models/todo.ts")).toBe(true);
+    const app = files.get("server/src/app.ts") ?? "";
+    expect(app).toContain('app.all("/api/auth/{*any}", toNodeHandler(auth));');
+    expect(app.indexOf("toNodeHandler(auth)")).toBeLessThan(
+      app.indexOf("app.use(express.json())"),
+    );
+    expect(app).toContain('app.get("/api/me"');
+    const auth = files.get("server/src/auth.ts") ?? "";
+    expect(auth).toContain('from "better-auth/adapters/mongodb"');
+    expect(auth).toContain(
+      'process.env.MONGODB_URI ?? "mongodb://localhost:27017/acme"',
+    );
+    expect(auth).toContain("emailAndPassword: { enabled: true }");
+    const env = files.get("server/.env.example") ?? "";
+    expect(env).toContain("BETTER_AUTH_URL=http://localhost:5173");
+    expect(env).toContain("BETTER_AUTH_SECRET=");
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.dependencies["better-auth"]).toBe(
+      knownGoodVersion("better-auth", "react"),
+    );
+    expect(pkg.dependencies.mongodb).toBe(knownGoodVersion("mongodb", "react"));
+    expect(files.get("README.md")).toContain("BETTER_AUTH_SECRET");
+  });
+
+  it("trusts the framework's own dev server origin", async () => {
+    const result = await generateAuth(["express", "better-auth"], "angular");
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.files.get("server/.env.example")).toContain(
+      "BETTER_AUTH_URL=http://localhost:4200",
+    );
+  });
+
+  it("writes plain JS in a JS project", async () => {
+    const result = await generateAuth(["express", "better-auth"], "vue", "js");
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.files.get("server/src/auth.js")).toContain(
+      "export const auth = betterAuth({",
+    );
+  });
+
+  it("needs the Express API and is not offered with NestJS yet", async () => {
+    const alone = await generateAuth(["better-auth"]);
+    expect(alone.ok).toBe(false);
+    if (!alone.ok)
+      expect(alone.errors.map((e) => e.code)).toContain("missing-one-of");
+    const nest = await generateAuth(["nestjs", "better-auth"]);
+    expect(nest.ok).toBe(false);
+    if (!nest.ok) expect(nest.errors.map((e) => e.code)).toContain("conflict");
+  });
+
+  it("is not offered for meta-frameworks yet", async () => {
+    const result = await generateAuth(["better-auth"], "next");
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors.map((e) => e.code)).toContain("framework-mismatch");
   });
 });
 

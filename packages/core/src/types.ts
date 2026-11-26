@@ -23,6 +23,7 @@ export type Category =
   | "i18n"
   | "backend"
   | "database"
+  | "auth"
   | "testing"
   | "quality"
   | "seo"
@@ -228,6 +229,11 @@ export interface ServerSpec {
   appImports: ImportSpec[];
   /** NestJS: entries of `AppModule`'s `imports`, e.g. `MongooseModule.forRoot(...)`. */
   appModules: string[];
+  /**
+   * Handlers mounted before `express.json()` (Express only): a body parser would consume their
+   * request stream, e.g. Better Auth's `toNodeHandler`.
+   */
+  beforeBody: string[];
   /** Route handlers of `src/app` (Express only). */
   routes: string[];
   /** Imports and statements `src/index` runs before `listen` (Express only; top-level await allowed). */

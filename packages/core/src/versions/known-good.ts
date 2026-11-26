@@ -61,6 +61,9 @@ const shared: VersionSet = {
   express: "^5.3.0",
   "@types/express": "^5.0.6",
   mongoose: "^9.13.1",
+  // Better Auth's MongoDB adapter takes the driver's `Db`; mongoose 9.13 bundles the same 7.9 line.
+  mongodb: "^7.9.1",
+  "better-auth": "^1.7.28",
   tsx: "^4.23.15",
   "@nestjs/common": "^12.6.2",
   "@nestjs/core": "^12.6.2",

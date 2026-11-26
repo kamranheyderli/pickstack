@@ -21,3 +21,17 @@ export const frameworkCatalog: readonly FrameworkInfo[] = [
   { id: "sveltekit", name: "SvelteKit", kind: "meta", phase: 3 },
   { id: "astro", name: "Astro", kind: "meta", phase: 3 },
 ];
+
+/** Where each framework's dev server listens by default. */
+export const devPorts: Record<FrameworkId, number> = {
+  react: 5173,
+  vue: 5173,
+  svelte: 5173,
+  solid: 5173,
+  preact: 5173,
+  sveltekit: 5173,
+  angular: 4200,
+  next: 3000,
+  nuxt: 3000,
+  astro: 4321,
+};
