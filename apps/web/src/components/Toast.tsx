@@ -1,0 +1,41 @@
+import { useEffect, type ReactNode } from "react";
+import { useT } from "../i18n";
+import { UiIcon } from "../lib/icons";
+
+interface ToastProps {
+  children: ReactNode;
+  onClose: () => void;
+  /** Closes on its own after this many milliseconds. */
+  duration?: number;
+}
+
+/** A short confirmation in the bottom corner that closes itself or with its × button. */
+export function Toast({ children, onClose, duration = 8000 }: ToastProps) {
+  const t = useT();
+
+  useEffect(() => {
+    const timer = window.setTimeout(onClose, duration);
+    return () => window.clearTimeout(timer);
+  }, [onClose, duration]);
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="toast fixed right-4 bottom-4 left-4 z-50 flex items-start gap-3 rounded-xl border border-line bg-panel px-4 py-3 text-sm text-ink shadow-2xl sm:left-auto sm:w-[min(24rem,calc(100vw-2rem))]"
+    >
+      <span className="mt-0.5 text-emerald-500">
+        <UiIcon name="check" />
+      </span>
+      <div className="min-w-0 flex-1">{children}</div>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={t("github.close")}
+        className="-m-1 cursor-pointer rounded-md p-1 text-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+      >
+        <UiIcon name="close" />
+      </button>
+    </div>
+  );
+}

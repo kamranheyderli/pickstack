@@ -43,6 +43,7 @@
   "github.busy": "Creating {name} on GitHub…",
   "github.done": "Created {name} on GitHub.",
   "github.open": "Open the repository",
+  "github.close": "Close",
   "github.exists": "Your account already has a repository named {name}. Pick another name.",
   "github.denied": "GitHub sign-in was cancelled.",
   "github.devOnly": "GitHub sign-in works on the deployed site only (Vercel functions); the local dev server has no /api.",

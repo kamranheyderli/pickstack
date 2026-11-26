@@ -43,6 +43,7 @@
   "github.busy": "{name} GitHub-da yaradılır…",
   "github.done": "{name} GitHub-da yaradıldı.",
   "github.open": "Repo-nu aç",
+  "github.close": "Bağla",
   "github.exists": "Hesabında artıq {name} adlı repo var. Başqa ad seç.",
   "github.denied": "GitHub girişi ləğv edildi.",
   "github.devOnly": "GitHub girişi yalnız deploy olunmuş saytda işləyir (Vercel funksiyaları); lokal dev serverdə /api yoxdur.",

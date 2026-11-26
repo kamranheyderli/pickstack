@@ -7,11 +7,12 @@ import {
   toProjectName,
   type Selection,
 } from "@stackforge/core";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
 import { Burst } from "./components/Burst";
 import { Logo } from "./components/Logo";
+import { Toast } from "./components/Toast";
 import { CommandPalette } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
@@ -78,7 +79,12 @@ export default function App() {
         });
   });
   const [githubOpen, setGithubOpen] = useState(false);
-  const [repoUrl, setRepoUrl] = useState<string | null>(null);
+  // The repository just created on GitHub, shown in a toast until it is closed.
+  const [createdRepo, setCreatedRepo] = useState<{
+    name: string;
+    url: string;
+  } | null>(null);
+  const closeToast = useCallback(() => setCreatedRepo(null), []);
   const githubStarted = useRef(false);
   const [generation, setGeneration] = useState(0);
   // Files the user edited in the preview; they win over generated content.
@@ -215,7 +221,7 @@ export default function App() {
     githubStarted.current = true;
     const name = githubPending?.name ?? projectName;
     setBusy(true);
-    setRepoUrl(null);
+    setCreatedRepo(null);
     setStatus(t("github.busy", { name }));
     createRepository(
       githubReturn.token,
@@ -227,9 +233,9 @@ export default function App() {
       files,
     )
       .then((url) => {
-        setRepoUrl(url);
+        setCreatedRepo({ name, url });
         setCelebrations((n) => n + 1);
-        setStatus(t("github.done", { name }));
+        setStatus(null);
       })
       .catch((error: unknown) => {
         setStatus(
@@ -259,6 +265,21 @@ export default function App() {
           startGitHubCreate({ ...repo, edits: [...edits] });
         }}
       />
+      {createdRepo && (
+        <Toast onClose={closeToast}>
+          <p className="m-0 font-semibold">
+            {t("github.done", { name: createdRepo.name })}
+          </p>
+          <a
+            href={createdRepo.url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-muted underline underline-offset-2 hover:text-ink"
+          >
+            {t("github.open")}
+          </a>
+        </Toast>
+      )}
       <Sky />
       <CommandPalette
         open={paletteOpen}
@@ -552,19 +573,6 @@ export default function App() {
               aria-live="polite"
             >
               {status ?? t("download.hint")}
-              {repoUrl && (
-                <>
-                  {" "}
-                  <a
-                    href={repoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-semibold text-ink underline underline-offset-2"
-                  >
-                    {t("github.open")}
-                  </a>
-                </>
-              )}
             </p>
           </section>
         </div>
