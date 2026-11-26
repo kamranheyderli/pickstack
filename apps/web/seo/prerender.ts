@@ -2,7 +2,7 @@
  * Runs after `vite build`: writes the static template pages, sitemap.xml and robots.txt into
  * dist/, and gives the app's index.html absolute URLs for its share image and canonical link.
  *
- *   SITE_URL=https://pickstack.io tsx seo/prerender.ts
+ *   SITE_URL=https://pickstack.online tsx seo/prerender.ts
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -12,7 +12,7 @@ import { highlight } from "../src/lib/highlight";
 import { stackPages } from "./pages";
 import { renderIndex, renderPage, robots, sitemap, STYLE } from "./render";
 
-const site = (process.env.SITE_URL ?? "https://pickstack.io").replace(
+const site = (process.env.SITE_URL ?? "https://pickstack.online").replace(
   /\/$/,
   "",
 );

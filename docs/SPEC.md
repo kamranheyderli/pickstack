@@ -617,7 +617,7 @@ Axtarışlar adətən konkret olur ("react tanstack query starter"). Ona görə 
   Ona görə səhifələr bir-birinin surəti deyil və versiyalar yenilənəndə özləri də yenilənir.
 - **Hər səhifədə:** unikal `title` (≤70 simvol), söz sərhədində kəsilən `description` (≤160 simvol), canonical, Open Graph, JSON-LD (`HowTo` və `BreadcrumbList`) və əlaqəli şablonlara daxili linklər.
 - **Əlavə fayllar:** `sitemap.xml` və `robots.txt` də yazılır. Tətbiqin `index.html`-i canonical və mütləq `og:image` ünvanı alır. Konfiquratorun footer-i `/stacks/`-ə link verir.
-- **Domen:** `SITE_URL` (default `https://pickstack.io`) build zamanı verilir. Domen qoşulanda Vercel-də bu dəyişən təyin olunur.
+- **Domen:** `SITE_URL` (default `https://pickstack.online`) build zamanı verilir. Domen qoşulanda Vercel-də bu dəyişən təyin olunur.
 
 ## 8. Testlər
 
