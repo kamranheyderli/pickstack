@@ -177,6 +177,42 @@ describe("createRepository", () => {
     expect(calls[4]?.body).toEqual({ sha: "commit" });
   });
 
+  it("waits for GitHub's initial commit when the new repository still looks empty", async () => {
+    vi.useFakeTimers();
+    let refTries = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit) => {
+        const path = url.replace("https://api.github.com", "");
+        if (path === "/user/repos")
+          return Response.json({
+            full_name: "me/app",
+            html_url: "https://github.com/me/app",
+            default_branch: "main",
+          });
+        if (path.includes("/git/ref/") && init.method === "GET") {
+          refTries += 1;
+          return refTries < 3
+            ? Response.json(
+                { message: "Git Repository is empty." },
+                { status: 409 },
+              )
+            : Response.json({ object: { sha: "init" } });
+        }
+        return Response.json({ sha: "x" });
+      }),
+    );
+    const created = createRepository(
+      "token",
+      { name: "app", private: false, description: "" },
+      new Map([["a.txt", "a"]]),
+    );
+    await vi.runAllTimersAsync();
+    await expect(created).resolves.toBe("https://github.com/me/app");
+    expect(refTries).toBe(3);
+    vi.useRealTimers();
+  });
+
   it("reports GitHub's status, e.g. 422 for a taken name", async () => {
     vi.stubGlobal(
       "fetch",

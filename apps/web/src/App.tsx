@@ -79,12 +79,11 @@ export default function App() {
         });
   });
   const [githubOpen, setGithubOpen] = useState(false);
-  // The repository just created on GitHub, shown in a toast until it is closed.
-  const [createdRepo, setCreatedRepo] = useState<{
-    name: string;
-    url: string;
-  } | null>(null);
-  const closeToast = useCallback(() => setCreatedRepo(null), []);
+  // How creating the GitHub repository ended, shown in a toast until it is closed.
+  const [githubResult, setGithubResult] = useState<
+    { ok: true; text: string; url: string } | { ok: false; text: string } | null
+  >(null);
+  const closeToast = useCallback(() => setGithubResult(null), []);
   const githubStarted = useRef(false);
   const [generation, setGeneration] = useState(0);
   // Files the user edited in the preview; they win over generated content.
@@ -221,7 +220,7 @@ export default function App() {
     githubStarted.current = true;
     const name = githubPending?.name ?? projectName;
     setBusy(true);
-    setCreatedRepo(null);
+    setGithubResult(null);
     setStatus(t("github.busy", { name }));
     createRepository(
       githubReturn.token,
@@ -233,18 +232,19 @@ export default function App() {
       files,
     )
       .then((url) => {
-        setCreatedRepo({ name, url });
+        setGithubResult({ ok: true, text: t("github.done", { name }), url });
         setCelebrations((n) => n + 1);
         setStatus(null);
       })
       .catch((error: unknown) => {
-        setStatus(
+        const text =
           error instanceof GitHubError && error.status === 422
             ? t("github.exists", { name })
             : t("github.error", {
                 error: error instanceof Error ? error.message : String(error),
-              }),
-        );
+              });
+        setStatus(text);
+        setGithubResult({ ok: false, text });
       })
       .finally(() => setBusy(false));
   });
@@ -265,19 +265,22 @@ export default function App() {
           startGitHubCreate({ ...repo, edits: [...edits] });
         }}
       />
-      {createdRepo && (
-        <Toast onClose={closeToast}>
-          <p className="m-0 font-semibold">
-            {t("github.done", { name: createdRepo.name })}
-          </p>
-          <a
-            href={createdRepo.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-muted underline underline-offset-2 hover:text-ink"
-          >
-            {t("github.open")}
-          </a>
+      {githubResult && (
+        <Toast
+          onClose={closeToast}
+          tone={githubResult.ok ? "success" : "error"}
+        >
+          <p className="m-0 font-semibold">{githubResult.text}</p>
+          {githubResult.ok && (
+            <a
+              href={githubResult.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-muted underline underline-offset-2 hover:text-ink"
+            >
+              {t("github.open")}
+            </a>
+          )}
         </Toast>
       )}
       <Sky />

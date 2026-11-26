@@ -93,6 +93,29 @@ async function call<T>(
 }
 
 /**
+ * The ref of GitHub's initial commit. Right after creation GitHub can still answer 409 ("Git
+ * Repository is empty") or 404 for a moment, so those are retried before giving up.
+ */
+async function firstCommit(
+  token: string,
+  refPath: string,
+  attempts = 8,
+  delay = 750,
+): Promise<{ object: { sha: string } }> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await call<{ object: { sha: string } }>(token, "GET", refPath);
+    } catch (error) {
+      const notReady =
+        error instanceof GitHubError &&
+        (error.status === 409 || error.status === 404);
+      if (!notReady || attempt >= attempts) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
+/**
  * Creates `name` on the signed-in account and commits `files` to its default branch. The
  * repository starts with GitHub's own initial commit (an empty one can't take Git Data API
  * writes); the project's tree replaces it in the next commit.
@@ -114,11 +137,7 @@ export async function createRepository(
   });
   const path = `/repos/${created.full_name}`;
   const branch = created.default_branch;
-  const head = await call<{ object: { sha: string } }>(
-    token,
-    "GET",
-    `${path}/git/ref/heads/${branch}`,
-  );
+  const head = await firstCommit(token, `${path}/git/ref/heads/${branch}`);
   const tree = await call<{ sha: string }>(token, "POST", `${path}/git/trees`, {
     tree: [...files].map(([file, content]) => ({
       path: file,
