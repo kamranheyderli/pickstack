@@ -87,14 +87,17 @@ function clientFile(connection: string, envImport: string[] = []): string {
 }
 
 /** Drizzle Kit's config; it runs outside the app, so it loads `.env` itself. */
-function configFile(schema: string, url: string): string {
+function configFile(schema: string | string[], url: string): string {
+  const schemas = Array.isArray(schema)
+    ? `[${schema.map((s) => `"./${s}"`).join(", ")}]`
+    : `"./${schema}"`;
   return file([
     'import "dotenv/config";',
     'import { defineConfig } from "drizzle-kit";',
     "",
     "export default defineConfig({",
     '  out: "./drizzle",',
-    `  schema: "./${schema}",`,
+    `  schema: ${schemas},`,
     '  dialect: "postgresql",',
     "  dbCredentials: {",
     `    url: process.env.DATABASE_URL ?? "${url}",`,
@@ -209,9 +212,15 @@ function withServer(
     `src/db/index.${x}`,
     clientFile(`process.env.DATABASE_URL ?? "${url}"`),
   );
+  // Better Auth keeps its tables in their own file; Drizzle Kit creates both.
   server.files.set(
     `drizzle.config.${x}`,
-    configFile(`src/db/schema.${x}`, url),
+    configFile(
+      ctx.has("better-auth")
+        ? [`src/db/schema.${x}`, `src/db/auth-schema.${x}`]
+        : `src/db/schema.${x}`,
+      url,
+    ),
   );
   if (nest) nestTodos(server);
   else expressTodos(server);

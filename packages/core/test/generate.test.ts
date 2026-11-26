@@ -89,7 +89,9 @@ describe("express snapshot", () => {
 
 describe("better-auth snapshot", () => {
   it("adds Better Auth to the Express API (ts)", async () => {
-    expect(await files("ts", ["express", "better-auth"])).toMatchSnapshot();
+    expect(
+      await files("ts", ["express", "mongodb", "better-auth"]),
+    ).toMatchSnapshot();
   });
 });
 

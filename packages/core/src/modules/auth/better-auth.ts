@@ -1,14 +1,16 @@
 import { file } from "../../engine/code";
 import { devPorts } from "../../frameworks/catalog";
-import type { Module, ServerSpec } from "../../types";
+import type { Ctx, Module, ServerSpec } from "../../types";
+import { authSchemaFile } from "./drizzle-schema";
 import { authPanel } from "./panels";
 import { reactAuth } from "./react";
 
 /**
- * Better Auth with email and password, on the Express API: `src/auth` creates the instance on
- * MongoDB (the driver's `Db`, as in Better Auth's MongoDB adapter docs; no migrations), the app
- * mounts its handler at `/api/auth/*` before `express.json()`, and `/api/me` shows how a route
- * reads the session.
+ * Better Auth with email and password on the Express or NestJS API. `src/auth` creates the
+ * instance on the project's database: MongoDB (the driver's `Db`, as in Better Auth's MongoDB
+ * adapter docs; no migrations) or PostgreSQL through Drizzle (the CLI's generated tables in
+ * `src/db/auth-schema`, created with `db:push`). Express mounts the handler at `/api/auth/*`
+ * before `express.json()`; `/api/me` shows how a route reads the session.
  *
  * The browser reaches the API through the app's dev server proxy, so requests come from the
  * app's origin: `BETTER_AUTH_URL` is that origin, which Better Auth trusts by default.
@@ -18,11 +20,12 @@ export const betterAuth: Module = {
   name: "Better Auth",
   category: "auth",
   description: {
-    az: "Better Auth ilə email və şifrə girişi: Express API-də /api/auth, sessiyalar MongoDB-də, app-də giriş forması.",
-    en: "Email and password sign-in with Better Auth: /api/auth on the Express API, sessions in MongoDB, and a sign-in form in the app.",
+    az: "Better Auth ilə email və şifrə girişi: API-də /api/auth, sessiyalar MongoDB və ya PostgreSQL-də, app-də giriş forması.",
+    en: "Email and password sign-in with Better Auth: /api/auth on the API, sessions in MongoDB or PostgreSQL, and a sign-in form in the app.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
-  requires: ["mongodb"],
+  // Better Auth stores users and sessions: the project's database holds them.
+  requiresOneOf: ["mongodb", "drizzle"],
   apply(model, ctx) {
     const server = model.server;
     if (!server)
@@ -31,27 +34,23 @@ export const betterAuth: Module = {
     // Nest is TypeScript only; the Express server follows the app's language.
     const x = nest ? "ts" : ctx.ext.script;
     const appOrigin = `http://localhost:${devPorts[ctx.selection.framework]}`;
-    const mongoUri =
-      server.env["MONGODB_URI"] ??
-      `mongodb://localhost:27017/${ctx.selection.name}`;
-
-    server.dependencies.add("better-auth").add("mongodb");
+    server.dependencies.add("better-auth");
     server.env["BETTER_AUTH_URL"] = appOrigin;
     server.env["BETTER_AUTH_SECRET"] = "";
+    const database = ctx.has("drizzle")
+      ? drizzleDatabase(server, x)
+      : mongoDatabase(server, ctx);
     server.files.set(
       `src/auth.${x}`,
       file([
         'import { betterAuth } from "better-auth";',
-        'import { mongodbAdapter } from "better-auth/adapters/mongodb";',
-        'import { MongoClient } from "mongodb";',
-        "",
-        `const client = new MongoClient(process.env.MONGODB_URI ?? "${mongoUri}");`,
+        ...database.imports,
+        ...(database.setup.length ? ["", ...database.setup] : []),
         "",
         "export const auth = betterAuth({",
         "  // The app's origin: its dev server proxies /api/auth here, so the browser sees one site.",
         `  baseURL: process.env.BETTER_AUTH_URL ?? "${appOrigin}",`,
-        "  // The local docker-compose MongoDB is a single server, which has no transactions.",
-        "  database: mongodbAdapter(client.db()),",
+        ...database.option,
         "  emailAndPassword: { enabled: true },",
         "});",
       ]),
@@ -68,6 +67,51 @@ export const betterAuth: Module = {
     model.readme.stack.push("Better Auth");
   },
 };
+
+interface AuthDatabase {
+  imports: string[];
+  setup: string[];
+  /** The `database` option, with its comment. */
+  option: string[];
+}
+
+/** MongoDB through the driver's `Db`; Better Auth creates its own indexes, no migrations. */
+function mongoDatabase(server: ServerSpec, ctx: Ctx): AuthDatabase {
+  const uri =
+    server.env["MONGODB_URI"] ??
+    `mongodb://localhost:27017/${ctx.selection.name}`;
+  server.dependencies.add("mongodb");
+  return {
+    imports: [
+      'import { mongodbAdapter } from "better-auth/adapters/mongodb";',
+      'import { MongoClient } from "mongodb";',
+    ],
+    setup: [
+      `const client = new MongoClient(process.env.MONGODB_URI ?? "${uri}");`,
+    ],
+    option: [
+      "  // The local docker-compose MongoDB is a single server, which has no transactions.",
+      "  database: mongodbAdapter(client.db()),",
+    ],
+  };
+}
+
+/** PostgreSQL through the project's Drizzle client, with the CLI's tables in their own file. */
+function drizzleDatabase(server: ServerSpec, x: string): AuthDatabase {
+  server.files.set(`src/db/auth-schema.${x}`, authSchemaFile);
+  return {
+    imports: [
+      'import { drizzleAdapter } from "better-auth/adapters/drizzle";',
+      'import * as schema from "./db/auth-schema.js";',
+      'import { db } from "./db/index.js";',
+    ],
+    setup: [],
+    option: [
+      "  // Tables from src/db/auth-schema; `db:push` creates them with the app's own.",
+      '  database: drizzleAdapter(db, { provider: "pg", schema }),',
+    ],
+  };
+}
 
 /** The handler before `express.json()`, and `/api/me` reading the session from the headers. */
 function withExpress(server: ServerSpec): void {

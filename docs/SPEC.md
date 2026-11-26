@@ -222,7 +222,7 @@ Qeydlər (2026-11, yoxlanılıb):
 
 | Modul | Uyğun | Tələb |
 |---|---|---|
-| `better-auth` | R, V, S, So, P, A | `mongodb` (avtomatik), `express` və ya `nestjs` |
+| `better-auth` | R, V, S, So, P, A | `mongodb` və ya `drizzle` (`requiresOneOf`); onlar da `express` və ya `nestjs` tələb edir |
 
 - **Better Auth 1.7** ([sənəd](https://www.better-auth.com/docs/integrations/express)), email və şifrə ilə. Server və giriş paneli bütün SPA-lardadır.
 - `server/src/auth`: `betterAuth({ baseURL, database: mongodbAdapter(client.db()), emailAndPassword })`. Adapter `better-auth/adapters/mongodb`-dən gəlir (paket özündə gətirir), `mongodb` drayveri ayrıca asılılıqdır (mongoose 9.13 ilə eyni 7.9 xətti). MongoDB üçün migrasiya lazım deyil.
@@ -235,7 +235,8 @@ Qeydlər (2026-11, yoxlanılıb):
 - **Test qeydi:** tam Chrome-un headless rejimində formadan girişdən sonra brauzerin öz UI-ı (şifrə saxlama axını) bəzən tab-ın input-unu tutur (Solid-də müşahidə olundu; `fetch` ilə girişdə yoxdur). App ilə bağlı deyil: `chromium-headless-shell`-də hər şey işləyir. Brauzer testləri üçün headless-shell istifadə et.
 - **NestJS:** Better Auth-un NestJS sənədinin göstərdiyi icma paketi `@thallesp/nestjs-better-auth` 2.8 (ESM, Nest 11.1.6+/12). `main.ts`-də `NestFactory.create(AppModule, { bodyParser: false })` (`ServerSpec.factoryOptions`): Better Auth sorğu axınını özü oxuyur, paket JSON/urlencoded parser-ləri digər route-lar üçün geri qoşur. `AuthModule.forRoot({ auth, disableGlobalAuthGuard: true })`: default qlobal guard bütün route-ları bağlayardı, ona görə Express-dəki kimi `/api/hello` və `/api/todos` açıq qalır, `MeModule`-dakı `/api/me` isə `@UseGuards(AuthGuard)` və `@Session()` ilə qorunur (girişsiz 401). Auth route-ları `/api/auth`-dadır, `setGlobalPrefix("api")` onlara tətbiq olunmur. Real işə salınıb yoxlanılıb: qeydiyyat, `/api/me`, `POST /api/todos` (JSON parser işləyir), yad origin 403, çıxış, səhv şifrə, giriş və brauzer paneli.
 - **`.env` NestJS-də:** `dev` `nest start --watch --exec "node --env-file-if-exists=.env"`, `start` `node --env-file-if-exists=.env dist/main`. Nest-in öz `--env-file` bayrağı fayl yoxdursa dayanır ("node: .env: not found"), Node-unku davam edir.
-- **Növbəti addımlar:** Drizzle/PostgreSQL adapteri (`better-auth/adapters/drizzle`, sxem `auth generate` ilə).
+- **PostgreSQL (Drizzle):** `drizzleAdapter(db, { provider: "pg", schema })` (`better-auth/adapters/drizzle`), layihənin öz `db` klienti ilə. Cədvəllər (`user`, `session`, `account`, `verification`) `src/db/auth-schema`-dadır: Better Auth 1.7.28 CLI-ın (`npx auth@1.7.28 generate`) real çıxışıdır, dəyişdirilmədən saxlanılır (`modules/auth/drizzle-schema.ts`); plugin əlavə edəndə yenidən generate etmək lazımdır. `better-auth` seçiləndə Drizzle modulu `drizzle.config`-də `schema`-nı massiv edir (`ctx.has`), ona görə README-dəki `db:push` hər iki faylın cədvəllərini yaradır. MongoDB artıq avtomatik əlavə olunmur: istifadəçi bazanı seçir. Docker-dəki Postgres 18 ilə həm Express, həm NestJS real yoxlanılıb (`db:push`, qeydiyyat, `/api/me`, `/api/todos`, çıxış, səhv şifrə, giriş, brauzer paneli).
+- **Növbəti:** meta-framework-lər (Next, Nuxt, SvelteKit öz server route-ları ilə), sosial girişlər (GitHub, Google) və ya Prisma.
 
 ### 5.7 Test
 

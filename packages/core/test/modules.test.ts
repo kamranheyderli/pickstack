@@ -1771,10 +1771,9 @@ describe("better-auth", () => {
     });
 
   it("mounts Better Auth before express.json() and stores users in MongoDB", async () => {
-    const result = await generateAuth(["express", "better-auth"]);
+    const result = await generateAuth(["express", "mongodb", "better-auth"]);
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     const files = result.files;
-    // MongoDB comes along: Better Auth needs a database.
     expect(files.has("server/src/models/todo.ts")).toBe(true);
     const app = files.get("server/src/app.ts") ?? "";
     expect(app).toContain('app.all("/api/auth/{*any}", toNodeHandler(auth));');
@@ -1800,7 +1799,7 @@ describe("better-auth", () => {
   });
 
   it("gives a React app a sign-in panel on the auth client", async () => {
-    const result = await generateAuth(["express", "better-auth"]);
+    const result = await generateAuth(["express", "mongodb", "better-auth"]);
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     const files = result.files;
     expect(files.get("web/src/lib/auth-client.ts")).toContain(
@@ -1857,7 +1856,10 @@ describe("better-auth", () => {
   ] as const)(
     "gives %s its own client and a sign-in panel",
     async (framework, clientPath, clientFrom, panelPath, sessionRead) => {
-      const result = await generateAuth(["express", "better-auth"], framework);
+      const result = await generateAuth(
+        ["express", "mongodb", "better-auth"],
+        framework,
+      );
       if (!result.ok) throw new Error(JSON.stringify(result.errors));
       expect(result.files.get(clientPath)).toContain(`from "${clientFrom}"`);
       const panel = result.files.get(panelPath) ?? "";
@@ -1869,7 +1871,10 @@ describe("better-auth", () => {
   );
 
   it("trusts the framework's own dev server origin", async () => {
-    const result = await generateAuth(["express", "better-auth"], "angular");
+    const result = await generateAuth(
+      ["express", "mongodb", "better-auth"],
+      "angular",
+    );
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     expect(result.files.get("server/.env.example")).toContain(
       "BETTER_AUTH_URL=http://localhost:4200",
@@ -1877,11 +1882,51 @@ describe("better-auth", () => {
   });
 
   it("writes plain JS in a JS project", async () => {
-    const result = await generateAuth(["express", "better-auth"], "vue", "js");
+    const result = await generateAuth(
+      ["express", "mongodb", "better-auth"],
+      "vue",
+      "js",
+    );
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     expect(result.files.get("server/src/auth.js")).toContain(
       "export const auth = betterAuth({",
     );
+  });
+
+  it("keeps users and sessions in PostgreSQL through Drizzle", async () => {
+    const result = await generateAuth(["express", "drizzle", "better-auth"]);
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    const auth = files.get("server/src/auth.ts") ?? "";
+    expect(auth).toContain('from "better-auth/adapters/drizzle"');
+    expect(auth).toContain(
+      'database: drizzleAdapter(db, { provider: "pg", schema })',
+    );
+    expect(auth).not.toContain("mongodb");
+    const schema = files.get("server/src/db/auth-schema.ts") ?? "";
+    for (const table of ["user", "session", "account", "verification"])
+      expect(schema).toContain(`export const ${table} = pgTable(`);
+    expect(files.get("server/drizzle.config.ts")).toContain(
+      'schema: ["./src/db/schema.ts", "./src/db/auth-schema.ts"]',
+    );
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.dependencies.mongodb).toBeUndefined();
+    expect(files.get("README.md")).toContain("db:push");
+  });
+
+  it("leaves Drizzle's config alone without Better Auth", async () => {
+    const result = await generateAuth(["express", "drizzle"]);
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.files.get("server/drizzle.config.ts")).toContain(
+      'schema: "./src/db/schema.ts"',
+    );
+  });
+
+  it("needs a database", async () => {
+    const result = await generateAuth(["express", "better-auth"]);
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors.map((e) => e.code)).toContain("missing-one-of");
   });
 
   it("needs a backend", async () => {
@@ -1892,7 +1937,7 @@ describe("better-auth", () => {
   });
 
   it("uses the NestJS integration with Nest's body parser off and a guarded /api/me", async () => {
-    const result = await generateAuth(["nestjs", "better-auth"]);
+    const result = await generateAuth(["nestjs", "mongodb", "better-auth"]);
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     const files = result.files;
     expect(files.get("server/src/main.ts")).toContain(
