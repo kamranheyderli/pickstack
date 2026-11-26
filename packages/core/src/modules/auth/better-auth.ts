@@ -1,6 +1,7 @@
 import { file } from "../../engine/code";
 import { devPorts } from "../../frameworks/catalog";
 import type { Module } from "../../types";
+import { reactAuth } from "./react";
 
 /**
  * Better Auth with email and password, on the Express API: `src/auth` creates the instance on
@@ -16,8 +17,8 @@ export const betterAuth: Module = {
   name: "Better Auth",
   category: "auth",
   description: {
-    az: "Better Auth ilə email və şifrə girişi: Express API-də /api/auth, sessiyalar MongoDB-də.",
-    en: "Email and password sign-in with Better Auth: /api/auth on the Express API, sessions in MongoDB.",
+    az: "Better Auth ilə email və şifrə girişi: Express API-də /api/auth, sessiyalar MongoDB-də, React-də giriş forması.",
+    en: "Email and password sign-in with Better Auth: /api/auth on the Express API, sessions in MongoDB, a sign-in form in React.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
   requires: ["mongodb"],
@@ -79,6 +80,7 @@ export const betterAuth: Module = {
       "Give Better Auth a secret: copy `server/.env.example` to `server/.env` and set `BETTER_AUTH_SECRET`, e.g. to the output of:",
       "```bash\nopenssl rand -base64 32\n```",
     );
+    if (ctx.selection.framework === "react") reactAuth(model, ctx);
     server.summary += ", with Better Auth";
     model.readme.stack.push("Better Auth");
   },

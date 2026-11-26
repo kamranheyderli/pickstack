@@ -1,0 +1,130 @@
+import { file, renderImports } from "../../engine/code";
+import { demoClasses } from "../../frameworks/shared/demo";
+import type { Ctx, ProjectModel } from "../../types";
+import { formClasses } from "../forms/shared";
+
+/** The demo's sign-in card, under the counter. */
+export const AUTH_WIDGET = "AuthPanel";
+
+export const authCopy = {
+  checking: "Checking your session…",
+  offline: "The API isn't running: start it in server/.",
+};
+
+/**
+ * `src/lib/auth-client` and an `AuthPanel` widget: a sign-in / sign-up form, or the signed-in
+ * user with a sign-out button. The client has no `baseURL`: the app's dev server proxies
+ * `/api/auth` to the API, so it talks to its own origin.
+ */
+export function reactAuth(model: ProjectModel, ctx: Ctx): void {
+  const ts = ctx.isTs;
+  const c = formClasses(model);
+  const link = demoClasses(model).link;
+  model.pkg.dependencies.add("better-auth");
+  model.files.set(
+    `src/lib/auth-client.${ctx.ext.script}`,
+    file([
+      'import { createAuthClient } from "better-auth/react";',
+      "",
+      "// No baseURL: the dev server proxies /api/auth to the API, so this is the app's own origin.",
+      "export const authClient = createAuthClient();",
+    ]),
+  );
+  model.files.set(
+    `src/components/${AUTH_WIDGET}.${ctx.ext.component}`,
+    file([
+      ...renderImports([
+        {
+          from: "react",
+          named: ["useState"],
+          ...(ts ? { types: ["FormEvent"] } : {}),
+        },
+        { from: "../lib/auth-client", named: ["authClient"] },
+      ]),
+      "",
+      `export default function ${AUTH_WIDGET}() {`,
+      "  const { data: session, isPending } = authClient.useSession();",
+      `  const [mode, setMode] = useState${ts ? '<"sign-in" | "sign-up">' : ""}("sign-in");`,
+      '  const [error, setError] = useState("");',
+      "",
+      `  if (isPending) return <p className="${c.text}">${authCopy.checking}</p>;`,
+      "",
+      "  if (session) {",
+      "    return (",
+      `      <div className="${c.form}">`,
+      `        <p className="${c.text}">`,
+      "          Signed in as {session.user.name} ({session.user.email}).",
+      "        </p>",
+      `        <button type="button" className="${c.btn}" onClick={() => authClient.signOut()}>`,
+      "          Sign out",
+      "        </button>",
+      "      </div>",
+      "    );",
+      "  }",
+      "",
+      `  async function submit(event${ts ? ": FormEvent<HTMLFormElement>" : ""}) {`,
+      "    event.preventDefault();",
+      "    const form = new FormData(event.currentTarget);",
+      '    const email = String(form.get("email"));',
+      '    const password = String(form.get("password"));',
+      "    const { error } =",
+      '      mode === "sign-up"',
+      "        ? await authClient.signUp.email({",
+      '            name: String(form.get("name")),',
+      "            email,",
+      "            password,",
+      "          })",
+      "        : await authClient.signIn.email({ email, password });",
+      "    // A network failure has no message: the proxy got no answer from the API.",
+      `    setError(error ? (error.message ?? "${authCopy.offline}") : "");`,
+      "  }",
+      "",
+      '  const signingUp = mode === "sign-up";',
+      "  return (",
+      `    <form className="${c.form}" onSubmit={submit}>`,
+      "      {signingUp && (",
+      `        <label className="${c.label}">`,
+      "          Name",
+      `          <input name="name" required autoComplete="name" className="${c.input}" />`,
+      "        </label>",
+      "      )}",
+      `      <label className="${c.label}">`,
+      "        Email",
+      `        <input type="email" name="email" required autoComplete="email" className="${c.input}" />`,
+      "      </label>",
+      `      <label className="${c.label}">`,
+      "        Password",
+      "        <input",
+      '          type="password"',
+      '          name="password"',
+      "          required",
+      "          minLength={8}",
+      '          autoComplete={signingUp ? "new-password" : "current-password"}',
+      `          className="${c.input}"`,
+      "        />",
+      "      </label>",
+      "      {error && (",
+      `        <p role="alert" className="${c.error}">`,
+      "          {error}",
+      "        </p>",
+      "      )}",
+      `      <button type="submit" className="${c.btn}">`,
+      '        {signingUp ? "Create account" : "Sign in"}',
+      "      </button>",
+      "      <button",
+      '        type="button"',
+      `        className="${link}"`,
+      "        onClick={() => {",
+      '          setMode(signingUp ? "sign-in" : "sign-up");',
+      '          setError("");',
+      "        }}",
+      "      >",
+      '        {signingUp ? "Have an account? Sign in" : "New here? Create an account"}',
+      "      </button>",
+      "    </form>",
+      "  );",
+      "}",
+    ]),
+  );
+  model.demo.widgets.push(AUTH_WIDGET);
+}

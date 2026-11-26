@@ -936,6 +936,11 @@ function backendCombos(): Combo[] {
     { framework: "vue", language: "js", modules: ["express", "better-auth"] },
     {
       framework: "react",
+      language: "js",
+      modules: ["express", "better-auth", "tailwind", "eslint"],
+    },
+    {
+      framework: "react",
       language: "ts",
       modules: ["nestjs", "mongodb", "eslint", "prettier"],
     },

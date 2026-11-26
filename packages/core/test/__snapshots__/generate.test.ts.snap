@@ -3702,6 +3702,7 @@ dist
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "better-auth": "^1.7.28",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -3749,6 +3750,7 @@ git push -u origin main
 \`\`\`
 ",
   "web/src/App.tsx" => "import ApiGreeting from "./components/ApiGreeting";
+import AuthPanel from "./components/AuthPanel";
 import Counter from "./components/Counter";
 
 export default function App() {
@@ -3757,6 +3759,7 @@ export default function App() {
       <h1 className="title">my-app</h1>
       <Counter />
       <ApiGreeting />
+      <AuthPanel />
     </main>
   );
 }
@@ -3777,6 +3780,107 @@ export default function ApiGreeting() {
   }, []);
 
   return <p className="text">{message}</p>;
+}
+",
+  "web/src/components/AuthPanel.tsx" => "import type { FormEvent } from "react";
+import { useState } from "react";
+import { authClient } from "../lib/auth-client";
+
+export default function AuthPanel() {
+  const { data: session, isPending } = authClient.useSession();
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [error, setError] = useState("");
+
+  if (isPending) return <p className="text">Checking your session…</p>;
+
+  if (session) {
+    return (
+      <div className="form">
+        <p className="text">
+          Signed in as {session.user.name} ({session.user.email}).
+        </p>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => authClient.signOut()}
+        >
+          Sign out
+        </button>
+      </div>
+    );
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email"));
+    const password = String(form.get("password"));
+    const { error } =
+      mode === "sign-up"
+        ? await authClient.signUp.email({
+            name: String(form.get("name")),
+            email,
+            password,
+          })
+        : await authClient.signIn.email({ email, password });
+    // A network failure has no message: the proxy got no answer from the API.
+    setError(
+      error
+        ? (error.message ?? "The API isn't running: start it in server/.")
+        : "",
+    );
+  }
+
+  const signingUp = mode === "sign-up";
+  return (
+    <form className="form" onSubmit={submit}>
+      {signingUp && (
+        <label className="field">
+          Name
+          <input name="name" required autoComplete="name" className="input" />
+        </label>
+      )}
+      <label className="field">
+        Email
+        <input
+          type="email"
+          name="email"
+          required
+          autoComplete="email"
+          className="input"
+        />
+      </label>
+      <label className="field">
+        Password
+        <input
+          type="password"
+          name="password"
+          required
+          minLength={8}
+          autoComplete={signingUp ? "new-password" : "current-password"}
+          className="input"
+        />
+      </label>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <button type="submit" className="btn">
+        {signingUp ? "Create account" : "Sign in"}
+      </button>
+      <button
+        type="button"
+        className="link"
+        onClick={() => {
+          setMode(signingUp ? "sign-in" : "sign-up");
+          setError("");
+        }}
+      >
+        {signingUp ? "Have an account? Sign in" : "New here? Create an account"}
+      </button>
+    </form>
+  );
 }
 ",
   "web/src/components/Counter.tsx" => "import { useState } from "react";
@@ -3896,6 +4000,39 @@ body {
 .btn:hover {
   background: #334155;
 }
+
+.form {
+  display: flex;
+  width: 100%;
+  max-width: 24rem;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.input {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: 400;
+}
+",
+  "web/src/lib/auth-client.ts" => "import { createAuthClient } from "better-auth/react";
+
+// No baseURL: the dev server proxies /api/auth to the API, so this is the app's own origin.
+export const authClient = createAuthClient();
 ",
   "web/src/main.tsx" => "import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

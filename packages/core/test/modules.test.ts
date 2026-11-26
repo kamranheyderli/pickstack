@@ -1795,6 +1795,34 @@ describe("better-auth", () => {
     expect(files.get("README.md")).toContain("BETTER_AUTH_SECRET");
   });
 
+  it("gives a React app a sign-in panel on the auth client", async () => {
+    const result = await generateAuth(["express", "better-auth"]);
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    expect(files.get("web/src/lib/auth-client.ts")).toContain(
+      'import { createAuthClient } from "better-auth/react";',
+    );
+    const panel = files.get("web/src/components/AuthPanel.tsx") ?? "";
+    expect(panel).toContain("authClient.useSession()");
+    expect(panel).toContain("authClient.signUp.email(");
+    expect(panel).toContain("authClient.signIn.email(");
+    expect(panel).toContain("authClient.signOut()");
+    expect(files.get("web/src/App.tsx")).toContain("<AuthPanel />");
+    const web = JSON.parse(files.get("web/package.json") ?? "");
+    expect(web.dependencies["better-auth"]).toBe(
+      knownGoodVersion("better-auth", "react"),
+    );
+  });
+
+  it("keeps other front ends to the server side for now", async () => {
+    const result = await generateAuth(["express", "better-auth"], "vue");
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.files.has("server/src/auth.ts")).toBe(true);
+    expect(
+      [...result.files.keys()].some((f) => f.includes("auth-client")),
+    ).toBe(false);
+  });
+
   it("trusts the framework's own dev server origin", async () => {
     const result = await generateAuth(["express", "better-auth"], "angular");
     if (!result.ok) throw new Error(JSON.stringify(result.errors));

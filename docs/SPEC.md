@@ -224,13 +224,14 @@ Qeydlər (2026-11, yoxlanılıb):
 |---|---|---|
 | `better-auth` | R, V, S, So, P, A | `mongodb` (avtomatik), `express`; `nestjs` ilə konflikt |
 
-- **Better Auth 1.7** ([sənəd](https://www.better-auth.com/docs/integrations/express)), email və şifrə ilə. 1-ci addım yalnız server tərəfidir; frontend formaları növbəti addımdır.
+- **Better Auth 1.7** ([sənəd](https://www.better-auth.com/docs/integrations/express)), email və şifrə ilə. Server bütün SPA-larda, frontend paneli hələlik yalnız React-dədir.
 - `server/src/auth`: `betterAuth({ baseURL, database: mongodbAdapter(client.db()), emailAndPassword })`. Adapter `better-auth/adapters/mongodb`-dən gəlir (paket özündə gətirir), `mongodb` drayveri ayrıca asılılıqdır (mongoose 9.13 ilə eyni 7.9 xətti). MongoDB üçün migrasiya lazım deyil.
 - docker-compose-dakı MongoDB tək serverdir və transaction-ı yoxdur, ona görə adapterə `client` verilmir (sənəddəki "standalone" variantı).
 - Handler `app.all("/api/auth/{*any}", toNodeHandler(auth))` `express.json()`-dan **əvvəl** qoşulur (`ServerSpec.beforeBody`), çünki body parser sorğu axınını oxuyub bitirir. `/api/me` `auth.api.getSession` nümunəsidir.
 - **Origin:** brauzer API-yə app-in dev server proxy-si ilə gəlir, ona görə `BETTER_AUTH_URL` app-in öz origin-idir (`devPorts`: Vite 5173, Angular 4200). Better Auth `baseURL`-a default olaraq güvənir; başqa origin-lər `403 INVALID_ORIGIN` alır. Hamısı real işə salınıb yoxlanılıb (qeydiyyat, sessiya, çıxış, giriş).
 - `BETTER_AUTH_SECRET` `.env.example`-də boşdur; README `openssl rand -base64 32` ilə doldurmağı deyir. Dev-də secret olmadan da işləyir, production-da Better Auth onu tələb edir.
-- **Növbəti addımlar:** frontend formaları (`better-auth/react`, `/vue`, `/svelte`, `/solid`, vanilla), sonra NestJS (`@thallesp/nestjs-better-auth`, icma paketi) və Drizzle/PostgreSQL adapteri.
+- **React:** `src/lib/auth-client`-də `createAuthClient()` (`better-auth/react`), `baseURL` olmadan: dev server `/api/auth`-u proxy edir, ona görə klient app-in öz origin-inə gedir. Sayğacın altındakı `AuthPanel` `useSession()` ilə ya giriş/qeydiyyat formasını (`signIn.email`, `signUp.email`), ya da istifadəçini və "Sign out"-u göstərir. Xətalar `role="alert"` ilə görünür; API işləmirsə (cavabda mesaj yoxdur) "start it in server/" deyir. Form sinifləri `formClasses`-dən gəlir (Tailwind və ya adi CSS). Brauzerdə yoxlanılıb: qeydiyyat, səhifə yenilənəndən sonra sessiya, çıxış, səhv şifrə, giriş, API dayananda mesaj.
+- **Növbəti addımlar:** Vue, Svelte, Solid, Preact və Angular panelləri (`better-auth/vue`, `/svelte`, `/solid`, vanilla `better-auth/client`), sonra NestJS (`@thallesp/nestjs-better-auth`, icma paketi) və Drizzle/PostgreSQL adapteri.
 
 ### 5.7 Test
 
