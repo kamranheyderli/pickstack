@@ -10,7 +10,7 @@ interface ToastProps {
   duration?: number;
 }
 
-/** A short message in the bottom corner, closed with its × button (a success also on its own). */
+/** A short message at the top of the screen, closed with its × button (a success also on its own). */
 export function Toast({
   children,
   onClose,
@@ -29,7 +29,7 @@ export function Toast({
     <div
       role={tone === "error" ? "alert" : "status"}
       aria-live={tone === "error" ? "assertive" : "polite"}
-      className="toast fixed right-4 bottom-4 left-4 z-50 flex items-start gap-3 rounded-xl border border-line bg-panel px-4 py-3 text-sm text-ink shadow-2xl sm:left-auto sm:w-[min(24rem,calc(100vw-2rem))]"
+      className="toast fixed top-20 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 items-start gap-3 rounded-xl border border-line bg-panel px-4 py-3.5 text-sm text-ink shadow-2xl ring-4 ring-[var(--color-accent-ring)]"
     >
       <span
         className={`mt-0.5 ${tone === "error" ? "text-red-500" : "text-emerald-500"}`}

@@ -231,15 +231,15 @@ body::before {
   }
 }
 
-/* Toast.tsx slides up into the corner. */
+/* Toast.tsx drops in at the top centre (centred by Tailwind's translate, so the keyframe animates translate too). */
 .toast {
-  animation: toast-in 0.25s cubic-bezier(0.2, 0.7, 0.3, 1);
+  animation: toast-in 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 @keyframes toast-in {
   from {
     opacity: 0;
-    transform: translateY(0.75rem);
+    translate: -50% -1rem;
   }
 }
 
