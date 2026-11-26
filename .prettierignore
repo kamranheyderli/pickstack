@@ -1,3 +1,6 @@
 docs
 pnpm-lock.yaml
 **/__snapshots__
+
+# Search engine verification: served byte for byte.
+apps/web/public/google*.html
