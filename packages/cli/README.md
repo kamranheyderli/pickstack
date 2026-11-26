@@ -1,6 +1,6 @@
 # create-pickstack
 
-Create a web project with the stack you pick: framework, UI kit, state, routing, data fetching, testing, linting, SEO, AI agent configs, and optionally a Node.js API (Express or NestJS) with a database (PostgreSQL with Drizzle, or MongoDB). Every combination it offers is checked with a real install, build, lint and test.
+Create a web project with the stack you pick: framework, UI kit, state, routing, data fetching, testing, linting, SEO, AI agent configs, and optionally a Node.js API (Express or NestJS) with a database (PostgreSQL with Drizzle, or MongoDB) and sign-in with Better Auth. Every combination it offers is checked with a real install, build, lint and test.
 
 ```bash
 npm create pickstack@latest
@@ -18,7 +18,10 @@ For React, Vue, Svelte, Solid, Preact and Angular, pick a backend and a database
 ```bash
 npm create pickstack@latest my-app -- --preset react-fullstack
 npm create pickstack@latest my-app -- --framework react --modules nestjs,drizzle --yes
+npm create pickstack@latest my-app -- --framework vue --modules express,drizzle,better-auth --yes
 ```
+
+Add `better-auth` for email and password sign-in: the API serves `/api/auth` with Better Auth, users and sessions are stored in the database you picked, and the app gets a sign-in and sign-up form.
 
 It asks for the project name, framework, language and the modules for each category. The modules shown are only those that work with your framework, and options that conflict with your earlier picks are shown with the reason.
 
@@ -38,6 +41,7 @@ The web configurator shows the exact command for any selection.
 | `-m, --modules <ids>`  | comma-separated module ids; `--list` shows them all                                          |
 | `--pm <id>`            | `npm`, `pnpm`, `yarn` or `bun` (default: the one running the command)                        |
 | `--site-url <url>`     | public origin for canonical URLs, sitemap and `llms.txt`                                     |
+| `-o, --open <editor>`  | open the project afterwards in `code` (VS Code), `cursor`, `windsurf` or `zed`               |
 | `-y, --yes`            | don't ask; use defaults for anything not given                                               |
 | `--no-install`         | skip installing dependencies                                                                 |
 | `--no-git`             | skip `git init`                                                                              |

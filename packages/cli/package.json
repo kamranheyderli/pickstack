@@ -1,7 +1,7 @@
 {
   "name": "create-pickstack",
-  "version": "0.3.1",
-  "description": "Create a web project with the stack you pick: framework, UI kit, state, routing, testing, linting, AI agent configs, and an optional Express or NestJS API with PostgreSQL or MongoDB.",
+  "version": "0.4.0",
+  "description": "Create a web project with the stack you pick: framework, UI kit, state, routing, testing, linting, AI agent configs, and an optional Express or NestJS API with PostgreSQL or MongoDB and Better Auth sign-in.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -28,6 +28,8 @@
     "express",
     "nestjs",
     "drizzle",
+    "auth",
+    "better-auth",
     "scaffold",
     "starter",
     "vite",
