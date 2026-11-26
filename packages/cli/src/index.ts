@@ -26,6 +26,13 @@ import {
   parseCliArgs,
   type CliArgs,
 } from "./args";
+import {
+  editors,
+  installedEditors,
+  openInEditor,
+  realHost,
+  type EditorId,
+} from "./editors";
 import { isFreeTarget, packageDirs, run, writeProject } from "./project";
 
 const categoryLabels: Record<Category, string> = {
@@ -228,6 +235,22 @@ async function collect(
   return { ...base, modules: picked };
 }
 
+/** Asks which installed editor to open the project in; nothing to ask when none is found. */
+async function pickEditor(): Promise<EditorId | undefined> {
+  const found = installedEditors(realHost());
+  if (!found.length) return undefined;
+  const choice = answer(
+    await p.select<EditorId | "none">({
+      message: "Open the project in an editor?",
+      options: [
+        ...found.map((e) => ({ value: e.id, label: e.name })),
+        { value: "none" as const, label: "No" },
+      ],
+    }),
+  );
+  return choice === "none" ? undefined : choice;
+}
+
 async function main(): Promise<void> {
   const args = parseCliArgs(process.argv.slice(2));
   if (args.help) return console.log(helpText);
@@ -304,6 +327,16 @@ async function main(): Promise<void> {
     ].join(" && "),
   );
   p.note(steps.join("\n"), "Next steps");
+
+  const editor = args.open ?? (interactive ? await pickEditor() : undefined);
+  if (editor) {
+    const name = editors.find((e) => e.id === editor)?.name ?? editor;
+    if (openInEditor(editor, dir)) p.log.success(`Opened ${dir}/ in ${name}`);
+    else
+      p.log.warn(
+        `${name} isn't installed here (no \`${editor}\` command), so ${dir}/ wasn't opened.`,
+      );
+  }
   p.outro("Happy hacking!");
 }
 

@@ -647,6 +647,7 @@ npm paketi `create-pickstack`-dir: `npm create pickstack@latest`, `pnpm create p
   - Seçim `validate`-dən keçmirsə, həmin kateqoriya yenidən soruşulur.
 - **Qeyri-interaktiv rejim:** `--framework`, `--language`, `--modules a,b,c`, `--site-url` və `--yes` bayraqları ilə işləyir. Terminal olmayanda (CI, agentlər) də bu rejim işləyir.
 - **Əmrin mənbəyi:** veb-dəki "Və ya terminaldan yarat" paneli əmri core-dakı `createCommand(selection)` ilə qurur. Ona görə veb və CLI eyni bayraq formatını paylaşır; bu, round-trip testi ilə yoxlanılır.
+- **Editorda açmaq (`--open`, `-o`):** `code`, `cursor`, `windsurf` və ya `zed`. Layihə yaradılıb install bitəndən sonra editor ayrıca prosesdə (`detached`, `unref`) açılır, CLI onu gözləmir. Editor PATH-də əmri ilə axtarılır; macOS-da shell əmri quraşdırılmayıbsa (VS Code-da tez-tez olur) `/Applications` və ya `~/Applications`-dakı app `open -a` ilə açılır; Windows-da `.cmd` başladıcısını shell tapır. İnteraktiv rejimdə yalnız tapılan editorlar soruşulur ("No" ilə); heç biri yoxdursa sual verilmir. Quraşdırılmamış editor seçiləndə xəbərdarlıq çıxır, layihə yenə yaradılır. `--yes` ilə yalnız bayraq verilibsə açılır.
 - **Yaratdıqdan sonra:** əvvəlcə `git init` işləyir, çünki Husky-nin `prepare` skripti repo tələb edir. Sonra hər `package.json` qovluğunda install işləyir (federation host və remote ayrıca). Bunları `--no-git` və `--no-install` söndürür.
 - **Qərar dəyişikliyi:**
   - `stackforge` və `create-stackforge` adları npm-də tutulub, ona görə `create-pickstack` götürülüb.

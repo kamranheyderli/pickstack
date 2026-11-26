@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import type { FrameworkId, Language, PackageManager } from "@stackforge/core";
+import { editorIds, type EditorId } from "./editors";
 
 /** What the command line fixed in advance; anything missing is asked (or defaulted with --yes). */
 export interface CliArgs {
@@ -11,6 +12,8 @@ export interface CliArgs {
   /** A preset id; its framework and modules fill whatever the flags leave open. */
   preset?: string;
   siteUrl?: string;
+  /** Editor to open the project in afterwards. */
+  open?: EditorId;
   yes: boolean;
   install: boolean;
   git: boolean;
@@ -53,6 +56,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
       modules: { type: "string", short: "m" },
       preset: { type: "string", short: "p" },
       "site-url": { type: "string" },
+      open: { type: "string", short: "o" },
       yes: { type: "boolean", short: "y", default: false },
       install: { type: "boolean", default: true },
       git: { type: "boolean", default: true },
@@ -80,6 +84,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
             .filter(Boolean),
     preset: values.preset,
     siteUrl: values["site-url"],
+    open: oneOf("open", values.open, editorIds),
     yes: values.yes,
     install: values.install,
     git: values.git,
@@ -107,6 +112,7 @@ Options:
   -p, --preset <id>      start from a ready stack (see --list)
       --pm <id>          npm, pnpm, yarn or bun (default: the one running this command)
       --site-url <url>   public origin for canonical URLs, sitemap and llms.txt
+  -o, --open <editor>    open the project afterwards: code, cursor, windsurf or zed
   -y, --yes              don't ask: use defaults for anything not given
       --no-install       skip installing dependencies
       --no-git           skip git init
@@ -118,4 +124,5 @@ Options:
 Examples:
   npm create pickstack@latest
   npm create pickstack@latest my-app -- --preset next-shadcn --yes
-  pnpm create pickstack my-app --framework vue --modules tailwind,pinia,vue-router --yes`;
+  pnpm create pickstack my-app --framework vue --modules tailwind,pinia,vue-router --yes
+  npm create pickstack@latest my-app -- --preset react-shadcn --open cursor --yes`;
