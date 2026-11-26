@@ -931,9 +931,39 @@ function backendCombos(): Combo[] {
     {
       framework: "angular",
       language: "ts",
-      modules: ["express", "better-auth"],
+      modules: ["express", "better-auth", "tailwind", "eslint", "prettier"],
     },
     { framework: "vue", language: "js", modules: ["express", "better-auth"] },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["express", "better-auth", "tailwind", "eslint", "prettier"],
+    },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["express", "better-auth", "eslint", "prettier"],
+    },
+    {
+      framework: "svelte",
+      language: "js",
+      modules: ["express", "better-auth"],
+    },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["express", "better-auth", "tailwind", "biome"],
+    },
+    {
+      framework: "preact",
+      language: "ts",
+      modules: ["express", "better-auth", "eslint", "prettier"],
+    },
+    {
+      framework: "preact",
+      language: "js",
+      modules: ["express", "better-auth"],
+    },
     {
       framework: "react",
       language: "js",

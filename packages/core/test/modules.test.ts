@@ -1814,14 +1814,55 @@ describe("better-auth", () => {
     );
   });
 
-  it("keeps other front ends to the server side for now", async () => {
-    const result = await generateAuth(["express", "better-auth"], "vue");
-    if (!result.ok) throw new Error(JSON.stringify(result.errors));
-    expect(result.files.has("server/src/auth.ts")).toBe(true);
-    expect(
-      [...result.files.keys()].some((f) => f.includes("auth-client")),
-    ).toBe(false);
-  });
+  it.each([
+    [
+      "vue",
+      "web/src/lib/auth-client.ts",
+      "better-auth/vue",
+      "web/src/components/AuthPanel.vue",
+      "authClient.useSession()",
+    ],
+    [
+      "svelte",
+      "web/src/lib/auth-client.ts",
+      "better-auth/svelte",
+      "web/src/lib/AuthPanel.svelte",
+      "$session.data",
+    ],
+    [
+      "solid",
+      "web/src/lib/auth-client.ts",
+      "better-auth/solid",
+      "web/src/components/AuthPanel.tsx",
+      "session().data",
+    ],
+    [
+      "preact",
+      "web/src/lib/auth-client.ts",
+      "better-auth/client",
+      "web/src/components/AuthPanel.tsx",
+      "authClient.useSession.subscribe(",
+    ],
+    [
+      "angular",
+      "web/src/app/lib/auth-client.ts",
+      "better-auth/client",
+      "web/src/app/components/auth-panel/auth-panel.ts",
+      "authClient.useSession.subscribe(",
+    ],
+  ] as const)(
+    "gives %s its own client and a sign-in panel",
+    async (framework, clientPath, clientFrom, panelPath, sessionRead) => {
+      const result = await generateAuth(["express", "better-auth"], framework);
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      expect(result.files.get(clientPath)).toContain(`from "${clientFrom}"`);
+      const panel = result.files.get(panelPath) ?? "";
+      expect(panel).toContain(sessionRead);
+      expect(panel).toContain("authClient.signUp.email(");
+      expect(panel).toContain("authClient.signIn.email(");
+      expect(panel).toContain('role="alert"');
+    },
+  );
 
   it("trusts the framework's own dev server origin", async () => {
     const result = await generateAuth(["express", "better-auth"], "angular");

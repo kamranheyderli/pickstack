@@ -1,15 +1,6 @@
 import { file, renderImports } from "../../engine/code";
-import { demoClasses } from "../../frameworks/shared/demo";
 import type { Ctx, ProjectModel } from "../../types";
-import { formClasses } from "../forms/shared";
-
-/** The demo's sign-in card, under the counter. */
-export const AUTH_WIDGET = "AuthPanel";
-
-export const authCopy = {
-  checking: "Checking your session…",
-  offline: "The API isn't running: start it in server/.",
-};
+import { AUTH_WIDGET, authCopy, panelClasses, writeAuthClient } from "./panels";
 
 /**
  * `src/lib/auth-client` and an `AuthPanel` widget: a sign-in / sign-up form, or the signed-in
@@ -18,18 +9,8 @@ export const authCopy = {
  */
 export function reactAuth(model: ProjectModel, ctx: Ctx): void {
   const ts = ctx.isTs;
-  const c = formClasses(model);
-  const link = demoClasses(model).link;
-  model.pkg.dependencies.add("better-auth");
-  model.files.set(
-    `src/lib/auth-client.${ctx.ext.script}`,
-    file([
-      'import { createAuthClient } from "better-auth/react";',
-      "",
-      "// No baseURL: the dev server proxies /api/auth to the API, so this is the app's own origin.",
-      "export const authClient = createAuthClient();",
-    ]),
-  );
+  const c = panelClasses(model);
+  writeAuthClient(model, ctx, "src/lib/auth-client", "better-auth/react");
   model.files.set(
     `src/components/${AUTH_WIDGET}.${ctx.ext.component}`,
     file([
@@ -113,7 +94,7 @@ export function reactAuth(model: ProjectModel, ctx: Ctx): void {
       "      </button>",
       "      <button",
       '        type="button"',
-      `        className="${link}"`,
+      `        className="${c.link}"`,
       "        onClick={() => {",
       '          setMode(signingUp ? "sign-in" : "sign-up");',
       '          setError("");',
