@@ -1,6 +1,6 @@
 import { file } from "../../engine/code";
 import { devPorts } from "../../frameworks/catalog";
-import type { Module } from "../../types";
+import type { Module, ServerSpec } from "../../types";
 import { authPanel } from "./panels";
 import { reactAuth } from "./react";
 
@@ -23,13 +23,13 @@ export const betterAuth: Module = {
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
   requires: ["mongodb"],
-  // NestJS needs the community integration and `bodyParser: false`; not wired up yet.
-  conflicts: ["nestjs"],
   apply(model, ctx) {
     const server = model.server;
-    if (!server || server.kind !== "express")
-      throw new Error("better-auth needs the Express server");
-    const x = ctx.ext.script;
+    if (!server)
+      throw new Error("better-auth needs a server (express or nestjs)");
+    const nest = server.kind === "nestjs";
+    // Nest is TypeScript only; the Express server follows the app's language.
+    const x = nest ? "ts" : ctx.ext.script;
     const appOrigin = `http://localhost:${devPorts[ctx.selection.framework]}`;
     const mongoUri =
       server.env["MONGODB_URI"] ??
@@ -56,27 +56,8 @@ export const betterAuth: Module = {
         "});",
       ]),
     );
-    server.appImports.push(
-      { from: "better-auth/node", named: ["fromNodeHeaders", "toNodeHandler"] },
-      { from: "./auth.js", named: ["auth"] },
-    );
-    server.beforeBody.push(
-      "// Better Auth reads its own request bodies, so it goes before express.json().",
-      'app.all("/api/auth/{*any}", toNodeHandler(auth));',
-    );
-    server.routes.push(
-      "",
-      'app.get("/api/me", async (req, res) => {',
-      "  const session = await auth.api.getSession({",
-      "    headers: fromNodeHeaders(req.headers),",
-      "  });",
-      "  if (!session) {",
-      '    res.status(401).json({ error: "Not signed in" });',
-      "    return;",
-      "  }",
-      "  res.json(session.user);",
-      "});",
-    );
+    if (nest) withNest(server);
+    else withExpress(server);
     server.setup.push(
       "Give Better Auth a secret: copy `server/.env.example` to `server/.env` and set `BETTER_AUTH_SECRET`, e.g. to the output of:",
       "```bash\nopenssl rand -base64 32\n```",
@@ -87,3 +68,80 @@ export const betterAuth: Module = {
     model.readme.stack.push("Better Auth");
   },
 };
+
+/** The handler before `express.json()`, and `/api/me` reading the session from the headers. */
+function withExpress(server: ServerSpec): void {
+  server.appImports.push(
+    { from: "better-auth/node", named: ["fromNodeHeaders", "toNodeHandler"] },
+    { from: "./auth.js", named: ["auth"] },
+  );
+  server.beforeBody.push(
+    "// Better Auth reads its own request bodies, so it goes before express.json().",
+    'app.all("/api/auth/{*any}", toNodeHandler(auth));',
+  );
+  server.routes.push(
+    "",
+    'app.get("/api/me", async (req, res) => {',
+    "  const session = await auth.api.getSession({",
+    "    headers: fromNodeHeaders(req.headers),",
+    "  });",
+    "  if (!session) {",
+    '    res.status(401).json({ error: "Not signed in" });',
+    "    return;",
+    "  }",
+    "  res.json(session.user);",
+    "});",
+  );
+}
+
+/**
+ * `@thallesp/nestjs-better-auth`, the integration Better Auth's NestJS docs point to (community
+ * maintained). Nest's own body parser is off so Better Auth can read its requests; the module
+ * adds the JSON parser back for every other route. Its global guard would make every route
+ * private, so it is off: `/api/hello` and `/api/todos` stay public, as on Express, and
+ * `MeController` guards `/api/me` itself.
+ */
+function withNest(server: ServerSpec): void {
+  server.dependencies.add("@thallesp/nestjs-better-auth");
+  server.factoryOptions.push("bodyParser: false");
+  server.appImports.push(
+    { from: "@thallesp/nestjs-better-auth", named: ["AuthModule"] },
+    { from: "./auth.js", named: ["auth"] },
+    { from: "./me/me.module.js", named: ["MeModule"] },
+  );
+  server.appModules.push(
+    "AuthModule.forRoot({ auth, disableGlobalAuthGuard: true })",
+    "MeModule",
+  );
+  server.files.set(
+    "src/me/me.controller.ts",
+    file([
+      'import { Controller, Get, UseGuards } from "@nestjs/common";',
+      "import {",
+      "  AuthGuard,",
+      "  Session,",
+      "  type UserSession,",
+      '} from "@thallesp/nestjs-better-auth";',
+      "",
+      '@Controller("me")',
+      "export class MeController {",
+      "  /** The signed-in user; the guard answers 401 without a session. */",
+      "  @Get()",
+      "  @UseGuards(AuthGuard)",
+      '  me(@Session() session: UserSession): UserSession["user"] {',
+      "    return session.user;",
+      "  }",
+      "}",
+    ]),
+  );
+  server.files.set(
+    "src/me/me.module.ts",
+    file([
+      'import { Module } from "@nestjs/common";',
+      'import { MeController } from "./me.controller.js";',
+      "",
+      "@Module({ controllers: [MeController] })",
+      "export class MeModule {}",
+    ]),
+  );
+}

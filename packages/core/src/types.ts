@@ -229,6 +229,8 @@ export interface ServerSpec {
   appImports: ImportSpec[];
   /** NestJS: entries of `AppModule`'s `imports`, e.g. `MongooseModule.forRoot(...)`. */
   appModules: string[];
+  /** NestJS: options for `NestFactory.create`, e.g. `bodyParser: false`. */
+  factoryOptions: string[];
   /**
    * Handlers mounted before `express.json()` (Express only): a body parser would consume their
    * request stream, e.g. Better Auth's `toNodeHandler`.

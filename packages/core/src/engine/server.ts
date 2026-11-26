@@ -44,16 +44,17 @@ const nestTsconfig = json({
 });
 
 function scripts(spec: ServerSpec, ctx: Ctx): Record<string, string> {
+  // Node reads `.env` itself (`--env-file-if-exists`, Node 22.9+), so no dotenv is needed.
+  const env = "--env-file-if-exists=.env";
   if (spec.kind === "nestjs") {
     return {
-      dev: "nest start --watch",
+      // Nest's own --env-file stops when the file is missing; Node's flag carries on.
+      dev: `nest start --watch --exec "node ${env}"`,
       build: "nest build",
-      start: "node dist/main",
+      start: `node ${env} dist/main`,
       typecheck: "tsc --noEmit",
     };
   }
-  // Node reads `.env` itself (`--env-file-if-exists`, Node 22.9+), so no dotenv is needed.
-  const env = "--env-file-if-exists=.env";
   return ctx.isTs
     ? {
         dev: `tsx watch ${env} src/index.ts`,
@@ -137,7 +138,9 @@ const nestMain = (spec: ServerSpec) =>
     'import { AppModule } from "./app.module.js";',
     "",
     "async function bootstrap() {",
-    "  const app = await NestFactory.create(AppModule);",
+    spec.factoryOptions.length
+      ? `  const app = await NestFactory.create(AppModule, { ${spec.factoryOptions.join(", ")} });`
+      : "  const app = await NestFactory.create(AppModule);",
     '  app.setGlobalPrefix("api");',
     `  const port = Number(process.env.PORT ?? ${spec.port});`,
     "  await app.listen(port);",

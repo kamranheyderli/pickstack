@@ -222,7 +222,7 @@ Qeydlər (2026-11, yoxlanılıb):
 
 | Modul | Uyğun | Tələb |
 |---|---|---|
-| `better-auth` | R, V, S, So, P, A | `mongodb` (avtomatik), `express`; `nestjs` ilə konflikt |
+| `better-auth` | R, V, S, So, P, A | `mongodb` (avtomatik), `express` və ya `nestjs` |
 
 - **Better Auth 1.7** ([sənəd](https://www.better-auth.com/docs/integrations/express)), email və şifrə ilə. Server və giriş paneli bütün SPA-lardadır.
 - `server/src/auth`: `betterAuth({ baseURL, database: mongodbAdapter(client.db()), emailAndPassword })`. Adapter `better-auth/adapters/mongodb`-dən gəlir (paket özündə gətirir), `mongodb` drayveri ayrıca asılılıqdır (mongoose 9.13 ilə eyni 7.9 xətti). MongoDB üçün migrasiya lazım deyil.
@@ -233,7 +233,9 @@ Qeydlər (2026-11, yoxlanılıb):
 - **React:** `src/lib/auth-client`-də `createAuthClient()` (`better-auth/react`), `baseURL` olmadan: dev server `/api/auth`-u proxy edir, ona görə klient app-in öz origin-inə gedir. Sayğacın altındakı `AuthPanel` `useSession()` ilə ya giriş/qeydiyyat formasını (`signIn.email`, `signUp.email`), ya da istifadəçini və "Sign out"-u göstərir. Xətalar `role="alert"` ilə görünür; API işləmirsə (cavabda mesaj yoxdur) "start it in server/" deyir. Form sinifləri `formClasses`-dən gəlir (Tailwind və ya adi CSS). Brauzerdə yoxlanılıb: qeydiyyat, səhifə yenilənəndən sonra sessiya, çıxış, səhv şifrə, giriş, API dayananda mesaj.
 - **Digər SPA-lar** (`modules/auth/panels.ts`, eyni mətnlər və form sinifləri): Vue `better-auth/vue` (`useSession()` ref-i, `@submit.prevent`); Svelte `better-auth/svelte` (atom Svelte store-dur, `$session`); Solid `better-auth/solid` (`session()` accessor-u, `Switch`/`Match`); Preact və Angular-ın öz klienti yoxdur, ona görə vanilla `better-auth/client`-in `useSession` atom-u oxunur və ona subscribe olunur (Preact-də `useEffect`, Angular-da `signal` + `DestroyRef`). Angular-da klient `src/app/lib/auth-client`-dədir. Hər biri brauzerdə yoxlanılıb (qeydiyyat, yeniləmə, çıxış, səhv şifrə, giriş).
 - **Test qeydi:** tam Chrome-un headless rejimində formadan girişdən sonra brauzerin öz UI-ı (şifrə saxlama axını) bəzən tab-ın input-unu tutur (Solid-də müşahidə olundu; `fetch` ilə girişdə yoxdur). App ilə bağlı deyil: `chromium-headless-shell`-də hər şey işləyir. Brauzer testləri üçün headless-shell istifadə et.
-- **Növbəti addımlar:** NestJS (`@thallesp/nestjs-better-auth`, icma paketi) və Drizzle/PostgreSQL adapteri.
+- **NestJS:** Better Auth-un NestJS sənədinin göstərdiyi icma paketi `@thallesp/nestjs-better-auth` 2.8 (ESM, Nest 11.1.6+/12). `main.ts`-də `NestFactory.create(AppModule, { bodyParser: false })` (`ServerSpec.factoryOptions`): Better Auth sorğu axınını özü oxuyur, paket JSON/urlencoded parser-ləri digər route-lar üçün geri qoşur. `AuthModule.forRoot({ auth, disableGlobalAuthGuard: true })`: default qlobal guard bütün route-ları bağlayardı, ona görə Express-dəki kimi `/api/hello` və `/api/todos` açıq qalır, `MeModule`-dakı `/api/me` isə `@UseGuards(AuthGuard)` və `@Session()` ilə qorunur (girişsiz 401). Auth route-ları `/api/auth`-dadır, `setGlobalPrefix("api")` onlara tətbiq olunmur. Real işə salınıb yoxlanılıb: qeydiyyat, `/api/me`, `POST /api/todos` (JSON parser işləyir), yad origin 403, çıxış, səhv şifrə, giriş və brauzer paneli.
+- **`.env` NestJS-də:** `dev` `nest start --watch --exec "node --env-file-if-exists=.env"`, `start` `node --env-file-if-exists=.env dist/main`. Nest-in öz `--env-file` bayrağı fayl yoxdursa dayanır ("node: .env: not found"), Node-unku davam edir.
+- **Növbəti addımlar:** Drizzle/PostgreSQL adapteri (`better-auth/adapters/drizzle`, sxem `auth generate` ilə).
 
 ### 5.7 Test
 

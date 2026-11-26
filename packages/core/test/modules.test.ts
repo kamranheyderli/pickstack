@@ -1545,7 +1545,11 @@ describe("nestjs", () => {
   it("writes the starter's layout to server/ with an /api prefix", async () => {
     const files = await project();
     const pkg = JSON.parse(files.get("server/package.json") ?? "");
-    expect(pkg.scripts.dev).toBe("nest start --watch");
+    // Node's --env-file-if-exists: Nest's own --env-file stops without a .env.
+    expect(pkg.scripts.dev).toBe(
+      'nest start --watch --exec "node --env-file-if-exists=.env"',
+    );
+    expect(pkg.scripts.start).toBe("node --env-file-if-exists=.env dist/main");
     expect(pkg.dependencies["@nestjs/core"]).toBe(
       knownGoodVersion("@nestjs/core", "react"),
     );
@@ -1880,14 +1884,36 @@ describe("better-auth", () => {
     );
   });
 
-  it("needs the Express API and is not offered with NestJS yet", async () => {
+  it("needs a backend", async () => {
     const alone = await generateAuth(["better-auth"]);
     expect(alone.ok).toBe(false);
     if (!alone.ok)
       expect(alone.errors.map((e) => e.code)).toContain("missing-one-of");
-    const nest = await generateAuth(["nestjs", "better-auth"]);
-    expect(nest.ok).toBe(false);
-    if (!nest.ok) expect(nest.errors.map((e) => e.code)).toContain("conflict");
+  });
+
+  it("uses the NestJS integration with Nest's body parser off and a guarded /api/me", async () => {
+    const result = await generateAuth(["nestjs", "better-auth"]);
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const files = result.files;
+    expect(files.get("server/src/main.ts")).toContain(
+      "NestFactory.create(AppModule, { bodyParser: false })",
+    );
+    const appModule = files.get("server/src/app.module.ts") ?? "";
+    expect(appModule).toContain(
+      "AuthModule.forRoot({ auth, disableGlobalAuthGuard: true })",
+    );
+    expect(appModule).toContain("MeModule");
+    const me = files.get("server/src/me/me.controller.ts") ?? "";
+    expect(me).toContain("@UseGuards(AuthGuard)");
+    expect(me).toContain("@Session() session: UserSession");
+    expect(files.get("server/src/auth.ts")).toContain(
+      'from "better-auth/adapters/mongodb"',
+    );
+    expect(files.has("server/src/app.ts")).toBe(false);
+    const pkg = JSON.parse(files.get("server/package.json") ?? "");
+    expect(pkg.dependencies["@thallesp/nestjs-better-auth"]).toBe(
+      knownGoodVersion("@thallesp/nestjs-better-auth", "react"),
+    );
   });
 
   it("is not offered for meta-frameworks yet", async () => {

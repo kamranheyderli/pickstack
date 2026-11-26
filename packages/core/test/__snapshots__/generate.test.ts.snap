@@ -5961,9 +5961,9 @@ dist
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "nest start --watch",
+    "dev": "nest start --watch --exec \\"node --env-file-if-exists=.env\\"",
     "build": "nest build",
-    "start": "node dist/main",
+    "start": "node --env-file-if-exists=.env dist/main",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -40,6 +40,7 @@ export const nestjs: Module = {
       ]),
       appImports: [],
       appModules: [],
+      factoryOptions: [],
       beforeBody: [],
       routes: [],
       entryImports: [],

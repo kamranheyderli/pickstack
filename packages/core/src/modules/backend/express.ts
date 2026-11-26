@@ -33,6 +33,7 @@ export const express: Module = {
       ),
       appImports: [],
       appModules: [],
+      factoryOptions: [],
       beforeBody: [],
       routes: [
         'app.get("/api/health", (_req, res) => {',
