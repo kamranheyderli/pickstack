@@ -249,7 +249,15 @@ export default function App() {
         open={githubOpen}
         defaultName={projectName}
         onClose={() => setGithubOpen(false)}
-        onContinue={(repo) => startGitHubCreate({ ...repo, edits: [...edits] })}
+        onContinue={(repo) => {
+          // Sign-in runs in Vercel functions; Vite's dev server has no /api.
+          if (import.meta.env.DEV) {
+            setGithubOpen(false);
+            setStatus(t("github.devOnly"));
+            return;
+          }
+          startGitHubCreate({ ...repo, edits: [...edits] });
+        }}
       />
       <Sky />
       <CommandPalette

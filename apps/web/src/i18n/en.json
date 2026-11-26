@@ -45,6 +45,7 @@
   "github.open": "Open the repository",
   "github.exists": "Your account already has a repository named {name}. Pick another name.",
   "github.denied": "GitHub sign-in was cancelled.",
+  "github.devOnly": "GitHub sign-in works on the deployed site only (Vercel functions); the local dev server has no /api.",
   "github.error": "Couldn't create it on GitHub: {error}",
   "command.label": "Or create it from the terminal",
   "command.copy": "Copy",

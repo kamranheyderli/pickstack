@@ -45,6 +45,7 @@
   "github.open": "Repo-nu aç",
   "github.exists": "Hesabında artıq {name} adlı repo var. Başqa ad seç.",
   "github.denied": "GitHub girişi ləğv edildi.",
+  "github.devOnly": "GitHub girişi yalnız deploy olunmuş saytda işləyir (Vercel funksiyaları); lokal dev serverdə /api yoxdur.",
   "github.error": "GitHub-da yaratmaq alınmadı: {error}",
   "command.label": "Və ya terminaldan yarat",
   "command.copy": "Kopyala",
