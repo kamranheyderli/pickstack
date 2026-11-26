@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { callback, login, safeReturn } from "../api/github/_oauth";
+import { callback, login, oauthEnv, safeReturn } from "../api/github/_oauth";
 import { createRepository, GitHubError } from "../src/lib/github";
 
 const env = { clientId: "client-id", clientSecret: "secret" };
@@ -40,6 +40,21 @@ describe("OAuth login", () => {
     expect(safeReturn("//evil.example")).toBe("/");
     expect(safeReturn("https://evil.example")).toBe("/");
     expect(safeReturn(null)).toBe("/");
+  });
+});
+
+describe("oauthEnv", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("trims values pasted with a trailing newline", () => {
+    vi.stubEnv("GITHUB_CLIENT_ID", "Ov23id\n");
+    vi.stubEnv("GITHUB_CLIENT_SECRET", " secret\n");
+    expect(oauthEnv()).toEqual({ clientId: "Ov23id", clientSecret: "secret" });
+  });
+
+  it("explains a missing configuration", () => {
+    vi.stubEnv("GITHUB_CLIENT_ID", "");
+    expect(oauthEnv()).toBeInstanceOf(Response);
   });
 });
 

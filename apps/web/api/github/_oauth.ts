@@ -114,8 +114,9 @@ export async function callback(
 
 /** Reads the app's credentials from Vercel's environment, or explains what is missing. */
 export function oauthEnv(): OAuthEnv | Response {
-  const clientId = process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  // Trimmed: a value pasted into the dashboard easily carries a trailing newline.
+  const clientId = process.env.GITHUB_CLIENT_ID?.trim();
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET?.trim();
   if (!clientId || !clientSecret) {
     return new Response(
       "GitHub sign-in is not configured: set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.",
