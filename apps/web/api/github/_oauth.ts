@@ -5,7 +5,6 @@
  */
 
 const COOKIE = "gh_oauth";
-const CALLBACK = "/api/github/callback";
 
 export interface OAuthEnv {
   clientId: string;
@@ -49,7 +48,8 @@ export function login(request: Request, env: OAuthEnv): Response {
   const back = safeReturn(url.searchParams.get("return"));
   const authorize = new URL("https://github.com/login/oauth/authorize");
   authorize.searchParams.set("client_id", env.clientId);
-  authorize.searchParams.set("redirect_uri", `${url.origin}${CALLBACK}`);
+  // No redirect_uri: GitHub then returns to the callback registered for the app, so a
+  // registered value that differs by an invisible character can't make it refuse.
   // public_repo can't create private repositories; repo can.
   authorize.searchParams.set(
     "scope",
@@ -98,7 +98,6 @@ export async function callback(
         client_id: env.clientId,
         client_secret: env.clientSecret,
         code,
-        redirect_uri: `${url.origin}${CALLBACK}`,
       }),
     },
   );

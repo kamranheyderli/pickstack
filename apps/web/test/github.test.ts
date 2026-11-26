@@ -21,9 +21,8 @@ describe("OAuth login", () => {
       "https://github.com/login/oauth/authorize",
     );
     expect(to.searchParams.get("scope")).toBe("public_repo");
-    expect(to.searchParams.get("redirect_uri")).toBe(
-      `${origin}/api/github/callback`,
-    );
+    // GitHub uses the callback registered for the app.
+    expect(to.searchParams.has("redirect_uri")).toBe(false);
     expect(publicLogin.headers.get("Set-Cookie")).toContain("HttpOnly");
 
     const privateLogin = login(
