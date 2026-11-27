@@ -1,6 +1,6 @@
 {
   "app.title": "pickstack",
-  "app.tagline": "Framework və alətləri seç, faylların necə dəyişdiyini izlə və işə hazır layihəni ZIP arxivi kimi yüklə.",
+  "app.tagline": "Framework və alətləri saytda seç və ya terminalda bir əmrlə yarat. Faylların necə dəyişdiyini izlə, sonra ZIP kimi yüklə, GitHub-a göndər və ya brauzerdə işə sal.",
   "app.options": "Layihə seçimləri",
   "field.name": "Layihə adı",
   "field.nameHint": "Qovluq adı: {name}",
@@ -52,7 +52,7 @@
   "github.denied": "GitHub girişi ləğv edildi.",
   "github.devOnly": "GitHub girişi yalnız deploy olunmuş saytda işləyir (Vercel funksiyaları); lokal dev serverdə /api yoxdur.",
   "github.error": "GitHub-da yaratmaq alınmadı: {error}",
-  "command.label": "Və ya terminaldan yarat",
+  "command.label": "Bu seçimi terminalda bir əmrlə yarat (sualsız)",
   "command.copy": "Kopyala",
   "command.copied": "Kopyalandı",
   "command.edits": "Önizləmədəki düzəlişlər yalnız ZIP arxivinə daxil olur.",
@@ -122,5 +122,17 @@
   "category.database": "Verilənlər bazası",
   "category.auth": "Autentifikasiya",
   "category.monitoring": "Xəta monitorinqi",
-  "category.analytics": "Analitika"
+  "category.analytics": "Analitika",
+  "ways.title": "Üç yol, eyni layihə",
+  "ways.intro": "Necə rahatdırsa, elə et: nəticə eyni işə hazır layihədir.",
+  "ways.cli.title": "Terminalda yarat",
+  "ways.cli.badge": "Ən sürətli",
+  "ways.cli.body": "Əmri terminala yapışdır: framework və alətləri sual-cavabla seçirsən, layihə yaranır və paketlər özü quraşdırılır.",
+  "ways.command.title": "Saytda seç, əmri kopyala",
+  "ways.command.body": "Aşağıda seçdiklərin bir əmrə çevrilir. Onu terminala yapışdır: eyni layihə heç bir sual vermədən yaranır.",
+  "ways.site.title": "Saytdan götür",
+  "ways.site.body": "Terminal lazım deyil: seçdiyin layihəni ZIP kimi yüklə, GitHub-da repo kimi yarat və ya brauzerdə dərhal işə sal.",
+  "ways.site.zip": "ZIP",
+  "ways.site.run": "Brauzerdə işə sal",
+  "ways.start": "Seçməyə başla"
 }

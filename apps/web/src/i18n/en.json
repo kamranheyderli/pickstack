@@ -1,6 +1,6 @@
 {
   "app.title": "pickstack",
-  "app.tagline": "Pick a framework and tools, watch the files change, and download a ready-to-run project as a ZIP.",
+  "app.tagline": "Pick a framework and tools here or create the project with one terminal command. Watch the files change, then download a ZIP, push to GitHub or run it in the browser.",
   "app.options": "Project options",
   "field.name": "Project name",
   "field.nameHint": "Folder name: {name}",
@@ -52,7 +52,7 @@
   "github.denied": "GitHub sign-in was cancelled.",
   "github.devOnly": "GitHub sign-in works on the deployed site only (Vercel functions); the local dev server has no /api.",
   "github.error": "Couldn't create it on GitHub: {error}",
-  "command.label": "Or create it from the terminal",
+  "command.label": "Create this selection in the terminal with one command (no questions)",
   "command.copy": "Copy",
   "command.copied": "Copied",
   "command.edits": "Edits you make in the preview are included in the ZIP only.",
@@ -122,5 +122,17 @@
   "category.database": "Database",
   "category.auth": "Authentication",
   "category.monitoring": "Error monitoring",
-  "category.analytics": "Analytics"
+  "category.analytics": "Analytics",
+  "ways.title": "Three ways, one project",
+  "ways.intro": "Pick whichever suits you: you get the same ready-to-run project.",
+  "ways.cli.title": "Create it in the terminal",
+  "ways.cli.badge": "Fastest",
+  "ways.cli.body": "Paste the command in a terminal: answer a few questions to pick the framework and tools, and the project is created with its packages installed.",
+  "ways.command.title": "Pick here, copy the command",
+  "ways.command.body": "Whatever you pick below becomes one command. Paste it in a terminal and the same project is created without any questions.",
+  "ways.site.title": "Get it from the site",
+  "ways.site.body": "No terminal needed: download the project as a ZIP, create it as a GitHub repository or run it in the browser right away.",
+  "ways.site.zip": "ZIP",
+  "ways.site.run": "Run in browser",
+  "ways.start": "Start picking"
 }

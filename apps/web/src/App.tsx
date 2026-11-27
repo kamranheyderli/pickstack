@@ -16,6 +16,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { GitHubDialog, type GitHubStep } from "./components/GitHubDialog";
+import { HowItWorks } from "./components/HowItWorks";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
 import { QuickStart } from "./components/QuickStart";
@@ -421,6 +422,15 @@ export default function App() {
             />
           </div>
         </section>
+
+        <HowItWorks
+          command={createCommand({ ...selection, name: projectName })}
+          onStart={() =>
+            document
+              .getElementById("framework-heading")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+        />
 
         <section aria-labelledby="presets-heading" className="mb-6">
           <h2 id="presets-heading" className="mb-2 text-sm font-semibold">
