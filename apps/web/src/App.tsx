@@ -40,7 +40,11 @@ import { feedbackUrl } from "./lib/feedback";
 import { runGuide, type RunGuide } from "./lib/runSteps";
 import { formatSize, stackSize } from "./lib/bundleSize";
 import { downloadZip } from "./lib/download";
-import { openInStackBlitz, runnableProject } from "./lib/stackblitz";
+import {
+  forLivePreview,
+  openInStackBlitz,
+  runnableProject,
+} from "./lib/stackblitz";
 import {
   createRepository,
   GitHubError,
@@ -89,6 +93,7 @@ export default function App() {
   const [wizardOpen, setWizardOpen] = useState(false);
   // The project running in the page instead of the code view.
   const [live, setLive] = useState(false);
+  const [liveStarted, setLiveStarted] = useState(false);
   // Bumped after each download; a new key replays the confetti.
   const [celebrations, setCelebrations] = useState(0);
   const [notice, setNotice] = useState("");
@@ -783,7 +788,10 @@ export default function App() {
                         : t("live.hint")
                     }
                     onClick={() => {
-                      if (!live) tookStack("live-preview");
+                      if (!live) {
+                        tookStack("live-preview");
+                        setLiveStarted(true);
+                      }
                       setLive(!live);
                     }}
                     className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-ink"
@@ -861,14 +869,19 @@ export default function App() {
                 onClose={() => setLastPick(null)}
               />
             )}
-            {files && live ? (
-              <LivePreview
-                name={projectName}
-                project={runnableProject(files, activePath)}
-                theme={resolvedTheme}
-                title={t("live.frame", { name: projectName })}
-              />
-            ) : files ? (
+            {/* Once started, the preview stays mounted (hidden behind the code) and keeps up
+                with the picks, so showing it again is instant. */}
+            {files && liveStarted && (
+              <div hidden={!live}>
+                <LivePreview
+                  name={projectName}
+                  project={forLivePreview(runnableProject(files, activePath))}
+                  theme={resolvedTheme}
+                  title={t("live.frame", { name: projectName })}
+                />
+              </div>
+            )}
+            {files && live ? null : files ? (
               <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
                 <FileTree
                   paths={[...files.keys()]}
