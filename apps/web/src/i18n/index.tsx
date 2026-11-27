@@ -3,6 +3,18 @@ import az from "./az.json";
 import en from "./en.json";
 
 export type Locale = "az" | "en";
+
+/**
+ * The locale a first visit opens in: Azerbaijani for browsers that list it, English for
+ * everyone else. A locale picked with the AZ/EN switch is stored and wins on later visits.
+ */
+export function browserLocale(
+  languages: readonly string[] = typeof navigator === "undefined"
+    ? []
+    : navigator.languages,
+): Locale {
+  return languages.some((l) => l.toLowerCase().startsWith("az")) ? "az" : "en";
+}
 export type MessageKey = keyof typeof az;
 
 export const dictionaries: Record<Locale, Record<MessageKey, string>> = {

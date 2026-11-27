@@ -14,3 +14,13 @@ describe("i18n", () => {
     );
   });
 });
+
+describe("browserLocale", () => {
+  it("opens in Azerbaijani only for browsers that list it", async () => {
+    const { browserLocale } = await import("../src/i18n");
+    expect(browserLocale(["az-AZ", "en-US"])).toBe("az");
+    expect(browserLocale(["ru-RU", "AZ"])).toBe("az");
+    expect(browserLocale(["en-US", "tr-TR"])).toBe("en");
+    expect(browserLocale([])).toBe("en");
+  });
+});

@@ -23,6 +23,7 @@ import { QuickStart } from "./components/QuickStart";
 import { Sky } from "./components/Sky";
 import { TerminalDemo } from "./components/TerminalDemo";
 import {
+  browserLocale,
   LocaleProvider,
   translate,
   type Locale,
@@ -55,7 +56,7 @@ const themeIcon = { system: "monitor", light: "sun", dark: "moon" } as const;
 
 export default function App() {
   const [locale, setLocale] = useState<Locale>(() =>
-    readPref("locale", locales, "az"),
+    readPref("locale", locales, browserLocale()),
   );
   const [theme, cycleTheme] = useTheme();
   // A shared link (?f=vue&m=pinia or ?p=<preset>) opens with that selection.
@@ -82,19 +83,30 @@ export default function App() {
       const name = githubPending?.name ?? "";
       return {
         step: "busy",
-        text: translate(readPref("locale", locales, "az"), "github.busy", {
-          name,
-        }),
+        text: translate(
+          readPref("locale", locales, browserLocale()),
+          "github.busy",
+          {
+            name,
+          },
+        ),
       };
     }
     return {
       step: "form",
       error:
         githubReturn.error === "access_denied"
-          ? translate(readPref("locale", locales, "az"), "github.denied")
-          : translate(readPref("locale", locales, "az"), "github.error", {
-              error: githubReturn.error,
-            }),
+          ? translate(
+              readPref("locale", locales, browserLocale()),
+              "github.denied",
+            )
+          : translate(
+              readPref("locale", locales, browserLocale()),
+              "github.error",
+              {
+                error: githubReturn.error,
+              },
+            ),
     };
   });
   // What the dialog starts with: the repository asked for before the round trip through GitHub.
