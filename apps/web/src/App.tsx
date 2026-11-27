@@ -754,7 +754,7 @@ export default function App() {
                   </span>
                 )}
               </div>
-              <span className="flex items-center gap-2">
+              <span className="flex flex-wrap items-center gap-2">
                 {canRunLive && (
                   <button
                     type="button"
@@ -784,7 +784,7 @@ export default function App() {
                   className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 >
                   <UiIcon name={linkCopied ? "check" : "link"} />
-                  <span aria-live="polite">
+                  <span aria-live="polite" className="max-sm:sr-only">
                     {linkCopied ? t("share.copied") : t("share.button")}
                   </span>
                 </button>
