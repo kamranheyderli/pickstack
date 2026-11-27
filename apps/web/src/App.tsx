@@ -22,6 +22,7 @@ import { RecentStacks } from "./components/RecentStacks";
 import { RunGuideDialog } from "./components/RunGuideDialog";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
+import { WizardDialog } from "./components/WizardDialog";
 import { QuickStart } from "./components/QuickStart";
 import { Sky } from "./components/Sky";
 import { TerminalDemo } from "./components/TerminalDemo";
@@ -74,6 +75,7 @@ export default function App() {
   );
   const [linkCopied, setLinkCopied] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   // Bumped after each download; a new key replays the confetti.
   const [celebrations, setCelebrations] = useState(0);
   const [notice, setNotice] = useState("");
@@ -466,6 +468,7 @@ export default function App() {
               .writeText(createCommand({ ...selection, name: projectName }))
               .catch(() => undefined),
           cycleTheme,
+          openWizard: () => setWizardOpen(true),
           toggleLocale: () =>
             changeLocale(
               locales[(locales.indexOf(locale) + 1) % locales.length] ?? "en",
@@ -568,9 +571,28 @@ export default function App() {
         />
 
         <section aria-labelledby="presets-heading" className="mb-6">
-          <h2 id="presets-heading" className="mb-2 text-sm font-semibold">
-            {t("preset.title")}
-          </h2>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <h2 id="presets-heading" className="m-0 text-sm font-semibold">
+              {t("preset.title")}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setWizardOpen(true)}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-accent/40 bg-accent-soft px-2.5 py-1 text-sm font-semibold text-accent transition hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <UiIcon name="sparkles" size={14} />
+              {t("wizard.open")}
+            </button>
+          </div>
+          <WizardDialog
+            open={wizardOpen}
+            selection={selection}
+            onApply={(next) => {
+              setWizardOpen(false);
+              onBaseChange(next);
+            }}
+            onClose={() => setWizardOpen(false)}
+          />
           <PresetPicker
             active={activePreset}
             onPick={(preset) =>

@@ -30,6 +30,7 @@ interface PaletteContext {
   copyCommand: () => void;
   cycleTheme: () => void;
   toggleLocale: () => void;
+  openWizard: () => void;
 }
 
 /** Actions first, then presets, frameworks and the current framework's modules. */
@@ -48,6 +49,7 @@ export function paletteCommands(ctx: PaletteContext): PaletteCommand[] {
     run,
   });
   const actions = [
+    action("wizard", t("wizard.title"), "sparkles", ctx.openWizard),
     action("download", t("download.button"), "download", ctx.download),
     action("link", t("share.button"), "link", ctx.copyLink),
     action("command", t("palette.copyCommand"), "terminal", ctx.copyCommand),
