@@ -521,7 +521,7 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-[1320px] px-4 pt-6 pb-10 sm:px-6">
-        <section className="mb-6 grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)]">
+        <section className="mb-6 grid grid-cols-1 items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)]">
           <div>
             <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-line bg-panel/80 px-2.5 py-0.5 text-xs font-medium text-muted shadow-xs backdrop-blur">
               <span
@@ -627,7 +627,7 @@ export default function App() {
             </button>
           ))}
         </div>
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)]">
           <form
             id="configure-panel"
             aria-labelledby="configure-heading"
