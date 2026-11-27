@@ -8,6 +8,7 @@ import {
   type Selection,
 } from "@stackforge/core";
 import { useEffect, useRef, useState } from "react";
+import { ChangeSummary } from "./components/ChangeSummary";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
 import { Burst } from "./components/Burst";
@@ -71,6 +72,12 @@ export default function App() {
   const [celebrations, setCelebrations] = useState(0);
   const [notice, setNotice] = useState("");
   const [current, setCurrent] = useState("src/App.tsx");
+  // The last module pick, summed up above the preview; framework and language changes clear it.
+  const [lastPick, setLastPick] = useState<{
+    added: string[];
+    removed: string[];
+  } | null>(null);
+  const [diffSignal, setDiffSignal] = useState(0);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   // The whole "Create on GitHub" flow runs in its dialog, which reopens after GitHub's consent screen.
@@ -160,6 +167,30 @@ export default function App() {
       : current;
   const projectName = toProjectName(selection.name);
 
+  // What the last module pick did to the files, once that generation has finished.
+  const before = generated.before;
+  const summary =
+    lastPick && before && generatedFiles && !generated.pending
+      ? {
+          title: [
+            lastPick.added.length
+              ? t("changes.addedModules", { modules: names(lastPick.added) })
+              : "",
+            lastPick.removed.length
+              ? t("changes.removedModules", {
+                  modules: names(lastPick.removed),
+                })
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          added: [...generated.changed].filter((p) => !before.has(p)),
+          changed: [...generated.changed].filter((p) => before.has(p)),
+          removed: [...before.keys()].filter((p) => !generatedFiles.has(p))
+            .length,
+        }
+      : null;
+
   const sameModules = (a: string[], b: string[]) =>
     a.length === b.length && a.every((id) => b.includes(id));
   const activePreset =
@@ -213,9 +244,24 @@ export default function App() {
     writePref("locale", next);
   };
 
+  /** A module pick from the options or the palette; remembered for the change summary. */
+  const pickModules = (next: Selection) => {
+    if (
+      next.framework === selection.framework &&
+      next.language === selection.language
+    )
+      setLastPick({
+        added: next.modules.filter((m) => !selection.modules.includes(m)),
+        removed: selection.modules.filter((m) => !next.modules.includes(m)),
+      });
+    setSelection(next);
+    setNotice("");
+  };
+
   const onBaseChange = (next: Selection) => {
     // Another framework generates different files; earlier edits would not apply.
     if (next.framework !== selection.framework) setEdits(new Map());
+    setLastPick(null);
     const pruned = pruneIncompatible(next);
     setSelection(pruned.selection);
     setNotice(
@@ -334,10 +380,7 @@ export default function App() {
           selection,
           t,
           locale,
-          onChange: (next) => {
-            setSelection(next);
-            setNotice("");
-          },
+          onChange: pickModules,
           onBaseChange,
           download: () => void onDownload(),
           copyLink: () => void copyLink(),
@@ -515,10 +558,7 @@ export default function App() {
                 <button
                   type="button"
                   // Clears the modules only: framework, name, language and package manager stay.
-                  onClick={() => {
-                    setSelection({ ...selection, modules: [] });
-                    setNotice("");
-                  }}
+                  onClick={() => pickModules({ ...selection, modules: [] })}
                   className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
                 >
                   <UiIcon name="undo" size={12} />
@@ -529,10 +569,7 @@ export default function App() {
             <OptionsPanel
               selection={selection}
               autoAdded={result?.ok ? result.autoAdded : []}
-              onChange={(next) => {
-                setSelection(next);
-                setNotice("");
-              }}
+              onChange={pickModules}
               onBaseChange={onBaseChange}
             />
             {notice && (
@@ -637,6 +674,16 @@ export default function App() {
               </span>
             </div>
 
+            {summary && (
+              <ChangeSummary
+                {...summary}
+                onOpen={(path) => {
+                  setCurrent(path);
+                  setDiffSignal((n) => n + 1);
+                }}
+                onClose={() => setLastPick(null)}
+              />
+            )}
             {files ? (
               <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
                 <FileTree
@@ -653,6 +700,7 @@ export default function App() {
                   path={activePath}
                   code={files.get(activePath) ?? ""}
                   edited={edited.has(activePath)}
+                  diffSignal={diffSignal}
                   before={
                     generated.before && generated.changed.has(activePath)
                       ? (generated.before.get(activePath) ?? null)

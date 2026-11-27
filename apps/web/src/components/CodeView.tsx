@@ -22,6 +22,8 @@ interface CodeViewProps {
    * it, `undefined` when the change left it alone.
    */
   before?: string | null;
+  /** Bumped to switch to the diff, e.g. when a changed file is opened from the summary. */
+  diffSignal?: number;
 }
 
 const codeClass =
@@ -53,6 +55,7 @@ export function CodeView({
   onEdit,
   onReset,
   before,
+  diffSignal = 0,
 }: CodeViewProps) {
   const t = useT();
 
@@ -62,6 +65,9 @@ export function CodeView({
   const editButton = useRef<HTMLButtonElement>(null);
   const finishing = useRef(false);
   const [showDiff, setShowDiff] = useState(false);
+  useEffect(() => {
+    if (diffSignal) setShowDiff(true);
+  }, [diffSignal]);
   const diff = useMemo(
     () =>
       before === undefined || before === code

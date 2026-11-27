@@ -134,5 +134,14 @@
   "ways.site.body": "Terminal lazım deyil: seçdiyin layihəni ZIP kimi yüklə, GitHub-da repo kimi yarat və ya brauzerdə dərhal işə sal.",
   "ways.site.zip": "ZIP",
   "ways.site.run": "Brauzerdə işə sal",
-  "ways.start": "Seçməyə başla"
+  "ways.start": "Seçməyə başla",
+  "changes.addedModules": "{modules} əlavə olundu",
+  "changes.removedModules": "{modules} çıxarıldı",
+  "changes.new": "{count} yeni",
+  "changes.changed": "{count} dəyişdi",
+  "changes.removed": "{count} silindi",
+  "changes.none": "fayllar dəyişmədi",
+  "changes.open": "Dəyişikliyi göstər",
+  "changes.newFile": "yeni fayl",
+  "changes.changedFile": "dəyişən fayl"
 }

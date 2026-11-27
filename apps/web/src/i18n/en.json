@@ -134,5 +134,14 @@
   "ways.site.body": "No terminal needed: download the project as a ZIP, create it as a GitHub repository or run it in the browser right away.",
   "ways.site.zip": "ZIP",
   "ways.site.run": "Run in browser",
-  "ways.start": "Start picking"
+  "ways.start": "Start picking",
+  "changes.addedModules": "Added {modules}",
+  "changes.removedModules": "Removed {modules}",
+  "changes.new": "{count} new",
+  "changes.changed": "{count} changed",
+  "changes.removed": "{count} removed",
+  "changes.none": "no files changed",
+  "changes.open": "Show what changed",
+  "changes.newFile": "new file",
+  "changes.changedFile": "changed file"
 }
