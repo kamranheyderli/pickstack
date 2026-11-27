@@ -25,7 +25,8 @@ describe("recommend", () => {
             `${goal} ${preference} ${picked.join(",")}`,
           ).toEqual([]);
         }
-  });
+    // Generates many projects: seconds here, more on CI runners.
+  }, 60_000);
 
   it("builds content sites on a meta-framework with SEO", () => {
     const { selection } = recommend(

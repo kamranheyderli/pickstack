@@ -127,5 +127,6 @@ describe("forLivePreview", () => {
         }
       }
     }
-  });
+    // Generates many projects: seconds here, more on CI runners.
+  }, 60_000);
 });
