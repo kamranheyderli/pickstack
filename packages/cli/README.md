@@ -1,6 +1,6 @@
 # create-pickstack
 
-Create a web project with the stack you pick: framework, UI kit, state, routing, data fetching, testing, linting, SEO, AI agent configs, and optionally a Node.js API (Express or NestJS) with a database (PostgreSQL with Drizzle, or MongoDB) and sign-in with Better Auth. Every combination it offers is checked with a real install, build, lint and test.
+Create a web project with the stack you pick: framework, UI kit, state, routing, data fetching, forms with Zod or Yup, error monitoring with Sentry, analytics (Matomo, Plausible, Umami), testing, linting, SEO, AI agent configs, and optionally a Node.js API (Express or NestJS) with a database (PostgreSQL with Drizzle, or MongoDB) and sign-in with Better Auth. Every combination it offers is checked with a real install, build, lint and test.
 
 ```bash
 npm create pickstack@latest
@@ -22,6 +22,16 @@ npm create pickstack@latest my-app -- --framework vue --modules express,drizzle,
 ```
 
 Add `better-auth` for email and password sign-in: the API serves `/api/auth` with Better Auth, users and sessions are stored in the database you picked, and the app gets a sign-in and sign-up form.
+
+## Forms, monitoring and analytics
+
+```bash
+npm create pickstack@latest my-app -- --framework react --modules react-hook-form,yup,sentry,matomo --yes
+```
+
+- **Validation:** forms use Zod by default; add `yup` to validate with Yup instead.
+- **Sentry** (`sentry`): errors and traces with the framework's own Sentry SDK. It stays off until you set `VITE_SENTRY_DSN`.
+- **Analytics** (`matomo`, `plausible` or `umami`): page views, including client-side navigations. Nothing is sent until the provider's settings are in `.env`.
 
 It asks for the project name, framework, language and the modules for each category. The modules shown are only those that work with your framework, and options that conflict with your earlier picks are shown with the reason.
 
