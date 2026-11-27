@@ -1,4 +1,3 @@
-
 export async function downloadZip(
   name: string,
   files: Map<string, string>,
