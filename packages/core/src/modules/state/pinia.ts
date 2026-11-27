@@ -8,6 +8,7 @@ export const pinia: Module = {
   description: {
     az: "Vue üçün rəsmi store, setup store sintaksisi ilə.",
     en: "The official Vue store, using setup-store syntax.",
+    ru: "Официальное хранилище Vue в синтаксисе setup store.",
   },
   frameworks: ["vue", "nuxt"],
   order: 10,

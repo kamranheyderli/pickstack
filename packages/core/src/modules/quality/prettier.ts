@@ -32,6 +32,7 @@ export const prettier: Module = {
   description: {
     az: "Vahid üslublu kod formatlayıcısı.",
     en: "Opinionated code formatter.",
+    ru: "Форматтер кода с готовыми правилами.",
   },
   frameworks: "all",
   conflicts: ["biome"],

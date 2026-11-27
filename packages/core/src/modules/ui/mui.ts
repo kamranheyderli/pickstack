@@ -15,6 +15,7 @@ export const mui: Module = {
   description: {
     az: "Google-un Material Design komponentləri (MUI v9).",
     en: "Google's Material Design components (MUI v9).",
+    ru: "Компоненты Material Design от Google (MUI v9).",
   },
   frameworks: ["react", "next"],
   apply(model, ctx) {

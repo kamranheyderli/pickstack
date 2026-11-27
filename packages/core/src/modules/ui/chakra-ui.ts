@@ -13,6 +13,7 @@ export const chakraUi: Module = {
   description: {
     az: "Prop-larla stillənən, əlçatan komponentlər (v3).",
     en: "Accessible components styled with props (v3).",
+    ru: "Доступные компоненты, стилизуемые через пропсы (v3).",
   },
   frameworks: ["react", "next"],
   apply(model, ctx) {

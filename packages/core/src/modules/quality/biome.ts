@@ -72,6 +72,7 @@ export const biome: Module = {
   description: {
     az: "Linter və formatlayıcı bir alətdə (ESLint və Prettier əvəzinə).",
     en: "Linter and formatter in one tool (replaces ESLint + Prettier).",
+    ru: "Линтер и форматтер в одном инструменте (заменяет ESLint + Prettier).",
   },
   frameworks: "all",
   conflicts: ["eslint", "prettier"],

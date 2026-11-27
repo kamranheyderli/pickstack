@@ -188,6 +188,7 @@ export const storybook: Module = {
   description: {
     az: "Komponentləri təcrid olunmuş mühitdə hazırlamaq və sənədləşdirmək üçün.",
     en: "Build and document components in isolation.",
+    ru: "Разработка и документирование компонентов изолированно.",
   },
   frameworks: ["react", "preact", "vue", "svelte"],
   conflicts: ["module-federation"],

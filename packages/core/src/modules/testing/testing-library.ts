@@ -30,6 +30,7 @@ export const testingLibrary: Module = {
   description: {
     az: "İstifadəçi kimi test: render, screen, user-event və jest-dom.",
     en: "Test like a user: render, screen, user-event and jest-dom.",
+    ru: "Тестируйте как пользователь: render, screen, user-event и jest-dom.",
   },
   frameworks: [
     "react",

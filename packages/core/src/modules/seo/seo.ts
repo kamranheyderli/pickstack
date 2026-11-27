@@ -8,6 +8,7 @@ export const seo: Module = {
   description: {
     az: "Meta/OG teqləri, canonical, JSON-LD, robots.txt və sitemap.xml.",
     en: "Meta/OG tags, canonical URL, JSON-LD, robots.txt and sitemap.xml.",
+    ru: "Meta/OG-теги, канонический URL, JSON-LD, robots.txt и sitemap.xml.",
   },
   frameworks: "all",
   order: 10,

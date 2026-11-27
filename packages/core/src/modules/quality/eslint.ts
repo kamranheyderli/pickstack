@@ -535,6 +535,7 @@ export const eslint: Module = {
   description: {
     az: "Genişlənə bilən kod analizatoru (flat config).",
     en: "Pluggable linter (flat config).",
+    ru: "Расширяемый линтер (flat config).",
   },
   frameworks: "all",
   conflicts: ["biome"],

@@ -15,6 +15,7 @@ export const mongodb: Module = {
   description: {
     az: "Mongoose ilə MongoDB: model, /api/todos route-ları və lokal docker-compose.",
     en: "MongoDB with Mongoose: a model, /api/todos routes and a local docker-compose.",
+    ru: "MongoDB с Mongoose: модель, маршруты /api/todos и локальный docker-compose.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
   requiresOneOf: ["express", "nestjs"],

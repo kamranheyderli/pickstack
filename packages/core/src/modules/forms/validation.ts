@@ -20,6 +20,7 @@ export const zod: Module = {
   description: {
     az: "TypeScript-ə uyğun sxem validasiyası; formların defolt seçimi.",
     en: "TypeScript-first schema validation; the forms' default.",
+    ru: "Валидация схем с упором на TypeScript; используется формами по умолчанию.",
   },
   frameworks: formFrameworks,
   requiresOneOf: formLibraries,
@@ -33,6 +34,7 @@ export const yup: Module = {
   description: {
     az: "Zəncirvari API ilə sxem validasiyası (Standard Schema dəstəkli Yup 1.7+).",
     en: "Schema validation with a chainable API (Yup 1.7+, a Standard Schema).",
+    ru: "Валидация схем с цепочным API (Yup 1.7+, Standard Schema).",
   },
   frameworks: formFrameworks,
   requiresOneOf: formLibraries,

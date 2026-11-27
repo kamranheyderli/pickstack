@@ -13,6 +13,7 @@ export const copilot: Module = {
   description: {
     az: "Copilot təlimatları və VS Code üçün MCP serverləri.",
     en: "Copilot instructions and MCP servers for VS Code.",
+    ru: "Инструкции для Copilot и MCP-серверы для VS Code.",
   },
   frameworks: "all",
   requires: ["agents-md"],

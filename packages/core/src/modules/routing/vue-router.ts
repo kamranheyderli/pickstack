@@ -8,6 +8,7 @@ export const vueRouter: Module = {
   description: {
     az: "Vue üçün rəsmi router; səhifələr src/views-dadır.",
     en: "The official Vue router; pages live in src/views.",
+    ru: "Официальный роутер Vue; страницы лежат в src/views.",
   },
   frameworks: ["vue"],
   order: 20,

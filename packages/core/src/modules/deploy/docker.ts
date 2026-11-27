@@ -144,6 +144,7 @@ export const docker: Module = {
   description: {
     az: "Multi-stage Dockerfile: statik saytlar nginx ilə, server tələb edən tətbiqlər Node ilə.",
     en: "Multi-stage Dockerfile: nginx for static sites, a Node server for apps that need one.",
+    ru: "Многоэтапный Dockerfile: nginx для статических сайтов, Node-сервер для приложений, которым он нужен.",
   },
   frameworks: "all",
   conflicts: DEPLOY_CONFLICTS,

@@ -13,6 +13,7 @@ export const nestjs: Module = {
   description: {
     az: "NestJS API ayrıca server/ layihəsində: modul, controller və service; /api frontend-dən proxy olunur.",
     en: "NestJS API as its own server/ project: a module, controller and service; /api is proxied from the app.",
+    ru: "API на NestJS отдельным проектом server/: модуль, контроллер и сервис; /api проксируется из приложения.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
   languages: ["ts"],

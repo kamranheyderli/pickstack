@@ -105,6 +105,7 @@ export const playwright: Module = {
   description: {
     az: "Brauzerdə end-to-end testlər (Chromium).",
     en: "End-to-end tests in a real browser (Chromium).",
+    ru: "End-to-end тесты в настоящем браузере (Chromium).",
   },
   frameworks: "all",
   // E2E runs against one app's dev server; a workspace or two projects need their own setup.

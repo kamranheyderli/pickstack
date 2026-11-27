@@ -20,6 +20,7 @@ export const netlify: Module = {
   description: {
     az: "Netlify-a yayımlama: build əmri və yönləndirmələr hazırdır.",
     en: "Deploy to Netlify with the build command and redirects set.",
+    ru: "Деплой на Netlify с настроенной командой сборки и редиректами.",
   },
   frameworks: "all",
   conflicts: DEPLOY_CONFLICTS,

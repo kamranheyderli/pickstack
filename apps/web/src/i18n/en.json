@@ -70,7 +70,7 @@
   "palette.modules": "Modules",
   "palette.copyCommand": "Copy the terminal command",
   "palette.theme": "Switch theme",
-  "palette.locale": "Switch language (AZ/EN)",
+  "palette.locale": "Switch language (AZ/EN/RU)",
   "share.button": "Copy link",
   "share.copied": "Link copied",
   "preview.label": "Project files",

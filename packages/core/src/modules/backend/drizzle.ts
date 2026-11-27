@@ -28,6 +28,7 @@ export const drizzle: Module = {
   description: {
     az: "Drizzle ORM ilə PostgreSQL: sxem, migration əmrləri, todo nümunəsi və lokal docker-compose.",
     en: "PostgreSQL with Drizzle ORM: a schema, migration commands, a todo example and a local docker-compose.",
+    ru: "PostgreSQL с Drizzle ORM: схема, команды миграций, пример todo и локальный docker-compose.",
   },
   frameworks: [
     "next",

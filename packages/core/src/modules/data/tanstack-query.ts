@@ -237,6 +237,7 @@ export const tanstackQuery: Module = {
   description: {
     az: "Server state: keşləmə, təkrar sorğular, yüklənmə və xəta halları.",
     en: "Server state: caching, refetching, loading and error states.",
+    ru: "Серверное состояние: кэширование, повторные запросы, состояния загрузки и ошибок.",
   },
   frameworks: ["react", "solid", "vue", "svelte", "angular"],
   apply(model, ctx) {

@@ -28,7 +28,7 @@ export function fakeModule(
   return {
     name: overrides.id,
     category: "data",
-    description: { az: "", en: "" },
+    description: { az: "", en: "", ru: "" },
     frameworks: "all",
     apply: () => {},
     ...overrides,

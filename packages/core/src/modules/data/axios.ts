@@ -14,6 +14,7 @@ export const axios: Module = {
   description: {
     az: "Əvvəlcədən qurulmuş baseURL ilə HTTP klienti.",
     en: "HTTP client with a preconfigured base URL.",
+    ru: "HTTP-клиент с заранее настроенным базовым URL.",
   },
   frameworks: "all",
   apply(model, ctx) {

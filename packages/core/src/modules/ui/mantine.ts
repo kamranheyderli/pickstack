@@ -21,6 +21,7 @@ export const mantine: Module = {
   description: {
     az: "100+ komponent və hook (v9).",
     en: "100+ components and hooks (v9).",
+    ru: "100+ компонентов и хуков (v9).",
   },
   frameworks: ["react", "next"],
   apply(model, ctx) {

@@ -14,6 +14,7 @@ export const primevue: Module = {
   description: {
     az: "90+ hazır komponent, Aura temasında (v4, MIT).",
     en: "90+ ready-made components with the Aura theme (v4, MIT).",
+    ru: "90+ готовых компонентов с темой Aura (v4, MIT).",
   },
   frameworks: ["vue", "nuxt"],
   apply(model, ctx) {

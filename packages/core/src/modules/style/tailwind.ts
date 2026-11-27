@@ -12,6 +12,7 @@ export const tailwind: Module = {
   description: {
     az: "Utility-class əsaslı CSS (v4).",
     en: "Utility-first CSS (v4).",
+    ru: "Utility-first CSS (v4).",
   },
   frameworks: "all",
   conflicts: ["unocss"],

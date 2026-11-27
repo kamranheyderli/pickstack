@@ -11,6 +11,7 @@ export const sass: Module = {
   description: {
     az: "SCSS: dəyişənlər, iç-içə qaydalar (nesting) və mixin-lər.",
     en: "SCSS stylesheets: variables, nesting and mixins.",
+    ru: "Стили на SCSS: переменные, вложенность и миксины.",
   },
   frameworks: "all",
   apply(model, ctx) {

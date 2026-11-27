@@ -52,7 +52,7 @@ import { useGenerated } from "./lib/useGenerated";
 import { useTheme } from "./lib/useTheme";
 import { defaultSelection, pruneIncompatible } from "./state/selection";
 
-const locales = ["az", "en"] as const;
+const locales = ["az", "en", "ru"] as const;
 
 // Read once, before React renders: StrictMode runs state initializers twice, and the first
 // read clears the token from the address bar.
@@ -466,7 +466,10 @@ export default function App() {
               .writeText(createCommand({ ...selection, name: projectName }))
               .catch(() => undefined),
           cycleTheme,
-          toggleLocale: () => changeLocale(locale === "az" ? "en" : "az"),
+          toggleLocale: () =>
+            changeLocale(
+              locales[(locales.indexOf(locale) + 1) % locales.length] ?? "en",
+            ),
         })}
       />
       <header className="sticky top-0 z-20 border-b border-line/70 bg-bg/75 backdrop-blur-xl">

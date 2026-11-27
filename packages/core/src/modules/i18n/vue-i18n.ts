@@ -13,6 +13,7 @@ export const vueI18n: Module = {
   description: {
     az: "Vue üçün tərcümələr və dil dəyişdirmə.",
     en: "Translations and language switching for Vue.",
+    ru: "Переводы и переключение языка для Vue.",
   },
   frameworks: ["vue"],
   apply(model, ctx) {

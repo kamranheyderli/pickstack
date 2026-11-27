@@ -7,6 +7,7 @@ export const reactRouter: Module = {
   description: {
     az: "Deklarativ, klient tərəfli marşrutlaşdırma.",
     en: "Declarative client-side routing.",
+    ru: "Декларативная маршрутизация на клиенте.",
   },
   frameworks: ["react"],
   order: 20,

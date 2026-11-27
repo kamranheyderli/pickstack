@@ -17,6 +17,7 @@ export const express: Module = {
   description: {
     az: "Express 5 API ayrıca server/ layihəsində; /api frontend-dən proxy olunur.",
     en: "Express 5 API as its own server/ project; /api is proxied from the app.",
+    ru: "API на Express 5 отдельным проектом server/; /api проксируется из приложения.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
   // A workspace or two front-end projects would need their own layout for the API.

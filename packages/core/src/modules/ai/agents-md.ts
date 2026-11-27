@@ -12,6 +12,7 @@ export const agentsMdModule: Module = {
   description: {
     az: "Bütün AI agentlərinin oxuduğu layihə bələdçisi (əmrlər, struktur, qaydalar).",
     en: "Project guide every AI coding agent reads (commands, structure, rules).",
+    ru: "Руководство по проекту для любого ИИ-агента (команды, структура, правила).",
   },
   frameworks: "all",
   order: 10,

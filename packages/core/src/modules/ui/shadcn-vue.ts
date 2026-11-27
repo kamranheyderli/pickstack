@@ -14,6 +14,7 @@ export const shadcnVue: Module = {
   description: {
     az: "Layihəyə kopyalanan, Reka UI əsaslı Tailwind komponentləri.",
     en: "Tailwind components copied into your project (built on Reka UI).",
+    ru: "Компоненты на Tailwind, копируемые в ваш проект (на базе Reka UI).",
   },
   frameworks: ["vue", "nuxt"],
   requires: ["tailwind"],

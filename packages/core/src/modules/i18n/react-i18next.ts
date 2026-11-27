@@ -13,6 +13,7 @@ export const reactI18next: Module = {
   description: {
     az: "i18next ilə tərcümələr və dil dəyişdirmə.",
     en: "Translations and language switching with i18next.",
+    ru: "Переводы и переключение языка с i18next.",
   },
   frameworks: ["react"],
   apply(model, ctx) {

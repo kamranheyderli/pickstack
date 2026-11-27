@@ -14,6 +14,7 @@ export const shadcn: Module = {
   description: {
     az: "Layihəyə kopyalanan, Radix əsaslı Tailwind komponentləri.",
     en: "Tailwind components copied into your project (built on Radix).",
+    ru: "Компоненты на Tailwind, копируемые в ваш проект (на базе Radix).",
   },
   frameworks: ["react", "next"],
   requires: ["tailwind"],

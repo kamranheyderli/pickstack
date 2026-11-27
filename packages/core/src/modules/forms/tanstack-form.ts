@@ -347,6 +347,7 @@ export const tanstackForm: Module = {
   description: {
     az: "Tip-təhlükəsiz formlar, Zod və ya Yup validasiyası ilə.",
     en: "Type-safe forms with Zod or Yup validation.",
+    ru: "Типобезопасные формы с валидацией Zod или Yup.",
   },
   frameworks: ["react", "solid", "vue", "svelte", "angular"],
   conflicts: ["react-hook-form"],

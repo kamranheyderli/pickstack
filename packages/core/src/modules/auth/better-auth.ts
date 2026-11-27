@@ -22,6 +22,7 @@ export const betterAuth: Module = {
   description: {
     az: "Better Auth ilə email və şifrə girişi: API-də /api/auth, sessiyalar MongoDB və ya PostgreSQL-də, app-də giriş forması.",
     en: "Email and password sign-in with Better Auth: /api/auth on the API, sessions in MongoDB or PostgreSQL, and a sign-in form in the app.",
+    ru: "Вход по email и паролю через Better Auth: /api/auth в API, сессии в MongoDB или PostgreSQL и форма входа в приложении.",
   },
   frameworks: ["react", "vue", "svelte", "solid", "preact", "angular"],
   // Better Auth stores users and sessions: the project's database holds them.

@@ -46,6 +46,7 @@ export const githubActionsModule: Module = {
   description: {
     az: "Hər push və PR-da lint, typecheck, test və build.",
     en: "Lint, typecheck, test and build on every push and PR.",
+    ru: "Линт, проверка типов, тесты и сборка на каждый push и PR.",
   },
   frameworks: "all",
   // After turborepo, whose workspace decides which scripts the root exposes.

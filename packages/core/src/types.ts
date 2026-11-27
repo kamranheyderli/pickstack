@@ -370,6 +370,7 @@ export interface ProjectModel {
 export interface LocalizedText {
   az: string;
   en: string;
+  ru: string;
 }
 
 export interface Module {

@@ -27,6 +27,7 @@ export const cursor: Module = {
   description: {
     az: "Cursor layihə qaydası və stack-ə uyğun MCP serverləri.",
     en: "A Cursor project rule and MCP servers for your stack.",
+    ru: "Правило проекта для Cursor и MCP-серверы для вашего стека.",
   },
   frameworks: "all",
   requires: ["agents-md"],

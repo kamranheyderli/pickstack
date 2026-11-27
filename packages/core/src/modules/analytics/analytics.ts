@@ -59,6 +59,7 @@ export const matomo: Module = {
   description: {
     az: "Matomo ilə açıq mənbəli, öz serverində saxlanıla bilən analitika; SPA keçidləri də sayılır.",
     en: "Open-source, self-hostable analytics with Matomo; client-side navigations count too.",
+    ru: "Открытая аналитика Matomo, которую можно разместить у себя; переходы на клиенте тоже учитываются.",
   },
   frameworks,
   apply(model, ctx) {
@@ -129,6 +130,7 @@ export const plausible: Module = {
   description: {
     az: "Plausible ilə yüngül, cookie-siz analitika; SPA keçidlərini özü sayır.",
     en: "Lightweight, cookie-free analytics with Plausible; it counts client-side navigations itself.",
+    ru: "Лёгкая аналитика без cookie с Plausible; сама учитывает переходы на клиенте.",
   },
   frameworks,
   apply(model, ctx) {
@@ -162,6 +164,7 @@ export const umami: Module = {
   description: {
     az: "Umami ilə sadə, açıq mənbəli analitika (Umami Cloud və ya öz serverin).",
     en: "Simple, open-source analytics with Umami (Umami Cloud or your own server).",
+    ru: "Простая открытая аналитика Umami (Umami Cloud или ваш сервер).",
   },
   frameworks,
   apply(model, ctx) {

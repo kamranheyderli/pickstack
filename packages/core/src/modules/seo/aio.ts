@@ -11,6 +11,7 @@ export const aio: Module = {
   description: {
     az: "llms.txt və AI crawler qaydaları: AI axtarışına icazə, model təliminə qadağa.",
     en: "llms.txt and AI crawler rules: allow AI search, opt out of training.",
+    ru: "llms.txt и правила для ИИ-краулеров: ИИ-поиск разрешён, обучение запрещено.",
   },
   frameworks: "all",
   requires: ["seo"],

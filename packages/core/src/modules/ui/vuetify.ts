@@ -14,6 +14,7 @@ export const vuetify: Module = {
   description: {
     az: "Material Design komponentləri (v4).",
     en: "Material Design component framework (v4).",
+    ru: "Фреймворк компонентов Material Design (v4).",
   },
   frameworks: ["vue", "nuxt"],
   apply(model, ctx) {

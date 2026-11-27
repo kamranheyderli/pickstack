@@ -15,6 +15,7 @@ export const vercel: Module = {
   description: {
     az: "Vercel-ə yayımlama: framework avtomatik tanınır.",
     en: "Deploy to Vercel; the framework is detected automatically.",
+    ru: "Деплой на Vercel; фреймворк определяется автоматически.",
   },
   frameworks: "all",
   conflicts: DEPLOY_CONFLICTS,

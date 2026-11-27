@@ -69,6 +69,7 @@ export const angularMaterial: Module = {
   description: {
     az: "Angular komandasının Material Design 3 komponentləri.",
     en: "Material Design 3 components from the Angular team.",
+    ru: "Компоненты Material Design 3 от команды Angular.",
   },
   frameworks: ["angular"],
   apply(model) {

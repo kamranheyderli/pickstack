@@ -13,6 +13,7 @@ export const reactHookForm: Module = {
   description: {
     az: "Yüksək performanslı React formları, Zod və ya Yup validasiyası ilə.",
     en: "Performant React forms with Zod or Yup validation.",
+    ru: "Производительные формы для React с валидацией Zod или Yup.",
   },
   frameworks: ["react"],
   conflicts: ["tanstack-form"],

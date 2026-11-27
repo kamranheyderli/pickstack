@@ -19,6 +19,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "Vite, shadcn/ui, TanStack Router və Query, Zustand.",
       en: "Vite, shadcn/ui, TanStack Router and Query, Zustand.",
+      ru: "Vite, shadcn/ui, TanStack Router и Query, Zustand.",
     },
     framework: "react",
     modules: [
@@ -37,6 +38,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "React, Express 5 API və Mongoose ilə MongoDB; web/ və server/ ayrıca.",
       en: "React, an Express 5 API and MongoDB with Mongoose; web/ and server/ side by side.",
+      ru: "React, API на Express 5 и MongoDB с Mongoose; web/ и server/ рядом.",
     },
     framework: "react",
     modules: [
@@ -54,6 +56,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "App Router, shadcn/ui, Zustand, SEO və AI görünürlüyü.",
       en: "App Router, shadcn/ui, Zustand, SEO and AI visibility.",
+      ru: "App Router, shadcn/ui, Zustand, SEO и видимость для ИИ.",
     },
     framework: "next",
     modules: [
@@ -72,6 +75,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "Vite, Vue Router, Pinia, TanStack Query, Tailwind.",
       en: "Vite, Vue Router, Pinia, TanStack Query, Tailwind.",
+      ru: "Vite, Vue Router, Pinia, TanStack Query, Tailwind.",
     },
     framework: "vue",
     modules: [
@@ -89,6 +93,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "Nuxt, shadcn-vue, Pinia, SEO.",
       en: "Nuxt, shadcn-vue, Pinia, SEO.",
+      ru: "Nuxt, shadcn-vue, Pinia, SEO.",
     },
     framework: "nuxt",
     modules: ["tailwind", "shadcn-vue", "pinia", "seo", ...tests, ...quality],
@@ -99,6 +104,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "SvelteKit, shadcn-svelte, SEO, Vitest.",
       en: "SvelteKit, shadcn-svelte, SEO, Vitest.",
+      ru: "SvelteKit, shadcn-svelte, SEO, Vitest.",
     },
     framework: "sveltekit",
     modules: ["tailwind", "shadcn-svelte", "seo", "vitest", ...quality],
@@ -109,6 +115,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "Angular Material, TanStack Query, Vitest.",
       en: "Angular Material, TanStack Query, Vitest.",
+      ru: "Angular Material, TanStack Query, Vitest.",
     },
     framework: "angular",
     modules: ["angular-material", "tanstack-query", ...tests, ...quality],
@@ -119,6 +126,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "Angular Material və NestJS API: hər ikisində modul, DI və decorator-lar; web/ və server/ ayrıca.",
       en: "Angular Material and a NestJS API: modules, DI and decorators on both sides; web/ and server/ side by side.",
+      ru: "Angular Material и API на NestJS: модули, DI и декораторы с обеих сторон; web/ и server/ рядом.",
     },
     framework: "angular",
     modules: ["nestjs", "angular-material", ...tests, ...quality],
@@ -129,6 +137,7 @@ export const presets: readonly Preset[] = [
     description: {
       az: "Astro, Tailwind, SEO, llms.txt ilə AI görünürlüyü.",
       en: "Astro, Tailwind, SEO, AI visibility with llms.txt.",
+      ru: "Astro, Tailwind, SEO, видимость для ИИ с llms.txt.",
     },
     framework: "astro",
     modules: ["tailwind", "seo", "aio", ...quality],

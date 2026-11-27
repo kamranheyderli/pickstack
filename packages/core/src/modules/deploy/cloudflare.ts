@@ -17,6 +17,7 @@ export const cloudflare: Module = {
   description: {
     az: "Cloudflare Workers-ə statik yayımlama (wrangler).",
     en: "Static deploy to Cloudflare Workers with wrangler.",
+    ru: "Статический деплой на Cloudflare Workers через wrangler.",
   },
   frameworks: [
     "react",

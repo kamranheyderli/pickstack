@@ -26,6 +26,7 @@ export const turborepo: Module = {
   description: {
     az: "Monorepo: tətbiq apps/web qovluğunda, tapşırıqlar turbo ilə keşlənir.",
     en: "Monorepo: the app in apps/web, tasks cached by turbo.",
+    ru: "Монорепозиторий: приложение в apps/web, задачи кэширует turbo.",
   },
   frameworks: "all",
   // Husky must install hooks from the git root, while lint-staged runs the app's tools.

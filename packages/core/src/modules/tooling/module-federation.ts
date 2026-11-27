@@ -17,6 +17,7 @@ export const moduleFederation: Module = {
   description: {
     az: "Mikro-frontend: host və remote iki ayrı layihədir, komponent icra zamanı yüklənir.",
     en: "Micro-frontends: host and remote as separate projects, loaded at runtime.",
+    ru: "Микрофронтенды: host и remote как отдельные проекты, загружаемые во время работы.",
   },
   frameworks: ["react"],
   // A workspace would tie together projects that are meant to ship independently.

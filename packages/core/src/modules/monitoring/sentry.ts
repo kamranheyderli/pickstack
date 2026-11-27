@@ -32,6 +32,7 @@ export const sentry: Module = {
   description: {
     az: "Sentry ilə xəta monitorinqi və performans izləmə; DSN verilənə qədər söndürülüb.",
     en: "Error monitoring and tracing with Sentry; off until you set a DSN.",
+    ru: "Мониторинг ошибок и трассировка с Sentry; выключено, пока не задан DSN.",
   },
   frameworks: ["react", "vue", "solid", "preact"],
   apply(model, ctx) {

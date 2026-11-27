@@ -12,6 +12,7 @@ export const builtin: Module = {
   description: {
     az: "Framework-ün öz reaktivliyi (runes / signals) ilə paylaşılan store; əlavə paket lazım deyil.",
     en: "Shared store using the framework's own reactivity (runes / signals); no package.",
+    ru: "Общее хранилище на встроенной реактивности фреймворка (runes / signals); без пакетов.",
   },
   frameworks: ["svelte", "sveltekit", "solid", "angular"],
   order: 10,

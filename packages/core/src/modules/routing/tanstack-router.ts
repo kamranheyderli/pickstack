@@ -13,6 +13,7 @@ export const tanstackRouter: Module = {
   description: {
     az: "Tip-təhlükəsiz, fayl əsaslı marşrutlaşdırma.",
     en: "Type-safe, file-based routing.",
+    ru: "Типобезопасная маршрутизация на основе файлов.",
   },
   frameworks: ["react", "solid"],
   order: 20,

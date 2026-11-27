@@ -77,6 +77,7 @@ export const claudeCode: Module = {
   description: {
     az: "CLAUDE.md, icazələr, formatlama hook-u və stack-ə uyğun MCP serverləri.",
     en: "CLAUDE.md, permissions, a format hook and MCP servers for your stack.",
+    ru: "CLAUDE.md, разрешения, хук форматирования и MCP-серверы для вашего стека.",
   },
   frameworks: "all",
   requires: ["agents-md"],

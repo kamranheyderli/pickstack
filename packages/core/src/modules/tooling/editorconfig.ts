@@ -13,6 +13,7 @@ export const editorconfig: Module = {
   description: {
     az: "Bütün redaktorlarda eyni girinti və sətir sonu.",
     en: "Same indentation and line endings in every editor.",
+    ru: "Одинаковые отступы и окончания строк в любом редакторе.",
   },
   frameworks: "all",
   apply(model) {

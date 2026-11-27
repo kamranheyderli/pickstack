@@ -9,6 +9,7 @@ export const license: Module = {
   description: {
     az: "MIT lisenziya faylı və package.json-da `license` sahəsi.",
     en: "MIT license file and `license` in package.json.",
+    ru: "Файл лицензии MIT и `license` в package.json.",
   },
   frameworks: "all",
   apply(model, ctx) {

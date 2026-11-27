@@ -12,6 +12,7 @@ export const reduxToolkit: Module = {
   description: {
     az: "Mərkəzi store, slice-lar və tipləşdirilmiş hook-lar.",
     en: "Central store with slices and typed hooks.",
+    ru: "Централизованное хранилище со слайсами и типизированными хуками.",
   },
   frameworks: ["react", "next"],
   order: 10,

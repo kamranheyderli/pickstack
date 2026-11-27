@@ -8,6 +8,7 @@ export const zustand: Module = {
   description: {
     az: "Provider tələb etməyən, minimal hook əsaslı store.",
     en: "Minimal hook-based store, no provider needed.",
+    ru: "Минималистичное хранилище на хуках, без провайдера.",
   },
   frameworks: ["react", "next"],
   apply(model, ctx) {

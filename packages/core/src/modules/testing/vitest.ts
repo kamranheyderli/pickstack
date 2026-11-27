@@ -77,6 +77,7 @@ export const vitest: Module = {
   description: {
     az: "Vite əsaslı test runner; sayğac komponenti üçün nümunə testlə.",
     en: "Vite-native test runner, with a sample counter component test.",
+    ru: "Тест-раннер для Vite с примером теста компонента-счётчика.",
   },
   frameworks: [
     "react",

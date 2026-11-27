@@ -54,6 +54,7 @@ export const huskyLintStaged: Module = {
   description: {
     az: "Commit-dən əvvəl indeksdəki (staged) faylları yoxlayan və formatlayan git hook.",
     en: "Git pre-commit hook that lints and formats staged files.",
+    ru: "Git-хук pre-commit, который линтит и форматирует индексированные файлы.",
   },
   frameworks: "all",
   requiresOneOf: ["eslint", "prettier", "biome"],
