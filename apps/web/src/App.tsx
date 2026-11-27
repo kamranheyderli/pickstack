@@ -18,6 +18,7 @@ import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { GitHubDialog, type GitHubStep } from "./components/GitHubDialog";
 import { HowItWorks } from "./components/HowItWorks";
+import { RecentStacks } from "./components/RecentStacks";
 import { RunGuideDialog } from "./components/RunGuideDialog";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
@@ -31,7 +32,8 @@ import {
   type Locale,
   type MessageKey,
 } from "./i18n";
-import { trackAction } from "./lib/analytics";
+import { type Action, trackAction } from "./lib/analytics";
+import { addRecent, readRecent } from "./lib/recent";
 import { feedbackUrl } from "./lib/feedback";
 import { runGuide, type RunGuide } from "./lib/runSteps";
 import { downloadZip } from "./lib/download";
@@ -216,7 +218,7 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setLinkCopied(true);
-      trackAction("copy-link", selection);
+      tookStack("copy-link");
     } catch {
       setLinkCopied(false);
     }
@@ -279,6 +281,13 @@ export default function App() {
   const undo = () => step(past, future);
   const redo = () => step(future, past);
 
+  // Stacks this browser took, shown under the presets; recorded with the analytics event.
+  const [recent, setRecent] = useState<string[]>(() => readRecent());
+  const tookStack = (action: Action) => {
+    trackAction(action, selection);
+    setRecent(addRecent(selection));
+  };
+
   const pickModules = (next: Selection) => {
     remember(next);
     const added = next.modules.filter((m) => !selection.modules.includes(m));
@@ -330,7 +339,7 @@ export default function App() {
     setStatus(t("download.busy"));
     try {
       const file = await downloadZip(projectName, files);
-      trackAction("download", selection);
+      tookStack("download");
       setGuide(runGuide(files, selection, projectName, { kind: "zip" }));
       setCelebrations((n) => n + 1);
       setStatus(
@@ -370,7 +379,7 @@ export default function App() {
     )
       .then((url) => {
         setGithubStep({ step: "done", name: repo.name, url });
-        trackAction("create-on-github", selection);
+        tookStack("create-on-github");
         setCelebrations((n) => n + 1);
       })
       .catch((error: unknown) => {
@@ -569,6 +578,14 @@ export default function App() {
               })
             }
           />
+          <RecentStacks
+            queries={recent}
+            current={selectionToQuery(selection)}
+            onPick={(query) => {
+              const next = selectionFromQuery(query, defaultSelection);
+              if (next) onBaseChange(next);
+            }}
+          />
         </section>
 
         <section aria-labelledby="framework-heading" className="mb-5">
@@ -726,7 +743,7 @@ export default function App() {
                       projectName,
                       runnableProject(files, activePath),
                     );
-                    trackAction("run-in-browser", selection);
+                    tookStack("run-in-browser");
                   }}
                   className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
                 >
@@ -818,7 +835,7 @@ export default function App() {
               <CommandBar
                 command={createCommand({ ...selection, name: projectName })}
                 hasEdits={edited.size > 0}
-                onCopy={() => trackAction("copy-command", selection)}
+                onCopy={() => tookStack("copy-command")}
               />
             )}
 
