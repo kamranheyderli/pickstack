@@ -161,5 +161,7 @@
   "info.alsoAdds": "Bununla birlikdə əlavə olunur: {modules}",
   "info.files": "Fayllar: {added} yeni, {changed} dəyişir",
   "info.more": "və daha {count} fayl",
-  "info.packages": "Gətirdiyi paketlər"
+  "info.packages": "Gətirdiyi paketlər",
+  "config.undo": "Geri al",
+  "config.undoHint": "Son dəyişikliyi geri al (⌘Z / Ctrl+Z; irəli: ⇧⌘Z)"
 }

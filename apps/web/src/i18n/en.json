@@ -161,5 +161,7 @@
   "info.alsoAdds": "Also adds: {modules}",
   "info.files": "Files: {added} new, {changed} changed",
   "info.more": "and {count} more files",
-  "info.packages": "Packages it brings"
+  "info.packages": "Packages it brings",
+  "config.undo": "Undo",
+  "config.undoHint": "Undo the last change (⌘Z / Ctrl+Z; redo: ⇧⌘Z)"
 }

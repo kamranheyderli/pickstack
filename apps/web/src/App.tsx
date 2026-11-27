@@ -7,7 +7,7 @@ import {
   toProjectName,
   type Selection,
 } from "@stackforge/core";
-import { useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { ChangeSummary } from "./components/ChangeSummary";
 import { CodeView } from "./components/CodeView";
 import { CommandBar } from "./components/CommandBar";
@@ -251,22 +251,68 @@ export default function App() {
   };
 
   /** A module pick from the options or the palette; remembered for the change summary. */
-  const pickModules = (next: Selection) => {
-    if (
+  // Undo and redo: earlier and undone selections. Typing the project name isn't a step.
+  const past = useRef<Selection[]>([]);
+  const future = useRef<Selection[]>([]);
+  const [historySize, setHistorySize] = useState(0);
+  const remember = (next: Selection) => {
+    const same =
       next.framework === selection.framework &&
-      next.language === selection.language
-    )
-      setLastPick({
-        added: next.modules.filter((m) => !selection.modules.includes(m)),
-        removed: selection.modules.filter((m) => !next.modules.includes(m)),
-      });
+      next.language === selection.language &&
+      next.packageManager === selection.packageManager &&
+      next.modules.join() === selection.modules.join();
+    if (same) return;
+    past.current = [...past.current.slice(-49), selection];
+    future.current = [];
+    setHistorySize(past.current.length);
+  };
+  const step = (from: RefObject<Selection[]>, to: RefObject<Selection[]>) => {
+    const target = from.current.at(-1);
+    if (!target) return;
+    from.current = from.current.slice(0, -1);
+    to.current = [...to.current, selection];
+    setHistorySize(past.current.length);
+    setLastPick(null);
+    setSelection(target);
+  };
+  const undo = () => step(past, future);
+  const redo = () => step(future, past);
+
+  const pickModules = (next: Selection) => {
+    remember(next);
+    const added = next.modules.filter((m) => !selection.modules.includes(m));
+    const removed = selection.modules.filter((m) => !next.modules.includes(m));
+    // Only a module pick gets a summary; a name or package manager change isn't one.
+    setLastPick(
+      next.framework === selection.framework &&
+        next.language === selection.language &&
+        (added.length || removed.length)
+        ? { added, removed }
+        : null,
+    );
     setSelection(next);
     setNotice("");
   };
 
+  // Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z, except while typing (inputs keep their own undo).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "z")
+        return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, [contenteditable='true']")) return;
+      event.preventDefault();
+      if (event.shiftKey) redo();
+      else undo();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   const onBaseChange = (next: Selection) => {
     // Another framework generates different files; earlier edits would not apply.
     if (next.framework !== selection.framework) setEdits(new Map());
+    remember(next);
     setLastPick(null);
     const pruned = pruneIncompatible(next);
     setSelection(pruned.selection);
@@ -575,17 +621,30 @@ export default function App() {
                 <span className="mr-2 text-muted">02</span>
                 {t("section.configure")}
               </h2>
-              {selection.modules.length > 0 && (
-                <button
-                  type="button"
-                  // Clears the modules only: framework, name, language and package manager stay.
-                  onClick={() => pickModules({ ...selection, modules: [] })}
-                  className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
-                >
-                  <UiIcon name="undo" size={12} />
-                  {t("config.reset")}
-                </button>
-              )}
+              <span className="flex items-center gap-1">
+                {historySize > 0 && (
+                  <button
+                    type="button"
+                    onClick={undo}
+                    title={t("config.undoHint")}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <UiIcon name="undo" size={12} />
+                    {t("config.undo")}
+                  </button>
+                )}
+                {selection.modules.length > 0 && (
+                  <button
+                    type="button"
+                    // Clears the modules only: framework, name, language and package manager stay.
+                    onClick={() => pickModules({ ...selection, modules: [] })}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <UiIcon name="close" size={12} />
+                    {t("config.reset")}
+                  </button>
+                )}
+              </span>
             </div>
             <OptionsPanel
               selection={selection}
