@@ -1,0 +1,26 @@
+# Every Monday: which known-good ranges (packages/core/src/versions/known-good.ts) no longer
+# cover npm's latest release. The list lands in the run's summary; bumping stays a deliberate
+# change followed by a smoke run.
+name: Known-good versions
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm versions:check --markdown >> "$GITHUB_STEP_SUMMARY"

@@ -259,6 +259,24 @@ const frameworks: Partial<Record<FrameworkId, VersionSet>> = {
   },
 };
 
+/** Every pinned range, shared first, for tooling that checks them against npm. */
+export function knownGoodRanges(): {
+  scope: string;
+  pkg: string;
+  range: string;
+}[] {
+  return [
+    ...Object.entries(shared).map(([pkg, range]) => ({
+      scope: "shared",
+      pkg,
+      range,
+    })),
+    ...Object.entries(frameworks).flatMap(([scope, set]) =>
+      Object.entries(set ?? {}).map(([pkg, range]) => ({ scope, pkg, range })),
+    ),
+  ];
+}
+
 export class UnknownVersionError extends Error {
   constructor(pkg: string, framework: FrameworkId) {
     super(
