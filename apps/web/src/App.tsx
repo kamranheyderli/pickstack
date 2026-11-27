@@ -73,6 +73,8 @@ const canRunLive = typeof window !== "undefined" && window.crossOriginIsolated;
  * Whether to start the live preview before it's asked for: only on desktop, where it can run
  * and the install it starts (tens of MB) costs little, and not with Data Saver on.
  */
+/** How long the files panel must stay on screen before the preview warms up. */
+const WARM_UP_AFTER_MS = 2000;
 function canWarmUp(): boolean {
   const connection = (navigator as { connection?: { saveData?: boolean } })
     .connection;
@@ -298,10 +300,26 @@ export default function App() {
   const past = useRef<Selection[]>([]);
   const future = useRef<Selection[]>([]);
   const [historySize, setHistorySize] = useState(0);
-  // Warm the preview up behind the code once someone starts picking, so Live opens ready.
+  // Warm the preview up behind the code, so Live opens ready: once someone starts picking, or
+  // once the files panel has been on screen for a couple of seconds.
   useEffect(() => {
     if (historySize > 0 && canWarmUp()) setLiveStarted(true);
   }, [historySize]);
+  useEffect(() => {
+    const panel = document.getElementById("files-panel");
+    if (liveStarted || !panel || !canWarmUp()) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      clearTimeout(timer);
+      if (entry?.isIntersecting)
+        timer = setTimeout(() => setLiveStarted(true), WARM_UP_AFTER_MS);
+    });
+    observer.observe(panel);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [liveStarted]);
   const remember = (next: Selection) => {
     const same =
       next.framework === selection.framework &&
