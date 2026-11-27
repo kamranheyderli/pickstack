@@ -143,6 +143,13 @@ export function OptionsPanel({
             description: module.description[locale],
           };
         });
+        // Every option blocked (e.g. Validation before a form library): say what unlocks it,
+        // short enough for the closed header; the chips keep the full reason.
+        const locked =
+          items.length > 0 && items.every((i) => i.disabled)
+            ? (lockedText(group.options[0]?.module.id, selection, t) ??
+              items[0]?.reason)
+            : undefined;
         // One pick at most: choosing replaces the current one, choosing it again clears it.
         return group.single ? (
           <Chips
@@ -152,6 +159,7 @@ export function OptionsPanel({
             type="checkbox"
             items={items}
             collapse={collapse}
+            locked={locked}
             onChange={(id) =>
               onChange(
                 chooseSingle(
@@ -170,6 +178,7 @@ export function OptionsPanel({
             type="checkbox"
             items={items}
             collapse={collapse}
+            locked={locked}
             onChange={(id) => onChange(toggleModule(selection, id))}
           />
         );
@@ -188,6 +197,18 @@ export function OptionsPanel({
       )}
     </div>
   );
+}
+
+/** "TanStack Form / React Hook Form needed": what a fully blocked category waits for. */
+function lockedText(
+  id: string | undefined,
+  selection: Selection,
+  t: Translate,
+): string | undefined {
+  const needed = requiredOneOfFor(id, selection);
+  if (!needed?.length) return undefined;
+  const names = needed.map((m) => getModule(m)?.name ?? m).join(" / ");
+  return t("category.needs", { modules: names });
 }
 
 function requiredOneOfFor(id: string | undefined, selection: Selection) {

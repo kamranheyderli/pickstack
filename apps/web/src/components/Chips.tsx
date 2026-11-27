@@ -21,7 +21,12 @@ interface ChipsProps {
   onChange: (value: string) => void;
   /** Makes the group collapsible: the legend becomes a toggle with a selected count. */
   collapse?: { open: boolean; onToggle: () => void };
+  /** Every option is blocked for the same reason (e.g. no form library yet): shown when closed. */
+  locked?: string;
 }
+
+/** Icons shown on a closed group with nothing picked, as a hint of what's inside. */
+const PEEK = 4;
 
 export function Chips({
   legend,
@@ -30,6 +35,7 @@ export function Chips({
   items,
   onChange,
   collapse,
+  locked,
 }: ChipsProps) {
   const id = useId();
   const open = collapse?.open ?? true;
@@ -60,6 +66,29 @@ export function Chips({
             {!open && picked.length > 0 && (
               <span className="ml-auto truncate font-normal tracking-normal normal-case">
                 {picked.map((i) => i.label).join(", ")}
+              </span>
+            )}
+            {!open && picked.length === 0 && locked && (
+              <span className="ml-auto flex min-w-0 items-center gap-1 font-normal tracking-normal normal-case">
+                <UiIcon name="lock" size={11} />
+                <span className="truncate">{locked}</span>
+              </span>
+            )}
+            {!open && picked.length === 0 && !locked && (
+              <span
+                aria-hidden="true"
+                className="ml-auto flex shrink-0 items-center gap-1 opacity-70"
+              >
+                {items.slice(0, PEEK).map((i) => (
+                  <span key={i.value} className="inline-flex">
+                    {i.icon}
+                  </span>
+                ))}
+                {items.length > PEEK && (
+                  <span className="text-[0.65rem] font-normal tracking-normal">
+                    +{items.length - PEEK}
+                  </span>
+                )}
               </span>
             )}
           </button>

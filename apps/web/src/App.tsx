@@ -449,13 +449,26 @@ export default function App() {
             onSubmit={(e) => e.preventDefault()}
             className="rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5"
           >
-            <h2
-              id="configure-heading"
-              className="mt-0 mb-4 text-sm font-semibold"
-            >
-              <span className="mr-2 text-muted">02</span>
-              {t("section.configure")}
-            </h2>
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <h2 id="configure-heading" className="m-0 text-sm font-semibold">
+                <span className="mr-2 text-muted">02</span>
+                {t("section.configure")}
+              </h2>
+              {selection.modules.length > 0 && (
+                <button
+                  type="button"
+                  // Clears the modules only: framework, name, language and package manager stay.
+                  onClick={() => {
+                    setSelection({ ...selection, modules: [] });
+                    setNotice("");
+                  }}
+                  className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+                >
+                  <UiIcon name="undo" size={12} />
+                  {t("config.reset")}
+                </button>
+              )}
+            </div>
             <OptionsPanel
               selection={selection}
               autoAdded={result?.ok ? result.autoAdded : []}

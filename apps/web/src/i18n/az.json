@@ -85,6 +85,8 @@
   "hero.titleAccent": "saniyələr içində qur",
   "section.framework": "Framework seç",
   "section.configure": "Konfiqurasiya",
+  "config.reset": "Hamısını təmizlə",
+  "category.needs": "{modules} lazımdır",
   "framework.soon": "Tezliklə",
   "framework.kind.spa": "SPA",
   "framework.kind.meta": "Meta-framework",

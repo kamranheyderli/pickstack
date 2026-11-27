@@ -85,6 +85,8 @@
   "hero.titleAccent": "in seconds",
   "section.framework": "Choose a framework",
   "section.configure": "Configure",
+  "config.reset": "Clear all",
+  "category.needs": "Needs {modules}",
   "framework.soon": "Soon",
   "framework.kind.spa": "SPA",
   "framework.kind.meta": "Meta-framework",
