@@ -163,5 +163,6 @@
   "info.more": "və daha {count} fayl",
   "info.packages": "Gətirdiyi paketlər",
   "config.undo": "Geri al",
-  "config.undoHint": "Son dəyişikliyi geri al (⌘Z / Ctrl+Z; irəli: ⇧⌘Z)"
+  "config.undoHint": "Son dəyişikliyi geri al (⌘Z / Ctrl+Z; irəli: ⇧⌘Z)",
+  "footer.feedback": "Rəy bildir"
 }

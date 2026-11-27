@@ -163,5 +163,6 @@
   "info.more": "and {count} more files",
   "info.packages": "Packages it brings",
   "config.undo": "Undo",
-  "config.undoHint": "Undo the last change (⌘Z / Ctrl+Z; redo: ⇧⌘Z)"
+  "config.undoHint": "Undo the last change (⌘Z / Ctrl+Z; redo: ⇧⌘Z)",
+  "footer.feedback": "Send feedback"
 }

@@ -32,6 +32,7 @@ import {
   type MessageKey,
 } from "./i18n";
 import { trackAction } from "./lib/analytics";
+import { feedbackUrl } from "./lib/feedback";
 import { runGuide, type RunGuide } from "./lib/runSteps";
 import { downloadZip } from "./lib/download";
 import { openInStackBlitz, runnableProject } from "./lib/stackblitz";
@@ -832,7 +833,15 @@ export default function App() {
         </div>
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-sm text-muted">
           <span>{t("footer.tagline")}</span>
-          <nav className="flex gap-4">
+          <nav className="flex flex-wrap gap-4">
+            <a
+              className="hover:text-ink"
+              href={feedbackUrl(window.location.href)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("footer.feedback")}
+            </a>
             <a className="hover:text-ink" href="/stacks/">
               {t("footer.templates")}
             </a>

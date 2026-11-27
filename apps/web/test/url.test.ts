@@ -55,3 +55,16 @@ describe("shared links", () => {
     ).toMatchObject({ packageManager: "bun", modules: preset.modules });
   });
 });
+
+describe("feedbackUrl", () => {
+  it("opens a new issue that carries the visitor's stack link", async () => {
+    const { feedbackUrl } = await import("../src/lib/feedback");
+    const url = new URL(feedbackUrl("https://pickstack.online/?f=vue&m=pinia"));
+    expect(url.origin + url.pathname).toBe(
+      "https://github.com/kamranheyderli/pickstack/issues/new",
+    );
+    expect(url.searchParams.get("body")).toContain(
+      "**Stack:** https://pickstack.online/?f=vue&m=pinia",
+    );
+  });
+});
