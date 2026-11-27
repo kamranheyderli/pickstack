@@ -15,6 +15,9 @@
   --color-accent-ink: #ffffff;
   --color-accent-soft: rgb(109 40 217 / 0.07);
   --color-accent-ring: rgb(109 40 217 / 0.16);
+  /* Positive labels (e.g. "Fastest"); readable on its soft tint in both themes. */
+  --color-success: #047857;
+  --color-success-soft: rgb(16 185 129 / 0.14);
   --color-code: #0c0c12;
   --color-code-ink: #e6e6ef;
   --animate-flash: flash 1.4s ease-out;
@@ -46,6 +49,8 @@
   --color-accent-ink: #0b0b10;
   --color-accent-soft: rgb(167 139 250 / 0.1);
   --color-accent-ring: rgb(167 139 250 / 0.22);
+  --color-success: #6ee7b7;
+  --color-success-soft: rgb(16 185 129 / 0.16);
   --color-code: #0a0a0e;
 }
 

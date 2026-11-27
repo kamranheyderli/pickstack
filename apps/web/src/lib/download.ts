@@ -1,9 +1,10 @@
-import { toZip } from "@stackforge/core";
 
 export async function downloadZip(
   name: string,
   files: Map<string, string>,
 ): Promise<string> {
+  // Loaded on click: the ZIP writer isn't needed before someone downloads.
+  const { toZip } = await import("@stackforge/core/zip");
   const bytes = await toZip(name, files);
   const url = URL.createObjectURL(
     new Blob([bytes as BlobPart], { type: "application/zip" }),

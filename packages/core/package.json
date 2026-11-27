@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./generate": "./src/engine/generate.ts",
+    "./zip": "./src/output/zip.ts"
   },
+  "sideEffects": false,
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit"

@@ -77,10 +77,10 @@ export function Chips({
             {!open && picked.length === 0 && !locked && (
               <span
                 aria-hidden="true"
-                className="ml-auto flex shrink-0 items-center gap-1 opacity-70"
+                className="ml-auto flex shrink-0 items-center gap-1"
               >
                 {items.slice(0, PEEK).map((i) => (
-                  <span key={i.value} className="inline-flex">
+                  <span key={i.value} className="inline-flex opacity-70">
                     {i.icon}
                   </span>
                 ))}

@@ -1,5 +1,4 @@
 import {
-  generate,
   toProjectName,
   type GenerateResult,
   type Selection,
@@ -29,6 +28,9 @@ export function useGenerated(selection: Selection): Generated {
     let cancelled = false;
     setState((s) => ({ ...s, pending: true }));
     const timer = setTimeout(async () => {
+      // Loaded on first use: the generator brings Prettier and every template, which the
+      // page doesn't need to show its first screen.
+      const { generate } = await import("@stackforge/core/generate");
       const result = await generate({
         ...selection,
         name: toProjectName(selection.name),
