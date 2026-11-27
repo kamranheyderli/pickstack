@@ -71,6 +71,8 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   // The whole "Create on GitHub" flow runs in its dialog, which reopens after GitHub's consent screen.
+  // Phones show the options or the files, not one under the other (the options run ~3 screens).
+  const [mobileView, setMobileView] = useState<"options" | "files">("options");
   const [githubOpen, setGithubOpen] = useState(githubReturn !== null);
   const [githubStep, setGithubStep] = useState<GitHubStep>(() => {
     if (!githubReturn) return { step: "form" };
@@ -405,15 +407,18 @@ export default function App() {
             </p>
             <QuickStart initial={selection.packageManager} />
           </div>
-          <TerminalDemo
-            command={createCommand({ ...selection, name: projectName })}
-            output={[
-              `◇ Created ${projectName}/ (${files?.size ?? 0} files)`,
-              "◇ Initialized a git repository",
-              `◇ Installed dependencies with ${selection.packageManager}`,
-              `$ cd ${projectName} && ${runCommand(selection.packageManager, "dev")}`,
-            ]}
-          />
+          {/* On phones the copyable command above says the same in less space. */}
+          <div className="hidden sm:block">
+            <TerminalDemo
+              command={createCommand({ ...selection, name: projectName })}
+              output={[
+                `◇ Created ${projectName}/ (${files?.size ?? 0} files)`,
+                "◇ Initialized a git repository",
+                `◇ Installed dependencies with ${selection.packageManager}`,
+                `$ cd ${projectName} && ${runCommand(selection.packageManager, "dev")}`,
+              ]}
+            />
+          </div>
         </section>
 
         <section aria-labelledby="presets-heading" className="mb-6">
@@ -443,11 +448,40 @@ export default function App() {
           />
         </section>
 
+        <div
+          role="tablist"
+          aria-label={t("mobile.tabs")}
+          className="sticky top-14 z-10 -mx-4 mb-4 flex gap-1 border-b border-line/70 bg-bg/85 px-4 py-2 backdrop-blur-xl lg:hidden"
+        >
+          {(["options", "files"] as const).map((view) => (
+            <button
+              key={view}
+              type="button"
+              role="tab"
+              aria-selected={mobileView === view}
+              aria-controls={
+                view === "options" ? "configure-panel" : "files-panel"
+              }
+              onClick={() => {
+                setMobileView(view);
+                document
+                  .getElementById("framework-heading")
+                  ?.scrollIntoView({ block: "start" });
+              }}
+              className="flex-1 cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-muted transition-colors aria-selected:bg-panel aria-selected:text-ink aria-selected:shadow-sm focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              {view === "options"
+                ? t("mobile.options")
+                : t("mobile.files", { count: files?.size ?? 0 })}
+            </button>
+          ))}
+        </div>
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)]">
           <form
+            id="configure-panel"
             aria-labelledby="configure-heading"
             onSubmit={(e) => e.preventDefault()}
-            className="rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5"
+            className={`rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5 ${mobileView === "files" ? "max-lg:hidden" : ""}`}
           >
             <div className="mb-4 flex items-center justify-between gap-2">
               <h2 id="configure-heading" className="m-0 text-sm font-semibold">
@@ -504,9 +538,10 @@ export default function App() {
           </form>
 
           <section
+            id="files-panel"
             aria-label={t("preview.label")}
             aria-busy={generated.pending}
-            className="overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_24px_60px_-30px_rgb(0_0_0/0.35)] lg:sticky lg:top-18"
+            className={`overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_24px_60px_-30px_rgb(0_0_0/0.35)] lg:sticky lg:top-18 ${mobileView === "options" ? "max-lg:hidden" : ""}`}
           >
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
               <div className="flex min-w-0 items-center gap-3">
