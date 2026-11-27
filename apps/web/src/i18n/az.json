@@ -33,6 +33,8 @@
   "download.hint": "ZIP-dəki README faylında layihəni işə salmaq və GitHub-a göndərmək üçün əmrlər var.",
   "download.done": "{file} yükləndi. Arxivi aç, sonra {install} və {dev} əmrlərini işə sal.",
   "download.error": "Yükləmə alınmadı: {error}",
+  "stackblitz.button": "Brauzerdə işə sal",
+  "stackblitz.webOnly": "Yalnız web/ açılır: server/-dəki API StackBlitz-də işləmir",
   "github.button": "GitHub-da yarat",
   "github.title": "GitHub-da repo yarat",
   "github.intro": "Layihə hesabında yeni repo kimi yaradılacaq və bütün fayllar ilk commit olaraq göndəriləcək.",

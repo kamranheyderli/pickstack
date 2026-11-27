@@ -33,6 +33,8 @@
   "download.hint": "The README in the ZIP explains how to run the project and push it to GitHub.",
   "download.done": "Downloaded {file}. Unzip it, then run {install} and {dev}.",
   "download.error": "Download failed: {error}",
+  "stackblitz.button": "Run in browser",
+  "stackblitz.webOnly": "Opens web/ only: the API in server/ doesn't run on StackBlitz",
   "github.button": "Create on GitHub",
   "github.title": "Create a GitHub repository",
   "github.intro": "The project becomes a new repository on your account, with every file in its first commit.",

@@ -28,6 +28,7 @@ import {
   type MessageKey,
 } from "./i18n";
 import { downloadZip } from "./lib/download";
+import { openInStackBlitz, runnableProject } from "./lib/stackblitz";
 import {
   createRepository,
   GitHubError,
@@ -568,6 +569,28 @@ export default function App() {
                   <UiIcon name={linkCopied ? "check" : "link"} />
                   <span aria-live="polite">
                     {linkCopied ? t("share.copied") : t("share.button")}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  disabled={!files || busy}
+                  title={
+                    files && !files.has("package.json")
+                      ? t("stackblitz.webOnly")
+                      : undefined
+                  }
+                  onClick={() => {
+                    if (files)
+                      openInStackBlitz(
+                        projectName,
+                        runnableProject(files, activePath),
+                      );
+                  }}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
+                >
+                  <UiIcon name="play" />
+                  <span className="hidden sm:inline">
+                    {t("stackblitz.button")}
                   </span>
                 </button>
                 <button
