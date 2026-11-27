@@ -1,6 +1,7 @@
 import { getModule, type Selection } from "@stackforge/core";
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useT } from "../i18n";
+import { formatSize, moduleSize } from "../lib/bundleSize";
 import { BrandIcon, LetterIcon, moduleIcons, UiIcon } from "../lib/icons";
 import { moduleEffect, type ModuleEffectResult } from "../lib/moduleEffect";
 import { reasonText } from "./OptionsPanel";
@@ -53,6 +54,7 @@ export function ModuleInfoDialog({
   const mod = id ? getModule(id) : undefined;
   const icon = id ? moduleIcons[id] : undefined;
   const loaded = result && result.id === id ? result.value : null;
+  const size = id ? moduleSize(selection.framework, id) : undefined;
   const name = (moduleId: string) => getModule(moduleId)?.name ?? moduleId;
 
   return (
@@ -98,6 +100,13 @@ export function ModuleInfoDialog({
 
           {loaded?.ok && (
             <>
+              {size !== undefined && (
+                <p className="m-0 text-sm" title={t("size.hint")}>
+                  {size <= 0
+                    ? t("info.sizeNone")
+                    : t("info.size", { size: formatSize(size, locale) })}
+                </p>
+              )}
               {loaded.effect.alsoAdded.length > 0 && (
                 <p className="m-0 text-sm">
                   {t("info.alsoAdds", {

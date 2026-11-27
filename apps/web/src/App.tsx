@@ -38,6 +38,7 @@ import { type Action, trackAction } from "./lib/analytics";
 import { addRecent, readRecent } from "./lib/recent";
 import { feedbackUrl } from "./lib/feedback";
 import { runGuide, type RunGuide } from "./lib/runSteps";
+import { formatSize, stackSize } from "./lib/bundleSize";
 import { downloadZip } from "./lib/download";
 import { openInStackBlitz, runnableProject } from "./lib/stackblitz";
 import {
@@ -179,6 +180,13 @@ export default function App() {
         ]),
       )
     : null;
+  // The stack's measured client JavaScript (see scripts/bundle-size.ts).
+  const jsSize = result?.ok
+    ? stackSize(selection.framework, [
+        ...selection.modules,
+        ...result.autoAdded,
+      ])
+    : undefined;
   const edited = new Set(
     [...edits.keys()].filter((path) => generatedFiles?.has(path)),
   );
@@ -751,6 +759,15 @@ export default function App() {
                 {files && (
                   <span className="rounded-md bg-panel-2 px-2 py-0.5 text-xs text-muted">
                     {t("preview.files", { count: files.size })}
+                  </span>
+                )}
+                {jsSize !== undefined && (
+                  <span
+                    title={t("size.hint")}
+                    className="cursor-help rounded-md bg-panel-2 px-2 py-0.5 text-xs whitespace-nowrap text-muted"
+                  >
+                    {t("size.badge", { size: formatSize(jsSize, locale) })}
+                    <span className="sr-only">. {t("size.hint")}</span>
                   </span>
                 )}
               </div>

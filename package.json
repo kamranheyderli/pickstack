@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "smoke": "tsx scripts/smoke.ts",
-    "versions:check": "tsx scripts/versions-check.ts"
+    "versions:check": "tsx scripts/versions-check.ts",
+    "bundle-size": "tsx scripts/bundle-size.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
