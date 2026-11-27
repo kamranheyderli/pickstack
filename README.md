@@ -2,6 +2,7 @@
 
 **Pick a framework and tools, watch the files change, and get a ready-to-run frontend project.**
 
+[![CI](https://github.com/kamranheyderli/pickstack/actions/workflows/ci.yml/badge.svg)](https://github.com/kamranheyderli/pickstack/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/create-pickstack?color=7c3aed)](https://www.npmjs.com/package/create-pickstack)
 [![npm downloads](https://img.shields.io/npm/dm/create-pickstack?color=0891b2)](https://www.npmjs.com/package/create-pickstack)
 [![license](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
