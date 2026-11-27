@@ -38,6 +38,7 @@ import { netlify } from "./deploy/netlify";
 import { vercel } from "./deploy/vercel";
 import { reactHookForm } from "./forms/react-hook-form";
 import { tanstackForm } from "./forms/tanstack-form";
+import { yup, zod } from "./forms/validation";
 import { reactI18next } from "./i18n/react-i18next";
 import { vueI18n } from "./i18n/vue-i18n";
 import { express } from "./backend/express";
@@ -96,6 +97,8 @@ export const modules: readonly Module[] = [
   storybook,
   tanstackForm,
   reactHookForm,
+  zod,
+  yup,
   reactI18next,
   vueI18n,
   express,

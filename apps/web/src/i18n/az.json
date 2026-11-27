@@ -15,6 +15,7 @@
   "category.routing": "Marşrutlaşdırma",
   "category.data": "Məlumat yükləmə",
   "category.forms": "Formlar",
+  "category.validation": "Validasiya",
   "category.i18n": "Çoxdillilik",
   "category.testing": "Testləşdirmə",
   "category.quality": "Kod keyfiyyəti",

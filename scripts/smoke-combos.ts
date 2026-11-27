@@ -749,6 +749,43 @@ function formCombos(): Combo[] {
       language: "ts",
       modules: ["tanstack-form", "angular-material", "biome"],
     },
+    // Zod picked explicitly: the same output as the default.
+    {
+      framework: "vue",
+      language: "js",
+      modules: ["tanstack-form", "zod", "eslint", "prettier"],
+    },
+    // Yup instead of Zod: TanStack Form takes the Standard Schema, React Hook Form the resolver.
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["react-hook-form", "yup", ...checks],
+    },
+    {
+      framework: "react",
+      language: "js",
+      modules: ["tanstack-form", "yup", "biome"],
+    },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["tanstack-form", "yup", ...checks],
+    },
+    {
+      framework: "svelte",
+      language: "ts",
+      modules: ["tanstack-form", "yup", ...checks],
+    },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["tanstack-form", "yup", ...checks],
+    },
+    {
+      framework: "angular",
+      language: "ts",
+      modules: ["tanstack-form", "yup", ...checks],
+    },
   ];
 }
 

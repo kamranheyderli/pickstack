@@ -1,5 +1,5 @@
 import { demoClasses } from "../../frameworks/shared/demo";
-import type { ProjectModel } from "../../types";
+import type { Ctx, ImportSpec, ProjectModel } from "../../types";
 
 /** The demo form: one validated email field under the counter. */
 export const FORM_WIDGET = "SignupForm";
@@ -11,12 +11,67 @@ export const copy = {
   thanks: (email: string) => `Thanks, ${email} is on the list.`,
 };
 
-/** The Zod schema every form library validates against (Zod 4 is a Standard Schema). */
-export const schemaLines = [
-  "const schema = z.object({",
-  `  email: z.email("${copy.invalid}"),`,
-  "});",
-];
+/**
+ * The schema library the demo form validates with. Zod 4 and Yup 1.7+ both implement Standard
+ * Schema, so TanStack Form takes either schema as is; React Hook Form uses the matching resolver
+ * from `@hookform/resolvers`.
+ */
+export interface Validator {
+  id: "zod" | "yup";
+  name: string;
+  /** The package and what the form imports from it. */
+  pkg: string;
+  imports: ImportSpec;
+  /** `const schema = ...`, validating the email field. */
+  schema: string[];
+  /** The values' TypeScript type, from the schema. */
+  infer: string;
+  /** Type-only import `infer` needs, if any. */
+  inferImport: ImportSpec | null;
+  resolver: { from: string; name: string };
+  /**
+   * Its Standard Schema `validate` returns a promise (Yup's does), so TanStack Form needs the
+   * async validator slot: the sync one throws "async function passed to sync validator".
+   */
+  async: boolean;
+}
+
+const zodValidator: Validator = {
+  id: "zod",
+  name: "Zod",
+  pkg: "zod",
+  imports: { from: "zod", named: ["z"] },
+  schema: [
+    "const schema = z.object({",
+    `  email: z.email("${copy.invalid}"),`,
+    "});",
+  ],
+  infer: "z.infer<typeof schema>",
+  inferImport: null,
+  resolver: { from: "@hookform/resolvers/zod", name: "zodResolver" },
+  async: false,
+};
+
+const yupValidator: Validator = {
+  id: "yup",
+  name: "Yup",
+  pkg: "yup",
+  imports: { from: "yup", named: ["object", "string"] },
+  schema: [
+    "const schema = object({",
+    `  email: string().required("${copy.invalid}").email("${copy.invalid}"),`,
+    "});",
+  ],
+  infer: "InferType<typeof schema>",
+  inferImport: { from: "yup", types: ["InferType"] },
+  resolver: { from: "@hookform/resolvers/yup", name: "yupResolver" },
+  async: true,
+};
+
+/** Yup when the `yup` module is picked; Zod otherwise (also when `zod` is picked explicitly). */
+export function validator(ctx: Ctx): Validator {
+  return ctx.has("yup") ? yupValidator : zodValidator;
+}
 
 export interface FormClasses {
   form: string;

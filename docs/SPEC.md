@@ -149,7 +149,7 @@ Svelte SPA üçün routing modulu təklif etmirik, UI-da "routing lazımdırsa S
 Qeydlər (2026-11, yoxlanılıb):
 
 - **Ümumi:**
-  - Hər iki modul Zod 4 ilə gəlir. Zod ayrıca modul deyil, çünki formsuz faydası azdır.
+  - Hər iki modul defolt olaraq Zod 4 ilə gəlir; Yup seçilə bilər (5.6.0). Validasiya modulları formsuz təklif olunmur.
   - Demo sayğacın altındakı `SignupForm` widget-idir: bir e-poçt sahəsi, submit-də validasiya və uğur halı.
   - İki modul bir-biri ilə konflikt edir.
   - Brauzerdə 6 variant yoxlanılıb (səhv e-poçt → xəta, düzəliş → xəta silinir, düzgün → təşəkkür).
@@ -159,6 +159,18 @@ Qeydlər (2026-11, yoxlanılıb):
   - `vee-validate` çıxarılıb: `@vee-validate/zod` yalnız Zod 3-ü dəstəkləyir (peer `zod ^3.24`), digər modullar isə Zod 4 istifadə edir. Vue üçün TanStack Form var.
   - `superforms` hələ yoxdur: SvelteKit layihələri statik (adapter-static) qurulur, Superforms isə server action-ları gözləyir.
   - Meta-framework-lər (Next, Nuxt, SvelteKit, Astro) üçün form widget-i hələ yoxdur, çünki demo widget mexanizmi SPA-lardadır.
+
+### 5.6.0 Validasiya (tək seçim)
+
+| Modul | Uyğun | Tələb |
+|---|---|---|
+| `zod` | R, V, S, So, A | `tanstack-form` və ya `react-hook-form` |
+| `yup` | R, V, S, So, A | `tanstack-form` və ya `react-hook-form` |
+
+- Demo formunun sxem kitabxanası. Form modulları seçimi `validator(ctx)` (`forms/shared.ts`) ilə oxuyur; heç biri seçilməsə Zod işlənir (açıq `zod` eyni çıxışı verir, test bunu yoxlayır). Bu modulların öz `apply`-ı boşdur, yalnız seçimi bildirirlər.
+- **Zod 4:** `z.object({ email: z.email(...) })`, RHF-də `zodResolver`, tip `z.infer<typeof schema>`.
+- **Yup 1.7+:** `object({ email: string().required(...).email(...) })`, RHF-də `@hookform/resolvers/yup`-dan `yupResolver`, TS-də tip `InferType<typeof schema>` (`import type`). Yup 1.7 Standard Schema-dır, ona görə TanStack Form onu adaptersiz qəbul edir, **amma** onun `validate`-i Promise qaytarır: sinxron `onSubmit` slotu "async function passed to sync validator" atır, ona görə Yup ilə `validators: { onSubmitAsync: schema }` yazılır (`Validator.async`). Bu, brauzerdə tapılıb; smoke build-i bunu tutmur.
+- Brauzerdə yoxlanılıb: RHF + Yup (React) və TanStack Form + Yup (React, Vue, Svelte, Solid, Angular) — boş və səhv e-poçt xəta göstərir, düzgün e-poçt təşəkkür.
 
 ### 5.6.1 Çoxdillilik (i18n, tək seçim)
 

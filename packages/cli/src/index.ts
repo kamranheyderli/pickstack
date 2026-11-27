@@ -42,6 +42,7 @@ const categoryLabels: Record<Category, string> = {
   routing: "Routing",
   data: "Data fetching",
   forms: "Forms",
+  validation: "Validation",
   i18n: "Internationalization",
   backend: "Backend",
   database: "Database",

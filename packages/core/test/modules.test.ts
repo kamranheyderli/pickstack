@@ -1270,6 +1270,68 @@ describe("forms", () => {
     expect(js.get("src/components/SignupForm.jsx")).toContain("useForm({");
   });
 
+  it("TanStack Form validates with a Yup schema when Yup is picked", async () => {
+    const paths: Record<string, string> = {
+      react: "src/components/SignupForm.tsx",
+      solid: "src/components/SignupForm.tsx",
+      vue: "src/components/SignupForm.vue",
+      svelte: "src/lib/SignupForm.svelte",
+      angular: "src/app/components/signup-form/signup-form.ts",
+    };
+    for (const [fw, path] of Object.entries(paths)) {
+      const files = await project(fw as FrameworkId, ["tanstack-form", "yup"]);
+      const form = files.get(path) ?? "";
+      expect(form).toContain('import { object, string } from "yup"');
+      // Prettier splits the chain over lines.
+      expect(form).toMatch(
+        /email: string\(\)\s*\.required\("Enter a valid email address\."\)\s*\.email\(/,
+      );
+      expect(form).toContain("validators: { onSubmitAsync: schema }");
+      expect(form).not.toContain("zod");
+      const pkg = JSON.parse(files.get("package.json") ?? "");
+      expect(pkg.dependencies.yup).toBe(
+        knownGoodVersion("yup", fw as FrameworkId),
+      );
+      expect(pkg.dependencies.zod).toBeUndefined();
+    }
+  });
+
+  it("React Hook Form uses the Yup resolver and InferType with Yup", async () => {
+    const ts = await project("react", ["react-hook-form", "yup"]);
+    const form = ts.get("src/components/SignupForm.tsx") ?? "";
+    expect(form).toContain(
+      'import { yupResolver } from "@hookform/resolvers/yup"',
+    );
+    expect(form).toContain("resolver: yupResolver(schema)");
+    expect(form).toContain("useForm<InferType<typeof schema>>");
+    expect(form).toMatch(
+      /import type \{ InferType \} from "yup"|type InferType/,
+    );
+    const js = await project("react", ["react-hook-form", "yup"], "js");
+    expect(js.get("src/components/SignupForm.jsx")).not.toContain("InferType");
+  });
+
+  it("picking Zod explicitly writes the same form as the default", async () => {
+    const plain = await project("react", ["tanstack-form"]);
+    const zod = await project("react", ["tanstack-form", "zod"]);
+    expect(zod.get("src/components/SignupForm.tsx")).toBe(
+      plain.get("src/components/SignupForm.tsx"),
+    );
+  });
+
+  it("validation needs a form library", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "vue",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["yup"],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors.map((e) => e.code)).toContain("missing-one-of");
+  });
+
   it("adds plain CSS for the form only without Tailwind", async () => {
     const plain = await project("react", ["react-hook-form"]);
     expect(plain.get("src/index.css")).toContain(".input {");

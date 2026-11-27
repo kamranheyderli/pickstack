@@ -20,6 +20,7 @@ export type Category =
   | "routing"
   | "data"
   | "forms"
+  | "validation"
   | "i18n"
   | "backend"
   | "database"

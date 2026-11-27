@@ -58,6 +58,8 @@ const shared: VersionSet = {
   turbo: "^2.11.13",
   wrangler: "^4.168.0",
   zod: "^4.6.7",
+  // 1.7 added Standard Schema, which TanStack Form validates with directly.
+  yup: "^1.7.1",
   express: "^5.3.0",
   "@types/express": "^5.0.6",
   mongoose: "^9.13.1",

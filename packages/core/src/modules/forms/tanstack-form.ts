@@ -4,8 +4,9 @@ import {
   FORM_WIDGET,
   copy,
   formClasses,
-  schemaLines,
   type FormClasses,
+  type Validator,
+  validator,
 } from "./shared";
 
 const packages: Partial<Record<FrameworkId, string>> = {
@@ -16,29 +17,34 @@ const packages: Partial<Record<FrameworkId, string>> = {
   angular: "@tanstack/angular-form",
 };
 
-/** Form options shared by every adapter: Zod validates on submit, then the field on change. */
-const formOptions = (onSubmit: string) => [
+/** Form options shared by every adapter: the schema validates on submit, then the field on change. */
+const formOptions = (onSubmit: string, v: Validator) => [
   'defaultValues: { email: "" },',
-  "validators: { onSubmit: schema },",
+  `validators: { ${v.async ? "onSubmitAsync" : "onSubmit"}: schema },`,
   `onSubmit: ({ value }) => ${onSubmit},`,
 ];
 
 const thanksJsx = (email: string) => copy.thanks(`{${email}}`);
 
-function reactFile(ctx: Ctx, pkg: string, c: FormClasses): string {
+function reactFile(
+  ctx: Ctx,
+  pkg: string,
+  c: FormClasses,
+  v: Validator,
+): string {
   return file([
     ...renderImports([
       { from: pkg, named: ["useForm"] },
       { from: "react", named: ["useState"] },
-      { from: "zod", named: ["z"] },
+      v.imports,
     ]),
     "",
-    ...schemaLines,
+    ...v.schema,
     "",
     `export default function ${FORM_WIDGET}() {`,
     '  const [joined, setJoined] = useState("");',
     "  const form = useForm({",
-    ...formOptions("setJoined(value.email)").map((l) => `    ${l}`),
+    ...formOptions("setJoined(value.email)", v).map((l) => `    ${l}`),
     "  });",
     "",
     `  if (joined) return <p className="${c.text}">${thanksJsx("joined")}</p>;`,
@@ -81,20 +87,25 @@ function reactFile(ctx: Ctx, pkg: string, c: FormClasses): string {
   ]);
 }
 
-function solidFile(ctx: Ctx, pkg: string, c: FormClasses): string {
+function solidFile(
+  ctx: Ctx,
+  pkg: string,
+  c: FormClasses,
+  v: Validator,
+): string {
   return file([
     ...renderImports([
       { from: pkg, named: ["createForm"] },
       { from: "solid-js", named: ["Show", "createSignal"] },
-      { from: "zod", named: ["z"] },
+      v.imports,
     ]),
     "",
-    ...schemaLines,
+    ...v.schema,
     "",
     `export default function ${FORM_WIDGET}() {`,
     '  const [joined, setJoined] = createSignal("");',
     "  const form = createForm(() => ({",
-    ...formOptions("setJoined(value.email)").map((l) => `    ${l}`),
+    ...formOptions("setJoined(value.email)", v).map((l) => `    ${l}`),
     "  }));",
     "",
     "  return (",
@@ -142,7 +153,7 @@ function solidFile(ctx: Ctx, pkg: string, c: FormClasses): string {
   ]);
 }
 
-function vueFile(ctx: Ctx, pkg: string, c: FormClasses): string {
+function vueFile(ctx: Ctx, pkg: string, c: FormClasses, v: Validator): string {
   const target = ctx.isTs
     ? "(event.target as HTMLInputElement).value"
     : "event.target.value";
@@ -151,14 +162,14 @@ function vueFile(ctx: Ctx, pkg: string, c: FormClasses): string {
     ...renderImports([
       { from: pkg, named: ["useForm"] },
       { from: "vue", named: ["ref"] },
-      { from: "zod", named: ["z"] },
+      v.imports,
     ]),
     "",
-    ...schemaLines,
+    ...v.schema,
     "",
     'const joined = ref("");',
     "const form = useForm({",
-    ...formOptions("(joined.value = value.email)").map((l) => `  ${l}`),
+    ...formOptions("(joined.value = value.email)", v).map((l) => `  ${l}`),
     "});",
     "</script>",
     "",
@@ -193,19 +204,23 @@ function vueFile(ctx: Ctx, pkg: string, c: FormClasses): string {
   ]);
 }
 
-function svelteFile(ctx: Ctx, pkg: string, c: FormClasses): string {
+function svelteFile(
+  ctx: Ctx,
+  pkg: string,
+  c: FormClasses,
+  v: Validator,
+): string {
   return file([
     `<script${ctx.isTs ? ' lang="ts"' : ""}>`,
-    ...renderImports([
-      { from: pkg, named: ["createForm"] },
-      { from: "zod", named: ["z"] },
-    ]).map((l) => `  ${l}`),
+    ...renderImports([{ from: pkg, named: ["createForm"] }, v.imports]).map(
+      (l) => `  ${l}`,
+    ),
     "",
-    ...schemaLines.map((l) => `  ${l}`),
+    ...v.schema.map((l) => `  ${l}`),
     "",
     '  let joined = $state("");',
     "  const form = createForm(() => ({",
-    ...formOptions("(joined = value.email)").map((l) => `    ${l}`),
+    ...formOptions("(joined = value.email)", v).map((l) => `    ${l}`),
     "  }));",
     "</script>",
     "",
@@ -246,7 +261,11 @@ function svelteFile(ctx: Ctx, pkg: string, c: FormClasses): string {
   ]);
 }
 
-function angularFiles(pkg: string, c: FormClasses): [string, string][] {
+function angularFiles(
+  pkg: string,
+  c: FormClasses,
+  v: Validator,
+): [string, string][] {
   const name = kebab(FORM_WIDGET);
   const dir = `src/app/components/${name}`;
   return [
@@ -256,10 +275,10 @@ function angularFiles(pkg: string, c: FormClasses): [string, string][] {
         ...renderImports([
           { from: "@angular/core", named: ["Component", "signal"] },
           { from: pkg, named: ["TanStackField", "injectForm", "injectStore"] },
-          { from: "zod", named: ["z"] },
+          v.imports,
         ]),
         "",
-        ...schemaLines,
+        ...v.schema,
         "",
         "@Component({",
         `  selector: "app-${name}",`,
@@ -269,7 +288,9 @@ function angularFiles(pkg: string, c: FormClasses): [string, string][] {
         `export class ${FORM_WIDGET} {`,
         '  protected readonly joined = signal("");',
         "  protected readonly form = injectForm({",
-        ...formOptions("this.joined.set(value.email)").map((l) => `    ${l}`),
+        ...formOptions("this.joined.set(value.email)", v).map(
+          (l) => `    ${l}`,
+        ),
         "  });",
         "  // The template reads errors through a signal, so it updates without zone.js.",
         "  protected readonly errors = injectStore(",
@@ -316,7 +337,7 @@ function angularFiles(pkg: string, c: FormClasses): [string, string][] {
 }
 
 /**
- * TanStack Form with a Zod schema (Zod 4 implements Standard Schema, so no adapter): a
+ * TanStack Form with a Zod or Yup schema (both implement Standard Schema, so no adapter): a
  * `SignupForm` under the counter with one validated email field and a success state.
  */
 export const tanstackForm: Module = {
@@ -324,8 +345,8 @@ export const tanstackForm: Module = {
   name: "TanStack Form",
   category: "forms",
   description: {
-    az: "Tip-təhlükəsiz formlar, Zod validasiyası ilə.",
-    en: "Type-safe forms with Zod validation.",
+    az: "Tip-təhlükəsiz formlar, Zod və ya Yup validasiyası ilə.",
+    en: "Type-safe forms with Zod or Yup validation.",
   },
   frameworks: ["react", "solid", "vue", "svelte", "angular"],
   conflicts: ["react-hook-form"],
@@ -333,21 +354,22 @@ export const tanstackForm: Module = {
     const framework = ctx.selection.framework;
     const pkg = packages[framework];
     if (!pkg) throw new Error(`no TanStack Form package for ${framework}`);
-    model.pkg.dependencies.add(pkg).add("zod");
+    const v = validator(ctx);
+    model.pkg.dependencies.add(pkg).add(v.pkg);
     const c = formClasses(model);
     const x = ctx.ext.component;
     const files: [string, string][] =
       framework === "react"
-        ? [[`src/components/${FORM_WIDGET}.${x}`, reactFile(ctx, pkg, c)]]
+        ? [[`src/components/${FORM_WIDGET}.${x}`, reactFile(ctx, pkg, c, v)]]
         : framework === "solid"
-          ? [[`src/components/${FORM_WIDGET}.${x}`, solidFile(ctx, pkg, c)]]
+          ? [[`src/components/${FORM_WIDGET}.${x}`, solidFile(ctx, pkg, c, v)]]
           : framework === "vue"
-            ? [[`src/components/${FORM_WIDGET}.vue`, vueFile(ctx, pkg, c)]]
+            ? [[`src/components/${FORM_WIDGET}.vue`, vueFile(ctx, pkg, c, v)]]
             : framework === "svelte"
-              ? [[`src/lib/${FORM_WIDGET}.svelte`, svelteFile(ctx, pkg, c)]]
-              : angularFiles(pkg, c);
+              ? [[`src/lib/${FORM_WIDGET}.svelte`, svelteFile(ctx, pkg, c, v)]]
+              : angularFiles(pkg, c, v);
     for (const [path, content] of files) model.files.set(path, content);
     model.demo.widgets.push(FORM_WIDGET);
-    model.readme.stack.push("TanStack Form", "Zod");
+    model.readme.stack.push("TanStack Form", v.name);
   },
 };
