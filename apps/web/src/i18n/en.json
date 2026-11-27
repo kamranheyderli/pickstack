@@ -143,5 +143,17 @@
   "changes.none": "no files changed",
   "changes.open": "Show what changed",
   "changes.newFile": "new file",
-  "changes.changedFile": "changed file"
+  "changes.changedFile": "changed file",
+  "run.title": "How to run it",
+  "run.unzip": "Unzip the archive",
+  "run.clone": "Clone the repository",
+  "run.start": "Install the packages and start the dev server",
+  "run.database": "Start the database (needs Docker)",
+  "run.api": "Start the API",
+  "run.app": "In a new terminal, start the app (from the folder that holds the project)",
+  "run.project": "In a new terminal, start {folder}",
+  "run.secret": "For sign-in to work, set BETTER_AUTH_SECRET in server/.env, for example to the output of:",
+  "run.open": "Then open:",
+  "run.readme": "The project's README.md says all of this too.",
+  "run.done": "Got it"
 }

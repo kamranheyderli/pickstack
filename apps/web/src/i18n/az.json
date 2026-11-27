@@ -143,5 +143,17 @@
   "changes.none": "fayllar dəyişmədi",
   "changes.open": "Dəyişikliyi göstər",
   "changes.newFile": "yeni fayl",
-  "changes.changedFile": "dəyişən fayl"
+  "changes.changedFile": "dəyişən fayl",
+  "run.title": "Necə işə salım?",
+  "run.unzip": "Arxivi aç",
+  "run.clone": "Reponu klonla",
+  "run.start": "Paketləri quraşdır və dev serveri başlat",
+  "run.database": "Verilənlər bazasını başlat (Docker lazımdır)",
+  "run.api": "API-ni başlat",
+  "run.app": "Yeni terminalda app-i başlat (layihənin olduğu qovluqdan)",
+  "run.project": "Yeni terminalda {folder} layihəsini başlat",
+  "run.secret": "Girişin işləməsi üçün server/.env faylında BETTER_AUTH_SECRET-i doldur, məsələn bu əmrin nəticəsi ilə:",
+  "run.open": "Sonra brauzerdə aç:",
+  "run.readme": "Hər şey layihədəki README.md faylında da yazılıb.",
+  "run.done": "Aydındır"
 }

@@ -18,6 +18,7 @@ import { FileTree } from "./components/FileTree";
 import { FrameworkPicker } from "./components/FrameworkPicker";
 import { GitHubDialog, type GitHubStep } from "./components/GitHubDialog";
 import { HowItWorks } from "./components/HowItWorks";
+import { RunGuideDialog } from "./components/RunGuideDialog";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { PresetPicker } from "./components/PresetPicker";
 import { QuickStart } from "./components/QuickStart";
@@ -31,6 +32,7 @@ import {
   type MessageKey,
 } from "./i18n";
 import { trackAction } from "./lib/analytics";
+import { runGuide, type RunGuide } from "./lib/runSteps";
 import { downloadZip } from "./lib/download";
 import { openInStackBlitz, runnableProject } from "./lib/stackblitz";
 import {
@@ -79,6 +81,8 @@ export default function App() {
     removed: string[];
   } | null>(null);
   const [diffSignal, setDiffSignal] = useState(0);
+  // "How to run it", after a download or a new GitHub repository.
+  const [guide, setGuide] = useState<RunGuide | null>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   // The whole "Create on GitHub" flow runs in its dialog, which reopens after GitHub's consent screen.
@@ -280,6 +284,7 @@ export default function App() {
     try {
       const file = await downloadZip(projectName, files);
       trackAction("download", selection);
+      setGuide(runGuide(files, selection, projectName, { kind: "zip" }));
       setCelebrations((n) => n + 1);
       setStatus(
         t("download.done", {
@@ -361,6 +366,17 @@ export default function App() {
           setGithubStep({ step: "form" });
           setGithubDraft({ name: null, private: false });
         }}
+        onShowRun={(repo) => {
+          if (!files) return;
+          setGithubOpen(false);
+          setGithubStep({ step: "form" });
+          setGuide(
+            runGuide(files, selection, repo.name, {
+              kind: "clone",
+              url: repo.url,
+            }),
+          );
+        }}
         onContinue={(repo) => {
           // Signed in already (back from GitHub): create it straight away.
           if (githubToken.current && files) {
@@ -376,6 +392,7 @@ export default function App() {
           startGitHubCreate({ ...repo, edits: [...edits] });
         }}
       />
+      <RunGuideDialog guide={guide} onClose={() => setGuide(null)} />
       <Sky />
       <CommandPalette
         open={paletteOpen}

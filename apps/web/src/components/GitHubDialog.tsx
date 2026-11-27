@@ -15,6 +15,8 @@ interface GitHubDialogProps {
   defaultPrivate: boolean;
   onClose: () => void;
   onContinue: (repo: { name: string; private: boolean }) => void;
+  /** Shows how to clone and run the repository just created. */
+  onShowRun: (repo: { name: string; url: string }) => void;
 }
 
 /** GitHub's rule for repository names: letters, digits, `.`, `-` and `_`. */
@@ -36,6 +38,7 @@ export function GitHubDialog({
   defaultPrivate,
   onClose,
   onContinue,
+  onShowRun,
 }: GitHubDialogProps) {
   const t = useT();
   const ref = useRef<HTMLDialogElement>(null);
@@ -103,13 +106,20 @@ export function GitHubDialog({
                 {t("github.done", { name: state.name })}
               </p>
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-wrap justify-end gap-2">
               <button
                 type="button"
                 onClick={onClose}
                 className={secondaryButton}
               >
                 {t("github.close")}
+              </button>
+              <button
+                type="button"
+                onClick={() => onShowRun({ name: state.name, url: state.url })}
+                className={secondaryButton}
+              >
+                {t("run.title")}
               </button>
               <a
                 href={state.url}
