@@ -99,11 +99,13 @@ export type UiIconName =
   | "lock"
   | "search"
   | "close"
-  | "play";
+  | "play"
+  | "info";
 
 const uiPaths: Record<UiIconName, string[]> = {
   close: ["M18 6 6 18", "m6 6 12 12"],
   play: ["M7 4.5v15l12.5-7.5z"],
+  info: ["M12 16v-4", "M12 8h.01", "M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"],
   sun: [
     "M12 4V2",
     "M12 22v-2",

@@ -155,5 +155,11 @@
   "run.secret": "Girişin işləməsi üçün server/.env faylında BETTER_AUTH_SECRET-i doldur, məsələn bu əmrin nəticəsi ilə:",
   "run.open": "Sonra brauzerdə aç:",
   "run.readme": "Hər şey layihədəki README.md faylında da yazılıb.",
-  "run.done": "Aydındır"
+  "run.done": "Aydındır",
+  "info.label": "{name} haqqında",
+  "info.working": "Layihəyə təsiri hesablanır…",
+  "info.alsoAdds": "Bununla birlikdə əlavə olunur: {modules}",
+  "info.files": "Fayllar: {added} yeni, {changed} dəyişir",
+  "info.more": "və daha {count} fayl",
+  "info.packages": "Gətirdiyi paketlər"
 }

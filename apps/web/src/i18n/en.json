@@ -155,5 +155,11 @@
   "run.secret": "For sign-in to work, set BETTER_AUTH_SECRET in server/.env, for example to the output of:",
   "run.open": "Then open:",
   "run.readme": "The project's README.md says all of this too.",
-  "run.done": "Got it"
+  "run.done": "Got it",
+  "info.label": "About {name}",
+  "info.working": "Working out what it does to your project…",
+  "info.alsoAdds": "Also adds: {modules}",
+  "info.files": "Files: {added} new, {changed} changed",
+  "info.more": "and {count} more files",
+  "info.packages": "Packages it brings"
 }

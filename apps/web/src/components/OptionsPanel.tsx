@@ -22,6 +22,7 @@ import {
 } from "../lib/icons";
 import { chooseSingle, groupOptions, toggleModule } from "../state/selection";
 import { Chips } from "./Chips";
+import { ModuleInfoDialog } from "./ModuleInfoDialog";
 import { Segmented } from "./Segmented";
 
 const packageManagers: PackageManager[] = ["npm", "pnpm", "yarn", "bun"];
@@ -48,6 +49,8 @@ export function OptionsPanel({
   const locale = useLocale();
   // Categories the user opened or closed; the rest follow `defaultOpen`.
   const [open, setOpen] = useState<Partial<Record<Category, boolean>>>({});
+  // The module whose details are open (the ⓘ next to each chip).
+  const [infoId, setInfoId] = useState<string | null>(null);
   const isOpen = (category: Category, hasPick: boolean) =>
     open[category] ?? (hasPick || DEFAULT_OPEN.has(category));
 
@@ -160,6 +163,8 @@ export function OptionsPanel({
             items={items}
             collapse={collapse}
             locked={locked}
+            onInfo={setInfoId}
+            infoLabel={(name) => t("info.label", { name })}
             onChange={(id) =>
               onChange(
                 chooseSingle(
@@ -179,10 +184,18 @@ export function OptionsPanel({
             items={items}
             collapse={collapse}
             locked={locked}
+            onInfo={setInfoId}
+            infoLabel={(name) => t("info.label", { name })}
             onChange={(id) => onChange(toggleModule(selection, id))}
           />
         );
       })}
+
+      <ModuleInfoDialog
+        id={infoId}
+        selection={selection}
+        onClose={() => setInfoId(null)}
+      />
 
       {selection.modules.includes("express") && (
         <p className="m-0 rounded-xl border border-line bg-panel-2 px-3 py-2.5 text-sm text-muted">

@@ -23,6 +23,10 @@ interface ChipsProps {
   collapse?: { open: boolean; onToggle: () => void };
   /** Every option is blocked for the same reason (e.g. no form library yet): shown when closed. */
   locked?: string;
+  /** Opens details for an option; adds a small info button after each chip. */
+  onInfo?: (value: string) => void;
+  /** Accessible label of the info button, with the option's name. */
+  infoLabel?: (label: string) => string;
 }
 
 /** Icons shown on a closed group with nothing picked, as a hint of what's inside. */
@@ -36,6 +40,8 @@ export function Chips({
   onChange,
   collapse,
   locked,
+  onInfo,
+  infoLabel,
 }: ChipsProps) {
   const id = useId();
   const open = collapse?.open ?? true;
@@ -104,46 +110,57 @@ export function Chips({
         {items.map((item) => {
           const reasonId = `${id}-${item.value}-reason`;
           return (
-            <label
-              key={item.value}
-              className="relative"
-              title={item.disabled ? item.reason : item.description}
-            >
-              <input
-                type={type}
-                name={name}
-                value={item.value}
-                checked={item.checked}
-                disabled={item.disabled}
-                aria-describedby={
-                  item.disabled && item.reason ? reasonId : undefined
-                }
-                onChange={() => onChange(item.value)}
-                className="peer absolute opacity-0"
-              />
-              <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-line bg-panel px-2.5 py-1 text-[0.8rem] font-medium shadow-xs transition select-none hover:border-ink/25 peer-checked:border-accent peer-checked:bg-accent-soft peer-checked:text-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent peer-disabled:cursor-not-allowed peer-disabled:opacity-40 motion-reduce:transition-none [&_.chip-check]:hidden peer-checked:[&_.chip-check]:inline-flex">
-                {item.icon}
-                {item.label}
-                {item.badge && (
-                  <span className="rounded-md bg-accent px-1.5 py-px text-[0.65rem] font-semibold tracking-wide text-accent-ink uppercase">
-                    {item.badge}
+            <span key={item.value} className="group inline-flex items-center">
+              <label
+                className="relative"
+                title={item.disabled ? item.reason : item.description}
+              >
+                <input
+                  type={type}
+                  name={name}
+                  value={item.value}
+                  checked={item.checked}
+                  disabled={item.disabled}
+                  aria-describedby={
+                    item.disabled && item.reason ? reasonId : undefined
+                  }
+                  onChange={() => onChange(item.value)}
+                  className="peer absolute opacity-0"
+                />
+                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-line bg-panel px-2.5 py-1 text-[0.8rem] font-medium shadow-xs transition select-none hover:border-ink/25 peer-checked:border-accent peer-checked:bg-accent-soft peer-checked:text-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent peer-disabled:cursor-not-allowed peer-disabled:opacity-40 motion-reduce:transition-none [&_.chip-check]:hidden peer-checked:[&_.chip-check]:inline-flex">
+                  {item.icon}
+                  {item.label}
+                  {item.badge && (
+                    <span className="rounded-md bg-accent px-1.5 py-px text-[0.65rem] font-semibold tracking-wide text-accent-ink uppercase">
+                      {item.badge}
+                    </span>
+                  )}
+                  <span className="chip-check text-accent">
+                    <UiIcon name="check" size={12} />
+                  </span>
+                  {item.disabled && (
+                    <span aria-hidden="true" className="text-muted">
+                      <UiIcon name="lock" size={11} />
+                    </span>
+                  )}
+                </span>
+                {item.disabled && item.reason && (
+                  <span id={reasonId} className="sr-only">
+                    {item.reason}
                   </span>
                 )}
-                <span className="chip-check text-accent">
-                  <UiIcon name="check" size={12} />
-                </span>
-                {item.disabled && (
-                  <span aria-hidden="true" className="text-muted">
-                    <UiIcon name="lock" size={11} />
-                  </span>
-                )}
-              </span>
-              {item.disabled && item.reason && (
-                <span id={reasonId} className="sr-only">
-                  {item.reason}
-                </span>
+              </label>
+              {onInfo && (
+                <button
+                  type="button"
+                  onClick={() => onInfo(item.value)}
+                  aria-label={infoLabel ? infoLabel(item.label) : item.label}
+                  className="-ml-0.5 cursor-pointer rounded-md p-1 text-muted opacity-40 transition-opacity group-hover:opacity-100 hover:text-ink focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none"
+                >
+                  <UiIcon name="info" size={12} />
+                </button>
               )}
-            </label>
+            </span>
           );
         })}
       </div>
