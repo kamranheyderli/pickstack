@@ -69,6 +69,19 @@ const githubPending =
 // WebContainers need cross-origin isolation, which Safari and Firefox don't fully support yet;
 // there "Run in browser" opens StackBlitz in a tab instead.
 const canRunLive = typeof window !== "undefined" && window.crossOriginIsolated;
+/**
+ * Whether to start the live preview before it's asked for: only on desktop, where it can run
+ * and the install it starts (tens of MB) costs little, and not with Data Saver on.
+ */
+function canWarmUp(): boolean {
+  const connection = (navigator as { connection?: { saveData?: boolean } })
+    .connection;
+  return (
+    canRunLive &&
+    matchMedia("(min-width: 1024px) and (pointer: fine)").matches &&
+    !connection?.saveData
+  );
+}
 const themeIcon = { system: "monitor", light: "sun", dark: "moon" } as const;
 
 export default function App() {
@@ -285,6 +298,10 @@ export default function App() {
   const past = useRef<Selection[]>([]);
   const future = useRef<Selection[]>([]);
   const [historySize, setHistorySize] = useState(0);
+  // Warm the preview up behind the code once someone starts picking, so Live opens ready.
+  useEffect(() => {
+    if (historySize > 0 && canWarmUp()) setLiveStarted(true);
+  }, [historySize]);
   const remember = (next: Selection) => {
     const same =
       next.framework === selection.framework &&
@@ -871,62 +888,75 @@ export default function App() {
             )}
             {/* Once started, the preview stays mounted (hidden behind the code) and keeps up
                 with the picks, so showing it again is instant. */}
-            {files && liveStarted && (
-              <div hidden={!live}>
-                <LivePreview
-                  name={projectName}
-                  project={forLivePreview(runnableProject(files, activePath))}
-                  theme={resolvedTheme}
-                  title={t("live.frame", { name: projectName })}
-                />
-              </div>
-            )}
-            {files && live ? null : files ? (
-              <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
-                <FileTree
-                  paths={[...files.keys()]}
-                  current={activePath}
-                  changed={generated.changed}
-                  edited={edited}
-                  generation={generation}
-                  label={t("preview.tree")}
-                  editedLabel={t("preview.edited")}
-                  onSelect={setCurrent}
-                />
-                <CodeView
-                  path={activePath}
-                  code={files.get(activePath) ?? ""}
-                  edited={edited.has(activePath)}
-                  diffSignal={diffSignal}
-                  before={
-                    generated.before && generated.changed.has(activePath)
-                      ? (generated.before.get(activePath) ?? null)
-                      : undefined
+            <div className="relative">
+              {files && liveStarted && (
+                // Warming up it sits transparent over the code instead of display:none, which
+                // Chrome throttles in cross-origin frames (the install crawled while hidden).
+                <div
+                  aria-hidden={!live}
+                  inert={!live}
+                  className={
+                    live
+                      ? undefined
+                      : "pointer-events-none absolute inset-0 opacity-0"
                   }
-                  onEdit={(code) =>
-                    setEdits((prev) => {
-                      const next = new Map(prev);
-                      // Editing back to the generated text is no edit at all.
-                      if (code === generatedFiles?.get(activePath))
+                >
+                  <LivePreview
+                    visible={live}
+                    name={projectName}
+                    project={forLivePreview(runnableProject(files, activePath))}
+                    theme={resolvedTheme}
+                    title={t("live.frame", { name: projectName })}
+                  />
+                </div>
+              )}
+              {files && live ? null : files ? (
+                <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
+                  <FileTree
+                    paths={[...files.keys()]}
+                    current={activePath}
+                    changed={generated.changed}
+                    edited={edited}
+                    generation={generation}
+                    label={t("preview.tree")}
+                    editedLabel={t("preview.edited")}
+                    onSelect={setCurrent}
+                  />
+                  <CodeView
+                    path={activePath}
+                    code={files.get(activePath) ?? ""}
+                    edited={edited.has(activePath)}
+                    diffSignal={diffSignal}
+                    before={
+                      generated.before && generated.changed.has(activePath)
+                        ? (generated.before.get(activePath) ?? null)
+                        : undefined
+                    }
+                    onEdit={(code) =>
+                      setEdits((prev) => {
+                        const next = new Map(prev);
+                        // Editing back to the generated text is no edit at all.
+                        if (code === generatedFiles?.get(activePath))
+                          next.delete(activePath);
+                        else next.set(activePath, code);
+                        return next;
+                      })
+                    }
+                    onReset={() =>
+                      setEdits((prev) => {
+                        const next = new Map(prev);
                         next.delete(activePath);
-                      else next.set(activePath, code);
-                      return next;
-                    })
-                  }
-                  onReset={() =>
-                    setEdits((prev) => {
-                      const next = new Map(prev);
-                      next.delete(activePath);
-                      return next;
-                    })
-                  }
-                />
-              </div>
-            ) : (
-              <p className="m-0 h-[min(68vh,640px)] p-6 text-muted lg:h-[calc(100dvh-16.25rem)]">
-                {t("preview.generating")}
-              </p>
-            )}
+                        return next;
+                      })
+                    }
+                  />
+                </div>
+              ) : (
+                <p className="m-0 h-[min(68vh,640px)] p-6 text-muted lg:h-[calc(100dvh-16.25rem)]">
+                  {t("preview.generating")}
+                </p>
+              )}
+            </div>
 
             {result?.ok && (
               <CommandBar
