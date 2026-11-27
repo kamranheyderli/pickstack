@@ -189,5 +189,8 @@
   "wizard.why.fullstack": "Приложение на {framework}, рядом API на Express или NestJS в server/, PostgreSQL и вход по email.",
   "wizard.unavailable": "Для {framework} пока нет модуля: {extras}.",
   "wizard.apply": "Взять этот стек",
-  "wizard.cancel": "Отмена"
+  "wizard.cancel": "Отмена",
+  "live.button": "Вживую",
+  "live.hint": "Запустите проект прямо здесь, в WebContainer от StackBlitz. Первый запуск устанавливает пакеты (около полуминуты); дальше ваш выбор сразу обновляет его.",
+  "live.frame": "{name}, запущен вживую"
 }

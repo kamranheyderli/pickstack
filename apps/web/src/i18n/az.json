@@ -189,5 +189,8 @@
   "wizard.why.fullstack": "{framework} tətbiqi, yanında server/-də Express və ya NestJS API, PostgreSQL və email ilə giriş.",
   "wizard.unavailable": "{framework} üçün hələ modul yoxdur: {extras}.",
   "wizard.apply": "Bu stack-i götür",
-  "wizard.cancel": "Ləğv et"
+  "wizard.cancel": "Ləğv et",
+  "live.button": "Canlı",
+  "live.hint": "Layihəni elə burada, StackBlitz WebContainer-də işə sal. İlk açılışda paketlər qurulur (təxminən yarım dəqiqə); sonra seçimlərin onu dərhal yeniləyir.",
+  "live.frame": "{name} canlı işləyir"
 }

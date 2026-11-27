@@ -11,7 +11,8 @@ export type Action =
   | "run-in-browser"
   | "create-on-github"
   | "copy-link"
-  | "copy-command";
+  | "copy-command"
+  | "live-preview";
 
 /**
  * Records what someone did with a stack, to see which stacks people take. Only the framework,

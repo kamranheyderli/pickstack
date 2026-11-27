@@ -189,5 +189,8 @@
   "wizard.why.fullstack": "A {framework} app with an Express or NestJS API next to it in server/, PostgreSQL and email sign-in.",
   "wizard.unavailable": "No module for {framework} yet: {extras}.",
   "wizard.apply": "Use this stack",
-  "wizard.cancel": "Cancel"
+  "wizard.cancel": "Cancel",
+  "live.button": "Live",
+  "live.hint": "Run the project right here, in a StackBlitz WebContainer. The first start installs the packages (about half a minute); after that your picks update it as you go.",
+  "live.frame": "{name}, running live"
 }

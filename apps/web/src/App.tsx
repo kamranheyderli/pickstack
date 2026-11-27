@@ -21,6 +21,7 @@ import { HowItWorks } from "./components/HowItWorks";
 import { RecentStacks } from "./components/RecentStacks";
 import { RunGuideDialog } from "./components/RunGuideDialog";
 import { OptionsPanel } from "./components/OptionsPanel";
+import { LivePreview } from "./components/LivePreview";
 import { PresetPicker } from "./components/PresetPicker";
 import { WizardDialog } from "./components/WizardDialog";
 import { QuickStart } from "./components/QuickStart";
@@ -60,6 +61,9 @@ const locales = ["az", "en", "ru"] as const;
 const githubReturn = takeGitHubReturn();
 const githubPending =
   githubReturn && "token" in githubReturn ? githubReturn.pending : null;
+// WebContainers need cross-origin isolation, which Safari and Firefox don't fully support yet;
+// there "Run in browser" opens StackBlitz in a tab instead.
+const canRunLive = typeof window !== "undefined" && window.crossOriginIsolated;
 const themeIcon = { system: "monitor", light: "sun", dark: "moon" } as const;
 
 export default function App() {
@@ -67,6 +71,12 @@ export default function App() {
     readPref("locale", locales, browserLocale()),
   );
   const [theme, cycleTheme] = useTheme();
+  const resolvedTheme =
+    theme === "system"
+      ? matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : theme;
   // A shared link (?f=vue&m=pinia or ?p=<preset>) opens with that selection.
   const [selection, setSelection] = useState<Selection>(
     () =>
@@ -76,6 +86,8 @@ export default function App() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  // The project running in the page instead of the code view.
+  const [live, setLive] = useState(false);
   // Bumped after each download; a new key replays the confetti.
   const [celebrations, setCelebrations] = useState(0);
   const [notice, setNotice] = useState("");
@@ -743,6 +755,29 @@ export default function App() {
                 )}
               </div>
               <span className="flex items-center gap-2">
+                {canRunLive && (
+                  <button
+                    type="button"
+                    aria-pressed={live}
+                    disabled={!files}
+                    title={
+                      files && !files.has("package.json")
+                        ? `${t("live.hint")} ${t("stackblitz.webOnly")}`
+                        : t("live.hint")
+                    }
+                    onClick={() => {
+                      if (!live) tookStack("live-preview");
+                      setLive(!live);
+                    }}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-ink"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`size-2 rounded-full ${live ? "animate-pulse bg-emerald-500" : "bg-muted/60"}`}
+                    />
+                    {t("live.button")}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={copyLink}
@@ -809,7 +844,14 @@ export default function App() {
                 onClose={() => setLastPick(null)}
               />
             )}
-            {files ? (
+            {files && live ? (
+              <LivePreview
+                name={projectName}
+                project={runnableProject(files, activePath)}
+                theme={resolvedTheme}
+                title={t("live.frame", { name: projectName })}
+              />
+            ) : files ? (
               <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
                 <FileTree
                   paths={[...files.keys()]}
