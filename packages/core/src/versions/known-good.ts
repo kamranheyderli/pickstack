@@ -71,6 +71,7 @@ const shared: VersionSet = {
   "@sentry/vue": "^11.19.0",
   "@sentry/solid": "^11.19.0",
   "@sentry/browser": "^11.19.0",
+  "@plausible-analytics/tracker": "^0.4.7",
   // Community NestJS integration Better Auth's docs link to; ESM only, Nest 11.1.6+ or 12.
   "@thallesp/nestjs-better-auth": "^2.8.0",
   tsx: "^4.23.15",

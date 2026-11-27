@@ -69,7 +69,8 @@ export function renderImports(specs: ImportSpec[]): string[] {
 
 /**
  * Compares module paths as Biome does: segment by segment (`@mui/material/styles` sorts before
- * `@mui/material-nextjs` because `material` is a prefix), and `../` paths before `./` ones.
+ * `@mui/material-nextjs` because `material` is a prefix), `../` paths before `./` ones, and
+ * letters as in `byName` (checked against Biome 2.6: `./App.vue`, `./analytics`, `./Banana`).
  */
 function compareSources(a: string, b: string): number {
   // Relative paths: the farther a path climbs (`../`), the earlier it sorts.
@@ -79,7 +80,8 @@ function compareSources(a: string, b: string): number {
   const left = a.split("/");
   const right = b.split("/");
   for (let i = 0; i < Math.min(left.length, right.length); i++) {
-    const order = (left[i] as string).localeCompare(right[i] as string);
+    // Same rule as names: `./App.vue` sorts before `./analytics`, as Biome writes it.
+    const order = byName(left[i] as string, right[i] as string);
     if (order !== 0) return order;
   }
   return left.length - right.length;

@@ -263,6 +263,22 @@ Qeydlər (2026-11, yoxlanılıb):
 - Yan təsirli `import "./instrument"` bələdçidəki kimi birinci ola bilmir (`renderImports` onları sona qoyur), ona görə init funksiya ilə render-dən əvvəl çağırılır.
 - Brauzerdə yoxlanılıb (sorğular ələ keçirilib): DSN olmadan heç nə göndərilmir, DSN ilə xəta göndərilir (React, Vue).
 
+### 5.6.5 Analitika (tək seçim)
+
+| Modul | Uyğun |
+|---|---|
+| `matomo` | R, V, So, P |
+| `plausible` | R, V, So, P |
+| `umami` | R, V, So, P |
+
+- Hər biri `src/analytics`-də `initAnalytics()` yazır, entry onu render-dən əvvəl çağırır; ayarlar `.env`-də olmayana qədər heç nə yüklənmir və göndərilmir.
+- **Matomo** ([izləmə kodu](https://developer.matomo.org/guides/tracking-javascript-guide)): `_paq` ilə `trackPageView`, `enableLinkTracking`, `setTrackerUrl`, `setSiteId`, `matomo.js` skripti. [SPA bələdçisi](https://developer.matomo.org/guides/spa-tracking) Matomo-nun client-side keçidləri görmədiyini deyir, ona görə `history.pushState` və `popstate` hər yeni URL üçün `setReferrerUrl`, `setCustomUrl`, `setDocumentTitle`, `trackPageView` göndərir. `VITE_MATOMO_URL`, `VITE_MATOMO_SITE_ID`.
+- **Plausible**: rəsmi `@plausible-analytics/tracker` (`init({ domain })`); sənədə görə `pushState` keçidlərini özü sayır, `localhost`-u saymır. `VITE_PLAUSIBLE_DOMAIN`.
+- **Umami**: `script.js` teqi (`defer`, `data-website-id`); sənədə görə SPA keçidlərini özü izləyir. `VITE_UMAMI_WEBSITE_ID`, `VITE_UMAMI_SCRIPT_URL` (default Umami Cloud).
+- **GA4 hələ yoxdur:** Google-un quraşdırma sənədi indi `gtm.js?id=TAG_ID` göstərir və `gtag('config')`-u köhnəlmiş sayır; GA4 ID-si ilə necə işlədiyi təsdiqlənəndən sonra əlavə olunacaq. PostHog və Vercel Analytics də növbəti addımdır.
+- Brauzerdə yoxlanılıb (sorğular ələ keçirilib): ayarlarsız heç nə; Matomo-da ilk baxış və React Router ilə `/about`-a keçid ayrıca `trackPageView` göndərir; Umami-də skript düzgün atributlarla qoşulur.
+- **İmport sırası:** `renderImports` yol seqmentlərini indi adlar kimi müqayisə edir (ilk fərqli hərf yalnız böyük-kiçiklikdə fərqlənirsə böyük əvvəl), Biome 2.6 kimi: `./App.vue`, `./analytics`, `./Banana`. Əvvəl `./analytics` `./App.vue`-dan qabağa düşürdü və `biome check` səhv verirdi.
+
 ### 5.7 Test
 
 | Modul | Uyğun |

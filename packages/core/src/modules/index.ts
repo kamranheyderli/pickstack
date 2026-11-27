@@ -47,6 +47,7 @@ import { drizzle } from "./backend/drizzle";
 import { mongodb } from "./backend/mongodb";
 import { betterAuth } from "./auth/better-auth";
 import { sentry } from "./monitoring/sentry";
+import { matomo, plausible, umami } from "./analytics/analytics";
 import { editorconfig } from "./tooling/editorconfig";
 import { pwa } from "./tooling/pwa";
 import { storybook } from "./tooling/storybook";
@@ -108,6 +109,9 @@ export const modules: readonly Module[] = [
   drizzle,
   betterAuth,
   sentry,
+  matomo,
+  plausible,
+  umami,
   vercel,
   netlify,
   cloudflare,

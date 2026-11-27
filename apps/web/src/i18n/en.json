@@ -121,5 +121,6 @@
   "category.backend": "Backend",
   "category.database": "Database",
   "category.auth": "Authentication",
-  "category.monitoring": "Error monitoring"
+  "category.monitoring": "Error monitoring",
+  "category.analytics": "Analytics"
 }

@@ -48,6 +48,7 @@ const categoryLabels: Record<Category, string> = {
   database: "Database",
   auth: "Authentication",
   monitoring: "Error monitoring",
+  analytics: "Analytics",
   testing: "Testing",
   quality: "Code quality",
   seo: "SEO & AI visibility",

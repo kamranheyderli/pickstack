@@ -12011,6 +12011,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -12090,7 +12092,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -12174,7 +12176,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -12204,6 +12206,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -12541,6 +12547,41 @@ export default function App() {
   );
 }
 ",
+  "src/analytics.js": "/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
+}
+",
   "src/api/client.js": "import axios from "axios";
 
 export const api = axios.create({
@@ -12605,10 +12646,12 @@ describe("Counter", () => {
   "src/main.jsx": "import { render } from "preact";
 import { LocationProvider } from "preact-iso";
 import App from "./App";
+import { initAnalytics } from "./analytics";
 import { initSentry } from "./sentry";
 import "./index.css";
 
 initSentry();
+initAnalytics();
 
 render(
   <LocationProvider>
@@ -12623,7 +12666,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry,
-        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
         lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
@@ -12840,6 +12883,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -12921,7 +12966,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -13007,7 +13052,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -13038,6 +13083,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -13378,6 +13427,47 @@ export default function App() {
   );
 }
 ",
+  "src/analytics.ts": "declare global {
+  interface Window {
+    _paq?: unknown[][];
+  }
+}
+
+/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args: Parameters<History["pushState"]>) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
+}
+",
   "src/api/client.ts": "import axios from "axios";
 
 export const api = axios.create({
@@ -13446,10 +13536,12 @@ export default function Counter() {
   "src/main.tsx": "import { render } from "preact";
 import { LocationProvider } from "preact-iso";
 import App from "./App";
+import { initAnalytics } from "./analytics";
 import { initSentry } from "./sentry";
 import "./index.css";
 
 initSentry();
+initAnalytics();
 
 render(
   <LocationProvider>
@@ -13464,8 +13556,9 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso,
-        Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier,
-        Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+        Axios, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint,
+        Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub
+        Actions.
       </p>
     </section>
   );
@@ -14268,6 +14361,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -14366,7 +14461,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -14454,7 +14549,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -14488,6 +14583,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -14872,6 +14971,7 @@ Sitemap: https://example.com/sitemap.xml
   "Zod",
   "i18next",
   "Sentry",
+  "Matomo",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -14907,6 +15007,41 @@ export default function App() {
       </Routes>
     </main>
   );
+}
+",
+  "src/analytics.js": "/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
 }
 ",
   "src/api/client.js": "import axios from "axios";
@@ -15420,6 +15555,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import App from "./App";
+import { initAnalytics } from "./analytics";
 import { initSentry } from "./sentry";
 import { store } from "./store";
 import "./i18n";
@@ -15427,6 +15563,7 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 initSentry();
+initAnalytics();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15447,8 +15584,8 @@ createRoot(document.getElementById("root")).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
         React Router, Axios, TanStack Query, TanStack Form, Zod, i18next,
-        Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+        Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier,
+        Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -15711,6 +15848,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -15811,7 +15950,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -15901,7 +16040,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -15936,6 +16075,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -16314,6 +16457,7 @@ Sitemap: https://example.com/sitemap.xml
   "Zod",
   "i18next",
   "Sentry",
+  "Matomo",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -16349,6 +16493,47 @@ export default function App() {
       </Routes>
     </main>
   );
+}
+",
+  "src/analytics.ts": "declare global {
+  interface Window {
+    _paq?: unknown[][];
+  }
+}
+
+/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args: Parameters<History["pushState"]>) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
 }
 ",
   "src/api/client.ts": "import axios from "axios";
@@ -16875,6 +17060,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import App from "./App";
+import { initAnalytics } from "./analytics";
 import { initSentry } from "./sentry";
 import { store } from "./store";
 import "./i18n";
@@ -16882,6 +17068,7 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 initSentry();
+initAnalytics();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -16902,8 +17089,9 @@ createRoot(document.getElementById("root")!).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
         Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod,
-        i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier,
-        Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+        i18next, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint,
+        Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub
+        Actions.
       </p>
     </section>
   );
@@ -18295,6 +18483,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -18350,7 +18540,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -18433,7 +18623,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -18461,6 +18651,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -18777,6 +18971,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Form",
   "Zod",
   "Sentry",
+  "Matomo",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -18806,6 +19001,41 @@ export default function App(props) {
       {props.children}
     </main>
   );
+}
+",
+  "src/analytics.js": "/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
 }
 ",
   "src/api/client.js": "import axios from "axios";
@@ -18959,6 +19189,7 @@ import { Route, Router } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { render } from "solid-js/web";
 import App from "./App";
+import { initAnalytics } from "./analytics";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import { initSentry } from "./sentry";
@@ -18966,6 +19197,7 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 initSentry();
+initAnalytics();
 
 const root = document.getElementById("root");
 
@@ -18987,9 +19219,9 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright,
-        Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-        llms.txt, PWA, GitHub Actions.
+        Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Matomo,
+        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -19221,6 +19453,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -19277,7 +19511,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -19362,7 +19596,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -19391,6 +19625,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -19713,6 +19951,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Form",
   "Zod",
   "Sentry",
+  "Matomo",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -19743,6 +19982,47 @@ export default function App(props: RouteSectionProps) {
       {props.children}
     </main>
   );
+}
+",
+  "src/analytics.ts": "declare global {
+  interface Window {
+    _paq?: unknown[][];
+  }
+}
+
+/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args: Parameters<History["pushState"]>) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
 }
 ",
   "src/api/client.ts": "import axios from "axios";
@@ -19896,6 +20176,7 @@ import { Route, Router } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { render } from "solid-js/web";
 import App from "./App";
+import { initAnalytics } from "./analytics";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import { initSentry } from "./sentry";
@@ -19903,6 +20184,7 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 initSentry();
+initAnalytics();
 
 const root = document.getElementById("root");
 
@@ -19925,7 +20207,7 @@ render(
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
         store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry,
-        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
         lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
     </section>
@@ -28548,6 +28830,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -28634,7 +28918,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -28721,7 +29005,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -28755,6 +29039,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -29129,6 +29417,7 @@ Sitemap: https://example.com/sitemap.xml
   "Zod",
   "Vue I18n",
   "Sentry",
+  "Matomo",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -29162,6 +29451,41 @@ import { RouterLink, RouterView } from "vue-router";
     <RouterView />
   </main>
 </template>
+",
+  "src/analytics.js": "/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
+}
 ",
   "src/api/client.js": "import axios from "axios";
 
@@ -29733,10 +30057,13 @@ export default createI18n({
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
+import { initAnalytics } from "./analytics";
 import i18n from "./i18n";
 import router from "./router";
 import { sentry } from "./sentry";
 import "./assets/main.css";
+
+initAnalytics();
 
 const app = createApp(App);
 
@@ -29816,9 +30143,9 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
-      Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright,
-      Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
-      llms.txt, PWA, Storybook, GitHub Actions.
+      Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Matomo,
+      Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
+      SEO, llms.txt, PWA, Storybook, GitHub Actions.
     </p>
   </section>
 </template>
@@ -30035,6 +30362,8 @@ trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
 VITE_SENTRY_DSN=
+VITE_MATOMO_URL=
+VITE_MATOMO_SITE_ID=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -30123,7 +30452,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -30212,7 +30541,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -30247,6 +30576,10 @@ Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client fr
 ## Error monitoring
 
 Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
+
+## Analytics
+
+Matomo starts once \`VITE_MATOMO_URL\` and \`VITE_MATOMO_SITE_ID\` are set in \`.env\` (see \`.env.example\`): your Matomo address (e.g. \`https://analytics.example.com\`) and the site's ID from Matomo's admin. Without them nothing is sent.
 
 ## End-to-end tests
 
@@ -30623,6 +30956,7 @@ Sitemap: https://example.com/sitemap.xml
   "Zod",
   "Vue I18n",
   "Sentry",
+  "Matomo",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -30656,6 +30990,47 @@ import { RouterLink, RouterView } from "vue-router";
     <RouterView />
   </main>
 </template>
+",
+  "src/analytics.ts": "declare global {
+  interface Window {
+    _paq?: unknown[][];
+  }
+}
+
+/** Matomo's tracking code; off until the Matomo URL and site ID are set (see .env.example). */
+export function initAnalytics() {
+  const url = import.meta.env.VITE_MATOMO_URL;
+  const siteId = import.meta.env.VITE_MATOMO_SITE_ID;
+  if (!url || !siteId) return;
+  const base = url.endsWith("/") ? url : \`\${url}/\`;
+  const paq = window._paq ?? [];
+  window._paq = paq;
+  paq.push(["trackPageView"]);
+  paq.push(["enableLinkTracking"]);
+  paq.push(["setTrackerUrl", \`\${base}matomo.php\`]);
+  paq.push(["setSiteId", siteId]);
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = \`\${base}matomo.js\`;
+  document.head.append(script);
+
+  // Matomo can't see client-side navigations: report each URL the router moves to.
+  let previous = location.href;
+  const trackNavigation = () => {
+    if (location.href === previous) return;
+    paq.push(["setReferrerUrl", previous]);
+    previous = location.href;
+    paq.push(["setCustomUrl", location.href]);
+    paq.push(["setDocumentTitle", document.title]);
+    paq.push(["trackPageView"]);
+  };
+  const pushState = history.pushState.bind(history);
+  history.pushState = (...args: Parameters<History["pushState"]>) => {
+    pushState(...args);
+    trackNavigation();
+  };
+  window.addEventListener("popstate", trackNavigation);
+}
 ",
   "src/api/client.ts": "import axios from "axios";
 
@@ -31224,10 +31599,13 @@ export default createI18n({
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
+import { initAnalytics } from "./analytics";
 import i18n from "./i18n";
 import router from "./router";
 import { sentry } from "./sentry";
 import "./assets/main.css";
+
+initAnalytics();
 
 const app = createApp(App);
 
@@ -31309,8 +31687,8 @@ afterEach(() => {
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
       Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry,
-      Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
-      SEO, llms.txt, PWA, Storybook, GitHub Actions.
+      Matomo, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+      lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
     </p>
   </section>
 </template>

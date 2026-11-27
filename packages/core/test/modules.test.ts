@@ -1818,6 +1818,82 @@ describe("drizzle", () => {
   });
 });
 
+describe("analytics", () => {
+  const analyticsProject = async (
+    framework: FrameworkId,
+    modules: string[],
+    language: "ts" | "js" = "ts",
+  ) => {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language,
+      packageManager: "npm",
+      modules,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  };
+
+  it("Matomo loads its tracker only when configured and counts router navigations", async () => {
+    const files = await analyticsProject("react", ["matomo"]);
+    const code = files.get("src/analytics.ts") ?? "";
+    expect(code).toContain("const url = import.meta.env.VITE_MATOMO_URL;");
+    expect(code).toContain("if (!url || !siteId) return;");
+    expect(code).toContain('paq.push(["setTrackerUrl", `${base}matomo.php`]);');
+    expect(code).toContain("history.pushState = (");
+    expect(code).toContain(
+      'window.addEventListener("popstate", trackNavigation);',
+    );
+    expect(code).toContain("_paq?: unknown[][];");
+    expect(code).toContain("const paq = window._paq ?? [];");
+    const entry = files.get("src/main.tsx") ?? "";
+    expect(entry.indexOf("initAnalytics();")).toBeLessThan(
+      entry.indexOf("render("),
+    );
+    const env = files.get(".env.example") ?? "";
+    expect(env).toContain("VITE_MATOMO_URL=");
+    expect(env).toContain("VITE_MATOMO_SITE_ID=");
+    const js = await analyticsProject("react", ["matomo"], "js");
+    expect(js.get("src/analytics.js")).not.toContain("declare global");
+  });
+
+  it("Plausible uses its npm tracker", async () => {
+    const files = await analyticsProject("vue", ["plausible"]);
+    expect(files.get("src/analytics.ts")).toContain(
+      'import { init } from "@plausible-analytics/tracker";',
+    );
+    expect(files.get("src/main.ts")).toContain("initAnalytics();");
+    const pkg = JSON.parse(files.get("package.json") ?? "");
+    expect(pkg.dependencies["@plausible-analytics/tracker"]).toBe(
+      knownGoodVersion("@plausible-analytics/tracker", "vue"),
+    );
+  });
+
+  it("Umami defaults to Umami Cloud's script", async () => {
+    const files = await analyticsProject("solid", ["umami"]);
+    expect(files.get("src/analytics.ts")).toContain(
+      "script.dataset.websiteId = websiteId;",
+    );
+    expect(files.get(".env.example")).toContain(
+      "VITE_UMAMI_SCRIPT_URL=https://cloud.umami.is/script.js",
+    );
+  });
+
+  it("offers one provider at a time", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "react",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["matomo", "umami"],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors.map((e) => e.code)).toContain("single-category");
+  });
+});
+
 describe("sentry", () => {
   const sentryProject = async (
     framework: FrameworkId,

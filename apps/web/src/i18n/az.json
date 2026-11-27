@@ -121,5 +121,6 @@
   "category.backend": "Backend",
   "category.database": "Verilənlər bazası",
   "category.auth": "Autentifikasiya",
-  "category.monitoring": "Xəta monitorinqi"
+  "category.monitoring": "Xəta monitorinqi",
+  "category.analytics": "Analitika"
 }

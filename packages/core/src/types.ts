@@ -26,6 +26,7 @@ export type Category =
   | "database"
   | "auth"
   | "monitoring"
+  | "analytics"
   | "testing"
   | "quality"
   | "seo"

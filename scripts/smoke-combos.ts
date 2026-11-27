@@ -85,6 +85,7 @@ export const quickCombos: Combo[] = [
   ...deployCombos(),
   ...formCombos(),
   ...sentryCombos(),
+  ...analyticsCombos(),
   ...pwaCombos(),
   ...playwrightCombos(),
   ...i18nCombos(),
@@ -787,6 +788,27 @@ function formCombos(): Combo[] {
       language: "ts",
       modules: ["tanstack-form", "yup", ...checks],
     },
+  ];
+}
+
+/** Each analytics provider on the frameworks that offer it, linted and typechecked. */
+function analyticsCombos(): Combo[] {
+  const checks = ["eslint", "prettier"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["matomo", "react-router", ...checks],
+    },
+    { framework: "react", language: "js", modules: ["matomo", "biome"] },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["plausible", "vue-router", ...checks],
+    },
+    { framework: "solid", language: "ts", modules: ["umami", ...checks] },
+    { framework: "preact", language: "js", modules: ["plausible", ...checks] },
+    { framework: "vue", language: "js", modules: ["umami", "biome"] },
   ];
 }
 
