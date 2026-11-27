@@ -7,9 +7,11 @@ interface CommandBarProps {
   command: string;
   /** The preview has hand edits, which the command can't carry. */
   hasEdits: boolean;
+  /** Called after the command reached the clipboard. */
+  onCopy?: () => void;
 }
 
-export function CommandBar({ command, hasEdits }: CommandBarProps) {
+export function CommandBar({ command, hasEdits, onCopy }: CommandBarProps) {
   const t = useT();
   const [copied, setCopied] = useState(false);
 
@@ -20,6 +22,7 @@ export function CommandBar({ command, hasEdits }: CommandBarProps) {
     try {
       await navigator.clipboard.writeText(command);
       setCopied(true);
+      onCopy?.();
     } catch {
       // Clipboard can be blocked (permissions, insecure context); the command stays selectable.
       setCopied(false);

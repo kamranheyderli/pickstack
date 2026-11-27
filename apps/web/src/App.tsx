@@ -30,6 +30,7 @@ import {
   type Locale,
   type MessageKey,
 } from "./i18n";
+import { trackAction } from "./lib/analytics";
 import { downloadZip } from "./lib/download";
 import { openInStackBlitz, runnableProject } from "./lib/stackblitz";
 import {
@@ -210,6 +211,7 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setLinkCopied(true);
+      trackAction("copy-link", selection);
     } catch {
       setLinkCopied(false);
     }
@@ -277,6 +279,7 @@ export default function App() {
     setStatus(t("download.busy"));
     try {
       const file = await downloadZip(projectName, files);
+      trackAction("download", selection);
       setCelebrations((n) => n + 1);
       setStatus(
         t("download.done", {
@@ -315,6 +318,7 @@ export default function App() {
     )
       .then((url) => {
         setGithubStep({ step: "done", name: repo.name, url });
+        trackAction("create-on-github", selection);
         setCelebrations((n) => n + 1);
       })
       .catch((error: unknown) => {
@@ -639,11 +643,13 @@ export default function App() {
                       : undefined
                   }
                   onClick={() => {
-                    if (files)
-                      openInStackBlitz(
-                        projectName,
-                        runnableProject(files, activePath),
-                      );
+                    if (!files) return;
+                    // The tab opens first: pop-up blockers only allow it straight from the click.
+                    openInStackBlitz(
+                      projectName,
+                      runnableProject(files, activePath),
+                    );
+                    trackAction("run-in-browser", selection);
                   }}
                   className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-panel-2 px-3 py-2 text-sm font-semibold text-ink/85 transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-50"
                 >
@@ -735,6 +741,7 @@ export default function App() {
               <CommandBar
                 command={createCommand({ ...selection, name: projectName })}
                 hasEdits={edited.size > 0}
+                onCopy={() => trackAction("copy-command", selection)}
               />
             )}
 
