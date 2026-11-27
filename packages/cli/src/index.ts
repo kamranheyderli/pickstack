@@ -97,6 +97,9 @@ function printList(): void {
   }
 }
 
+/** The "None" choice of a multi-select category; never a module id. */
+const NONE = "__none";
+
 /** Asks for each category's modules, re-asking a category whose picks don't fit together. */
 async function pickModules(base: Selection): Promise<string[]> {
   let picked: string[] = [];
@@ -130,10 +133,14 @@ async function pickModules(base: Selection): Promise<string[]> {
         : answer(
             await p.multiselect({
               message: `${label} (space to toggle, enter to continue)`,
-              options: choices,
+              // "None" spells out that skipping is fine; with other picks it is ignored.
+              options: [
+                { value: NONE, label: "None", hint: "skip this category" },
+                ...choices,
+              ],
               required: false,
             }),
-          );
+          ).filter((id) => id !== NONE);
 
       const next = [...picked, ...chosen];
       const result = validate({ ...base, modules: next });
