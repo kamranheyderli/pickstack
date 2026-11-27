@@ -120,5 +120,6 @@
   "quickstart.hint": "Runs in the terminal: asks for the framework and tools, then creates the project.",
   "category.backend": "Backend",
   "category.database": "Database",
-  "category.auth": "Authentication"
+  "category.auth": "Authentication",
+  "category.monitoring": "Error monitoring"
 }

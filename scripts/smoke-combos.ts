@@ -84,6 +84,7 @@ export const quickCombos: Combo[] = [
   ...projectFileCombos(),
   ...deployCombos(),
   ...formCombos(),
+  ...sentryCombos(),
   ...pwaCombos(),
   ...playwrightCombos(),
   ...i18nCombos(),
@@ -786,6 +787,31 @@ function formCombos(): Combo[] {
       language: "ts",
       modules: ["tanstack-form", "yup", ...checks],
     },
+  ];
+}
+
+/** Sentry with each framework's SDK, in both languages, linted and typechecked. */
+function sentryCombos(): Combo[] {
+  const checks = ["eslint", "prettier"];
+  return [
+    {
+      framework: "react",
+      language: "ts",
+      modules: ["sentry", "react-router", ...checks],
+    },
+    { framework: "react", language: "js", modules: ["sentry", "biome"] },
+    {
+      framework: "vue",
+      language: "ts",
+      modules: ["sentry", "vue-router", "pinia", ...checks],
+    },
+    { framework: "vue", language: "js", modules: ["sentry", ...checks] },
+    {
+      framework: "solid",
+      language: "ts",
+      modules: ["sentry", "tailwind", ...checks],
+    },
+    { framework: "preact", language: "ts", modules: ["sentry", ...checks] },
   ];
 }
 

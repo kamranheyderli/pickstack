@@ -250,6 +250,19 @@ Qeydlər (2026-11, yoxlanılıb):
 - **PostgreSQL (Drizzle):** `drizzleAdapter(db, { provider: "pg", schema })` (`better-auth/adapters/drizzle`), layihənin öz `db` klienti ilə. Cədvəllər (`user`, `session`, `account`, `verification`) `src/db/auth-schema`-dadır: Better Auth 1.7.28 CLI-ın (`npx auth@1.7.28 generate`) real çıxışıdır, dəyişdirilmədən saxlanılır (`modules/auth/drizzle-schema.ts`); plugin əlavə edəndə yenidən generate etmək lazımdır. `better-auth` seçiləndə Drizzle modulu `drizzle.config`-də `schema`-nı massiv edir (`ctx.has`), ona görə README-dəki `db:push` hər iki faylın cədvəllərini yaradır. MongoDB artıq avtomatik əlavə olunmur: istifadəçi bazanı seçir. Docker-dəki Postgres 18 ilə həm Express, həm NestJS real yoxlanılıb (`db:push`, qeydiyyat, `/api/me`, `/api/todos`, çıxış, səhv şifrə, giriş, brauzer paneli).
 - **Növbəti:** meta-framework-lər (Next, Nuxt, SvelteKit öz server route-ları ilə), sosial girişlər (GitHub, Google) və ya Prisma.
 
+### 5.6.4 Xəta monitorinqi (tək seçim)
+
+| Modul | Uyğun |
+|---|---|
+| `sentry` | R, V, So, P (Svelte və Angular növbəti addımdır) |
+
+- Sentry SDK 11.19, [rəsmi bələdçilərə](https://docs.sentry.io/platforms/javascript/) görə: `@sentry/react`, `@sentry/vue`, `@sentry/solid`; Preact üçün bələdçi yoxdur, `@sentry/browser`.
+- `src/sentry` quraşdırmanı saxlayır; `VITE_SENTRY_DSN` boşdursa `Sentry.init` çağırılmır (sənəd SDK-nı söndürməyin yolunu belə göstərir). `.env.example`-də açar boş gəlir, README nə edəcəyini deyir.
+- `browserTracingIntegration()` və `tracesSampleRate: 0.1`; Session Replay və feedback widget-i bundle-ı böyütdüyü üçün defolt deyil.
+- React, Solid, Preact: entry-də render-dən əvvəl `initSentry()` (`entry.setup`; Preact adapteri `entry.setup`-u indi yazır). Vue: Sentry-nin Vue SDK-sı `app` istəyir, ona görə `app.use(sentry)` plugin-i.
+- Yan təsirli `import "./instrument"` bələdçidəki kimi birinci ola bilmir (`renderImports` onları sona qoyur), ona görə init funksiya ilə render-dən əvvəl çağırılır.
+- Brauzerdə yoxlanılıb (sorğular ələ keçirilib): DSN olmadan heç nə göndərilmir, DSN ilə xəta göndərilir (React, Vue).
+
 ### 5.7 Test
 
 | Modul | Uyğun |

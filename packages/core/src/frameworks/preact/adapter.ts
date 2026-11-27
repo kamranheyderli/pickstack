@@ -97,6 +97,8 @@ function entry(model: ProjectModel, ctx: Ctx): string {
       ...model.entry.providers.flatMap((p) => p.imports),
     ]),
     "",
+    ...model.entry.setup,
+    ...(model.entry.setup.length ? [""] : []),
     ...(tree.length === 1
       ? [`render(${tree[0]}, ${target});`]
       : [

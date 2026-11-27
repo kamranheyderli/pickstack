@@ -1818,6 +1818,67 @@ describe("drizzle", () => {
   });
 });
 
+describe("sentry", () => {
+  const sentryProject = async (
+    framework: FrameworkId,
+    language: "ts" | "js" = "ts",
+  ) => {
+    const result = await generate({
+      name: "acme",
+      framework,
+      language,
+      packageManager: "npm",
+      modules: ["sentry"],
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.files;
+  };
+
+  it.each([
+    ["react", "@sentry/react", "src/main.tsx"],
+    ["solid", "@sentry/solid", "src/index.tsx"],
+    ["preact", "@sentry/browser", "src/main.tsx"],
+  ] as const)(
+    "%s calls initSentry() before rendering",
+    async (fw, pkg, main) => {
+      const files = await sentryProject(fw);
+      const setup = files.get("src/sentry.ts") ?? "";
+      expect(setup).toContain(`import * as Sentry from "${pkg}"`);
+      expect(setup).toContain("const dsn = import.meta.env.VITE_SENTRY_DSN;");
+      expect(setup).toContain("if (!dsn) return;");
+      const entry = files.get(main) ?? "";
+      expect(entry).toContain("initSentry();");
+      expect(entry.indexOf("initSentry();")).toBeLessThan(
+        entry.indexOf("render("),
+      );
+      expect(files.get(".env.example")).toContain("VITE_SENTRY_DSN=");
+      const json = JSON.parse(files.get("package.json") ?? "");
+      expect(json.dependencies[pkg]).toBe(knownGoodVersion(pkg, fw));
+    },
+  );
+
+  it("Vue installs it as a plugin that hands Sentry the app", async () => {
+    const files = await sentryProject("vue");
+    const setup = files.get("src/sentry.ts") ?? "";
+    expect(setup).toContain("install(app: App)");
+    expect(setup).toContain("app,");
+    expect(files.get("src/main.ts")).toContain("app.use(sentry);");
+    const js = await sentryProject("vue", "js");
+    expect(js.get("src/sentry.js")).toContain("install(app) {");
+  });
+
+  it("is not offered where it isn't wired up yet", async () => {
+    const result = await generate({
+      name: "acme",
+      framework: "angular",
+      language: "ts",
+      packageManager: "npm",
+      modules: ["sentry"],
+    });
+    expect(result.ok).toBe(false);
+  });
+});
+
 describe("better-auth", () => {
   const generateAuth = async (
     modules: string[],

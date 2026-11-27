@@ -12010,6 +12010,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -12089,7 +12090,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -12173,7 +12174,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -12199,6 +12200,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -12403,6 +12408,7 @@ export default defineConfig([
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@sentry/browser": "^11.19.0",
     "axios": "^1.21.1",
     "preact": "^11.2.0",
     "preact-iso": "^2.12.2",
@@ -12599,7 +12605,10 @@ describe("Counter", () => {
   "src/main.jsx": "import { render } from "preact";
 import { LocationProvider } from "preact-iso";
 import App from "./App";
+import { initSentry } from "./sentry";
 import "./index.css";
+
+initSentry();
 
 render(
   <LocationProvider>
@@ -12613,7 +12622,7 @@ render(
     <section class="flex flex-col items-center gap-6">
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
-        Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios,
+        Built with Preact, Vite, Sass, Tailwind CSS, preact-iso, Axios, Sentry,
         Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
         lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
@@ -12630,6 +12639,20 @@ export default function Home() {
       <Counter />
     </section>
   );
+}
+",
+  "src/sentry.js": "import * as Sentry from "@sentry/browser";
+
+/** Sends errors and traces to Sentry; stays off until the DSN is set (see .env.example). */
+export function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    integrations: [Sentry.browserTracingIntegration()],
+    // Traces 10% of page loads; raise it while trying things out.
+    tracesSampleRate: 0.1,
+  });
 }
 ",
   "src/test-setup.js": "import "@testing-library/jest-dom/vitest";
@@ -12816,6 +12839,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -12897,7 +12921,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -12983,7 +13007,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso, Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -13010,6 +13034,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -13214,6 +13242,7 @@ export default defineConfig([
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@sentry/browser": "^11.19.0",
     "axios": "^1.21.1",
     "preact": "^11.2.0",
     "preact-iso": "^2.12.2",
@@ -13417,7 +13446,10 @@ export default function Counter() {
   "src/main.tsx": "import { render } from "preact";
 import { LocationProvider } from "preact-iso";
 import App from "./App";
+import { initSentry } from "./sentry";
 import "./index.css";
+
+initSentry();
 
 render(
   <LocationProvider>
@@ -13432,8 +13464,8 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with Preact, Vite, TypeScript, Sass, Tailwind CSS, preact-iso,
-        Axios, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+        Axios, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier,
+        Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -13448,6 +13480,20 @@ export default function Home() {
       <Counter />
     </section>
   );
+}
+",
+  "src/sentry.ts": "import * as Sentry from "@sentry/browser";
+
+/** Sends errors and traces to Sentry; stays off until the DSN is set (see .env.example). */
+export function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    integrations: [Sentry.browserTracingIntegration()],
+    // Traces 10% of page loads; raise it while trying things out.
+    tracesSampleRate: 0.1,
+  });
 }
 ",
   "src/test-setup.ts": "import "@testing-library/jest-dom/vitest";
@@ -14221,6 +14267,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -14319,7 +14366,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -14407,7 +14454,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -14437,6 +14484,10 @@ shadcn/ui components live in \`src/components/ui\`. Add more with \`npx shadcn@l
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -14685,6 +14736,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
+    "@sentry/react": "^11.19.0",
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.108.4",
     "axios": "^1.21.1",
@@ -14819,6 +14871,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Form",
   "Zod",
   "i18next",
+  "Sentry",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -15367,11 +15420,13 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import App from "./App";
+import { initSentry } from "./sentry";
 import { store } from "./store";
 import "./i18n";
 import "./index.css";
 
 const queryClient = new QueryClient();
+initSentry();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15392,7 +15447,7 @@ createRoot(document.getElementById("root")).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit,
         React Router, Axios, TanStack Query, TanStack Form, Zod, i18next,
-        Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
+        Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
         lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
@@ -15414,6 +15469,20 @@ export default function Home() {
       <LanguageSwitcher />
     </section>
   );
+}
+",
+  "src/sentry.js": "import * as Sentry from "@sentry/react";
+
+/** Sends errors and traces to Sentry; stays off until the DSN is set (see .env.example). */
+export function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    integrations: [Sentry.browserTracingIntegration()],
+    // Traces 10% of page loads; raise it while trying things out.
+    tracesSampleRate: 0.1,
+  });
 }
 ",
   "src/store/counterSlice.js": "import { createSlice } from "@reduxjs/toolkit";
@@ -15641,6 +15710,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -15741,7 +15811,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -15831,7 +15901,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui, Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod, i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -15862,6 +15932,10 @@ shadcn/ui components live in \`src/components/ui\`. Add more with \`npx shadcn@l
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -16098,6 +16172,7 @@ export default defineConfig([
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
+    "@sentry/react": "^11.19.0",
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.108.4",
     "axios": "^1.21.1",
@@ -16238,6 +16313,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Form",
   "Zod",
   "i18next",
+  "Sentry",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -16799,11 +16875,13 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import App from "./App";
+import { initSentry } from "./sentry";
 import { store } from "./store";
 import "./i18n";
 import "./index.css";
 
 const queryClient = new QueryClient();
+initSentry();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -16824,8 +16902,8 @@ createRoot(document.getElementById("root")!).render(
       <p className="max-w-md text-center text-slate-600">
         Built with React 19, Vite, TypeScript, Sass, Tailwind CSS, shadcn/ui,
         Redux Toolkit, React Router, Axios, TanStack Query, TanStack Form, Zod,
-        i18next, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
-        lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+        i18next, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier,
+        Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
       </p>
     </section>
   );
@@ -16846,6 +16924,20 @@ export default function Home() {
       <LanguageSwitcher />
     </section>
   );
+}
+",
+  "src/sentry.ts": "import * as Sentry from "@sentry/react";
+
+/** Sends errors and traces to Sentry; stays off until the DSN is set (see .env.example). */
+export function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    integrations: [Sentry.browserTracingIntegration()],
+    // Traces 10% of page loads; raise it while trying things out.
+    tracesSampleRate: 0.1,
+  });
 }
 ",
   "src/store/counterSlice.ts": "import { createSlice } from "@reduxjs/toolkit";
@@ -18202,6 +18294,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -18257,7 +18350,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -18340,7 +18433,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -18364,6 +18457,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -18560,6 +18657,7 @@ export default defineConfig([
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@sentry/solid": "^11.19.0",
     "@solidjs/router": "^1.0.3",
     "@tanstack/solid-form": "^1.33.5",
     "@tanstack/solid-query": "^5.108.4",
@@ -18678,6 +18776,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Sentry",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -18862,9 +18961,11 @@ import { render } from "solid-js/web";
 import App from "./App";
 import About from "./pages/About";
 import Home from "./pages/Home";
+import { initSentry } from "./sentry";
 import "./index.css";
 
 const queryClient = new QueryClient();
+initSentry();
 
 const root = document.getElementById("root");
 
@@ -18886,9 +18987,9 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, Sass, Tailwind CSS, Solid signals store, Solid
-        Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest,
-        Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt,
-        PWA, GitHub Actions.
+        Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright,
+        Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
+        llms.txt, PWA, GitHub Actions.
       </p>
     </section>
   );
@@ -18907,6 +19008,20 @@ export default function Home() {
       <SignupForm />
     </section>
   );
+}
+",
+  "src/sentry.js": "import * as Sentry from "@sentry/solid";
+
+/** Sends errors and traces to Sentry; stays off until the DSN is set (see .env.example). */
+export function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    integrations: [Sentry.browserTracingIntegration()],
+    // Traces 10% of page loads; raise it while trying things out.
+    tracesSampleRate: 0.1,
+  });
 }
 ",
   "src/stores/counter.js": "import { createSignal } from "solid-js";
@@ -19105,6 +19220,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -19161,7 +19277,7 @@ bun.lock
 ",
   "AGENTS.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Commands
 
@@ -19246,7 +19362,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
+Stack: SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, GitHub Actions.
 
 ## Getting started
 
@@ -19271,6 +19387,10 @@ npm run dev
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -19469,6 +19589,7 @@ export default defineConfig([
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@sentry/solid": "^11.19.0",
     "@solidjs/router": "^1.0.3",
     "@tanstack/solid-form": "^1.33.5",
     "@tanstack/solid-query": "^5.108.4",
@@ -19591,6 +19712,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Query",
   "TanStack Form",
   "Zod",
+  "Sentry",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -19776,9 +19898,11 @@ import { render } from "solid-js/web";
 import App from "./App";
 import About from "./pages/About";
 import Home from "./pages/Home";
+import { initSentry } from "./sentry";
 import "./index.css";
 
 const queryClient = new QueryClient();
+initSentry();
 
 const root = document.getElementById("root");
 
@@ -19800,7 +19924,7 @@ render(
       <h1 class="text-3xl font-bold tracking-tight">About</h1>
       <p class="max-w-md text-center text-slate-600">
         Built with SolidJS, Vite, TypeScript, Sass, Tailwind CSS, Solid signals
-        store, Solid Router, Axios, TanStack Query, TanStack Form, Zod,
+        store, Solid Router, Axios, TanStack Query, TanStack Form, Zod, Sentry,
         Playwright, Vitest, Testing Library, ESLint, Prettier, Husky,
         lint-staged, SEO, llms.txt, PWA, GitHub Actions.
       </p>
@@ -19821,6 +19945,20 @@ export default function Home() {
       <SignupForm />
     </section>
   );
+}
+",
+  "src/sentry.ts": "import * as Sentry from "@sentry/solid";
+
+/** Sends errors and traces to Sentry; stays off until the DSN is set (see .env.example). */
+export function initSentry() {
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    integrations: [Sentry.browserTracingIntegration()],
+    // Traces 10% of page loads; raise it while trying things out.
+    tracesSampleRate: 0.1,
+  });
 }
 ",
   "src/stores/counter.ts": "import { createSignal } from "solid-js";
@@ -28409,6 +28547,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -28495,7 +28634,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -28582,7 +28721,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -28612,6 +28751,10 @@ shadcn-vue components live in \`src/components/ui\`. Add more with \`npx shadcn-
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -28850,6 +28993,7 @@ export default defineConfig([
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@sentry/vue": "^11.19.0",
     "@tanstack/vue-form": "^1.33.5",
     "@tanstack/vue-query": "^5.108.4",
     "@vue/devtools-api": "^8.2.1",
@@ -28984,6 +29128,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Form",
   "Zod",
   "Vue I18n",
+  "Sentry",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -29590,6 +29735,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import i18n from "./i18n";
 import router from "./router";
+import { sentry } from "./sentry";
 import "./assets/main.css";
 
 const app = createApp(App);
@@ -29598,6 +29744,7 @@ app.use(createPinia());
 app.use(router);
 app.use(VueQueryPlugin);
 app.use(i18n);
+app.use(sentry);
 
 app.mount("#app");
 ",
@@ -29621,6 +29768,23 @@ const router = createRouter({
 });
 
 export default router;
+",
+  "src/sentry.js": "import * as Sentry from "@sentry/vue";
+
+/** \`app.use(sentry)\`: sends errors and traces once the DSN is set (see .env.example). */
+export const sentry = {
+  install(app) {
+    const dsn = import.meta.env.VITE_SENTRY_DSN;
+    if (!dsn) return;
+    Sentry.init({
+      app,
+      dsn,
+      integrations: [Sentry.browserTracingIntegration()],
+      // Traces 10% of page loads; raise it while trying things out.
+      tracesSampleRate: 0.1,
+    });
+  },
+};
 ",
   "src/stores/counter.js": "import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -29652,9 +29816,9 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router,
-      Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest,
-      Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA,
-      Storybook, GitHub Actions.
+      Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright,
+      Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO,
+      llms.txt, PWA, Storybook, GitHub Actions.
     </p>
   </section>
 </template>
@@ -29870,6 +30034,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 ",
   ".env.example": "VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=
 ",
   ".github/copilot-instructions.md": "# my-app
 
@@ -29958,7 +30123,7 @@ export default preview;
 ",
   "AGENTS.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Commands
 
@@ -30047,7 +30212,7 @@ SOFTWARE.
 ",
   "README.md": "# my-app
 
-Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
+Stack: Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia, Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry, Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged, SEO, llms.txt, PWA, Storybook, GitHub Actions.
 
 ## Getting started
 
@@ -30078,6 +30243,10 @@ shadcn-vue components live in \`src/components/ui\`. Add more with \`npx shadcn-
 ## API client
 
 Copy \`.env.example\` to \`.env\` and set \`VITE_API_URL\`. Import the client from \`src/api/client\`.
+
+## Error monitoring
+
+Sentry starts once \`VITE_SENTRY_DSN\` is set: create a project at sentry.io, copy its DSN into \`.env\` (see \`.env.example\`), then rebuild. Without it nothing is sent.
 
 ## End-to-end tests
 
@@ -30311,6 +30480,7 @@ export default defineConfigWithVueTs(
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@sentry/vue": "^11.19.0",
     "@tanstack/vue-form": "^1.33.5",
     "@tanstack/vue-query": "^5.108.4",
     "@vue/devtools-api": "^8.2.1",
@@ -30452,6 +30622,7 @@ Sitemap: https://example.com/sitemap.xml
   "TanStack Form",
   "Zod",
   "Vue I18n",
+  "Sentry",
   "Playwright",
   "Vitest",
   "Testing Library",
@@ -31055,6 +31226,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import i18n from "./i18n";
 import router from "./router";
+import { sentry } from "./sentry";
 import "./assets/main.css";
 
 const app = createApp(App);
@@ -31063,6 +31235,7 @@ app.use(createPinia());
 app.use(router);
 app.use(VueQueryPlugin);
 app.use(i18n);
+app.use(sentry);
 
 app.mount("#app");
 ",
@@ -31086,6 +31259,24 @@ const router = createRouter({
 });
 
 export default router;
+",
+  "src/sentry.ts": "import * as Sentry from "@sentry/vue";
+import type { App } from "vue";
+
+/** \`app.use(sentry)\`: sends errors and traces once the DSN is set (see .env.example). */
+export const sentry = {
+  install(app: App) {
+    const dsn = import.meta.env.VITE_SENTRY_DSN;
+    if (!dsn) return;
+    Sentry.init({
+      app,
+      dsn,
+      integrations: [Sentry.browserTracingIntegration()],
+      // Traces 10% of page loads; raise it while trying things out.
+      tracesSampleRate: 0.1,
+    });
+  },
+};
 ",
   "src/stores/counter.ts": "import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -31117,7 +31308,7 @@ afterEach(() => {
     <h1 class="text-3xl font-bold tracking-tight">About</h1>
     <p class="max-w-md text-center text-slate-600">
       Built with Vue 3, Vite, TypeScript, Sass, Tailwind CSS, shadcn-vue, Pinia,
-      Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n,
+      Vue Router, Axios, TanStack Query, TanStack Form, Zod, Vue I18n, Sentry,
       Playwright, Vitest, Testing Library, ESLint, Prettier, Husky, lint-staged,
       SEO, llms.txt, PWA, Storybook, GitHub Actions.
     </p>

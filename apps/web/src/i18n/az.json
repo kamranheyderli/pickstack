@@ -120,5 +120,6 @@
   "quickstart.hint": "Terminalda işə salın: framework və alətləri soruşur, sonra layihəni yaradır.",
   "category.backend": "Backend",
   "category.database": "Verilənlər bazası",
-  "category.auth": "Autentifikasiya"
+  "category.auth": "Autentifikasiya",
+  "category.monitoring": "Xəta monitorinqi"
 }

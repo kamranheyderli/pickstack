@@ -66,6 +66,11 @@ const shared: VersionSet = {
   // Better Auth's MongoDB adapter takes the driver's `Db`; mongoose 9.13 bundles the same 7.9 line.
   mongodb: "^7.9.1",
   "better-auth": "^1.7.28",
+  // Sentry's browser SDKs move in lockstep; one version for every framework package.
+  "@sentry/react": "^11.19.0",
+  "@sentry/vue": "^11.19.0",
+  "@sentry/solid": "^11.19.0",
+  "@sentry/browser": "^11.19.0",
   // Community NestJS integration Better Auth's docs link to; ESM only, Nest 11.1.6+ or 12.
   "@thallesp/nestjs-better-auth": "^2.8.0",
   tsx: "^4.23.15",

@@ -46,6 +46,7 @@ import { nestjs } from "./backend/nestjs";
 import { drizzle } from "./backend/drizzle";
 import { mongodb } from "./backend/mongodb";
 import { betterAuth } from "./auth/better-auth";
+import { sentry } from "./monitoring/sentry";
 import { editorconfig } from "./tooling/editorconfig";
 import { pwa } from "./tooling/pwa";
 import { storybook } from "./tooling/storybook";
@@ -106,6 +107,7 @@ export const modules: readonly Module[] = [
   mongodb,
   drizzle,
   betterAuth,
+  sentry,
   vercel,
   netlify,
   cloudflare,
